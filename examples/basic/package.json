@@ -1,6 +1,6 @@
 {
   "name": "@safeql-example/basic",
-  "version": "1.0.0-alpha.32",
+  "version": "1.0.0-alpha.0",
   "private": true,
   "description": "Basic example of safeql",
   "repository": "git@github.com:etienne-dldc/safeql.git",
