@@ -1,0 +1,23 @@
+{
+  "name": "@safeql/parser",
+  "version": "1.0.0",
+  "repository": "git@github.com:etienne-dldc/safeql.git",
+  "license": "MIT",
+  "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/sql-parser.esm.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsdx build --target node",
+    "start": "tsdx watch --target node",
+    "test": "tsdx test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jest": "^24.0.19",
+    "tsdx": "^0.10.5"
+  }
+}

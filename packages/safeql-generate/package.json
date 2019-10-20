@@ -1,0 +1,32 @@
+{
+  "name": "@safeql/generate",
+  "version": "1.0.0",
+  "repository": "git@github.com:etienne-dldc/safeql.git",
+  "license": "MIT",
+  "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/safeql.generate.esm.js",
+  "typings": "dist/index.d.ts",
+  "bin": {
+    "safeql-generate": "./bin/safeql-generate.js"
+  },
+  "scripts": {
+    "build": "tsdx build --target node",
+    "start": "tsdx watch --target node",
+    "test": "tsdx test",
+    "try": "node ./dist/index.js"
+  },
+  "dependencies": {
+    "@safeql/parser": "^1.0.0",
+    "fs-extra": "^8.1.0",
+    "prettier": "^1.18.2"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^8.0.1",
+    "@types/prettier": "^1.18.3",
+    "tsdx": "^0.10.5"
+  }
+}
