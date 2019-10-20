@@ -1,525 +1,525 @@
-import fse from 'fs-extra';
-import path from 'path';
-import {
-  Parser,
-  NodeIs,
-  Node,
-  Serializer,
-  DataType,
-  WhereExpression,
-  Expression,
-  SelectExpression,
-  Identifier,
-} from '@zensql/parser';
-import prettier from 'prettier';
+export const TODO = true;
 
-type Tables = Array<Node<'CreateTableStatements'>>;
-type Columns = Array<Node<'ColumnDef'>>;
+// import fse from 'fs-extra';
+// import path from 'path';
+// import {
+//   Parser,
+//   NodeIs,
+//   Node,
+//   Serializer,
+//   DataType,
+//   Expression,
+//   Identifier,
+// } from '@zensql/parser';
+// import prettier from 'prettier';
 
-interface ColumnResolved {
-  table: string;
-  column: string;
-  tableAlias: string | null;
-  alias: string | null;
-  type: ColumnType;
-}
+// // type Tables = Array<Node<'CreateTableStatements'>>;
+// type Columns = Array<Node<'ColumnDef'>>;
 
-interface ColumnType {
-  dt: DataType;
-  nullable: boolean;
-}
+// interface ColumnResolved {
+//   table: string;
+//   column: string;
+//   tableAlias: string | null;
+//   alias: string | null;
+//   type: ColumnType;
+// }
 
-interface VariableResolved {
-  name: string;
-  type: null | ColumnType;
-}
+// interface ColumnType {
+//   dt: DataType;
+//   nullable: boolean;
+// }
 
-interface ResolvedExpression {
-  resolved: true;
-  type: ColumnType;
-  variables: Array<VariableResolved>;
-}
+// interface VariableResolved {
+//   name: string;
+//   type: null | ColumnType;
+// }
 
-interface PartiallyResolvedExpression {
-  resolved: false;
-  variables: Array<string>;
-}
+// interface ResolvedExpression {
+//   resolved: true;
+//   type: ColumnType;
+//   variables: Array<VariableResolved>;
+// }
 
-interface TableResolved {
-  table: string;
-  columns: Columns;
-  alias: string | null;
-}
+// interface PartiallyResolvedExpression {
+//   resolved: false;
+//   variables: Array<string>;
+// }
 
-interface Options {
-  source: string;
-  target: string;
-}
+// interface TableResolved {
+//   table: string;
+//   columns: Columns;
+//   alias: string | null;
+// }
 
-export async function command(argv: Array<string>) {
-  const source = path.resolve(process.cwd(), argv[2]);
-  const target = path.resolve(process.cwd(), argv[3]);
+// interface Options {
+//   source: string;
+//   target: string;
+// }
 
-  try {
-    await generateQueries({ source, target });
-  } catch (error) {
-    console.log('Something bad happened');
-    console.error(error);
-  }
-}
+// export async function command(argv: Array<string>) {
+//   const source = path.resolve(process.cwd(), argv[2]);
+//   const target = path.resolve(process.cwd(), argv[3]);
 
-export async function generateQueries(options: Options) {
-  const { source, target } = options;
+//   try {
+//     await generateQueries({ source, target });
+//   } catch (error) {
+//     console.log('Something bad happened');
+//     console.error(error);
+//   }
+// }
 
-  const SQL_TABLES_FOLDER = path.resolve(source, 'tables');
-  const SQL_QUERIES_FOLDER = path.resolve(source, 'queries');
-  const OUTPUT_QUERIES_FILE = path.resolve(target);
+// export async function generateQueries(options: Options) {
+//   const { source, target } = options;
 
-  const tables = await parseTables(SQL_TABLES_FOLDER);
-  await fse.ensureDir(path.dirname(target));
-  await convertQueries(tables, SQL_QUERIES_FOLDER, OUTPUT_QUERIES_FILE);
-}
+//   const SQL_TABLES_FOLDER = path.resolve(source, 'tables');
+//   const SQL_QUERIES_FOLDER = path.resolve(source, 'queries');
+//   const OUTPUT_QUERIES_FILE = path.resolve(target);
 
-async function parseTables(tablesPath: string): Promise<Tables> {
-  const tablesFiles = await fse.readdir(tablesPath);
-  const tables = tablesFiles.map(fileName => {
-    const fullPath = path.resolve(tablesPath, fileName);
-    const content = fse.readFileSync(fullPath, { encoding: 'utf8' });
-    return parseTable(fileName, content);
-  });
+//   const tables = await parseTables(SQL_TABLES_FOLDER);
+//   await fse.ensureDir(path.dirname(target));
+//   await convertQueries(tables, SQL_QUERIES_FOLDER, OUTPUT_QUERIES_FILE);
+// }
 
-  return tables;
-}
+// async function parseTables(tablesPath: string): Promise<Tables> {
+//   const tablesFiles = await fse.readdir(tablesPath);
+//   const tables = tablesFiles.map(fileName => {
+//     const fullPath = path.resolve(tablesPath, fileName);
+//     const content = fse.readFileSync(fullPath, { encoding: 'utf8' });
+//     return parseTable(fileName, content);
+//   });
 
-function parseTable(fileName: string, query: string): Node<'CreateTableStatements'> {
-  const parsed = Parser.parse(query);
-  if (Array.isArray(parsed)) {
-    throw new Error(`Error in ${fileName}: There should be only 1 statement per file (found ${parsed.length})`);
-  }
-  if (NodeIs.Empty(parsed)) {
-    throw new Error(`${fileName} has no statement`);
-  }
-  if (!NodeIs.CreateTableStatements(parsed)) {
-    throw new Error(`${fileName} should contain a CREATE statement`);
-  }
-  const schema = parsed.table.schema ? parsed.table.schema.value : 'public';
-  if (schema !== 'public') {
-    throw new Error('Schema other than public are not supported yet');
-  }
-  const fileNameWithoutExt = path.basename(fileName, path.extname(fileName));
-  const tableName = parsed.table.table.value;
-  if (tableName !== fileNameWithoutExt) {
-    throw new Error(`Table files should have the same name as the table it define ${tableName} in ${fileName}`);
-  }
-  return parsed;
-}
+//   return tables;
+// }
 
-function notNull<T>(val: T | null): val is T {
-  return val !== null;
-}
+// function parseTable(fileName: string, query: string): Node<'CreateTableStatements'> {
+//   const parsed = Parser.parse(query);
+//   if (Array.isArray(parsed)) {
+//     throw new Error(`Error in ${fileName}: There should be only 1 statement per file (found ${parsed.length})`);
+//   }
+//   if (NodeIs.Empty(parsed)) {
+//     throw new Error(`${fileName} has no statement`);
+//   }
+//   if (!NodeIs.CreateTableStatements(parsed)) {
+//     throw new Error(`${fileName} should contain a CREATE statement`);
+//   }
+//   const schema = parsed.table.schema ? parsed.table.schema.value : 'public';
+//   if (schema !== 'public') {
+//     throw new Error('Schema other than public are not supported yet');
+//   }
+//   const fileNameWithoutExt = path.basename(fileName, path.extname(fileName));
+//   const tableName = parsed.table.table.value;
+//   if (tableName !== fileNameWithoutExt) {
+//     throw new Error(`Table files should have the same name as the table it define ${tableName} in ${fileName}`);
+//   }
+//   return parsed;
+// }
 
-async function convertQueries(tables: Tables, queriesFolder: string, outputFile: string) {
-  const queries = await fse.readdir(queriesFolder);
-  const outFns = queries
-    .map(fileName => {
-      if (fileName.startsWith('_')) {
-        return null;
-      }
-      const fullPath = path.resolve(queriesFolder, fileName);
-      const content = fse.readFileSync(fullPath, { encoding: 'utf8' });
-      return convertQuery(tables, fileName, content);
-    })
-    .filter(notNull);
+// function notNull<T>(val: T | null): val is T {
+//   return val !== null;
+// }
 
-  const queriesFile = [
-    `/**`,
-    ` * This file has been generated by @alerion/sql-ts`,
-    ' *  Do not change this file, intead you should changes your queries and execute `stq-ts` again',
-    ` */`,
-    ``,
-    `import { Pool, QueryResult } from "pg";`,
-    `import { CreateTableStatements } from "@alerion/sql-parser";`,
-    ``,
-    outFns.map(v => v.body).join('\n\n'),
-    ``,
-    `export const QUERIES = {`,
-    outFns.map(v => `  ${v.name},`).join('\n'),
-    `}`,
-    ``,
-    `export const TABLES: Array<CreateTableStatements> = ${JSON.stringify(tables)}`,
-    ``,
-  ].join('\n');
+// async function convertQueries(tables: Tables, queriesFolder: string, outputFile: string) {
+//   const queries = await fse.readdir(queriesFolder);
+//   const outFns = queries
+//     .map(fileName => {
+//       if (fileName.startsWith('_')) {
+//         return null;
+//       }
+//       const fullPath = path.resolve(queriesFolder, fileName);
+//       const content = fse.readFileSync(fullPath, { encoding: 'utf8' });
+//       return convertQuery(tables, fileName, content);
+//     })
+//     .filter(notNull);
 
-  await saveFile(outputFile, queriesFile);
-}
+//   const queriesFile = [
+//     `/**`,
+//     ` * This file has been generated by @alerion/sql-ts`,
+//     ' *  Do not change this file, intead you should changes your queries and execute `stq-ts` again',
+//     ` */`,
+//     ``,
+//     `import { Pool, QueryResult } from "pg";`,
+//     `import { CreateTableStatements } from "@alerion/sql-parser";`,
+//     ``,
+//     outFns.map(v => v.body).join('\n\n'),
+//     ``,
+//     `export const QUERIES = {`,
+//     outFns.map(v => `  ${v.name},`).join('\n'),
+//     `}`,
+//     ``,
+//     `export const TABLES: Array<CreateTableStatements> = ${JSON.stringify(tables)}`,
+//     ``,
+//   ].join('\n');
 
-function convertQuery(tables: Tables, fileName: string, query: string): { name: string; body: string } {
-  const parsed = Parser.parse(query);
-  if (Array.isArray(parsed)) {
-    throw new Error(`Error in ${fileName}: There should be only 1 query per file (found ${parsed.length})`);
-  }
-  if (NodeIs.Empty(parsed)) {
-    throw new Error(`${fileName} has no query`);
-  }
-  if (!NodeIs.SelectStatements(parsed)) {
-    throw new Error(`${fileName} should contain a SELECT statement`);
-  }
-  // Validate FROM and extract selected tables
-  const selectedTables = toArray(parsed.fromClause).map(table => {
-    const alias = NodeIs.TableAlias(table) ? table.alias : null;
-    return findTable(tables, table.table, alias);
-  });
+//   await saveFile(outputFile, queriesFile);
+// }
 
-  const allColumns: Array<ColumnResolved> = [];
-  selectedTables.forEach(table => {
-    table.columns.forEach(col => {
-      allColumns.push({
-        column: col.name.value,
-        table: table.table,
-        tableAlias: table.alias,
-        alias: null,
-        type: {
-          dt: col.dataType,
-          nullable: col.nullable,
-        },
-      });
-    });
-  });
+// function convertQuery(tables: Tables, fileName: string, query: string): { name: string; body: string } {
+//   const parsed = Parser.parse(query);
+//   if (Array.isArray(parsed)) {
+//     throw new Error(`Error in ${fileName}: There should be only 1 query per file (found ${parsed.length})`);
+//   }
+//   if (NodeIs.Empty(parsed)) {
+//     throw new Error(`${fileName} has no query`);
+//   }
+//   if (!NodeIs.SelectStatements(parsed)) {
+//     throw new Error(`${fileName} should contain a SELECT statement`);
+//   }
+//   // Validate FROM and extract selected tables
+//   const selectedTables = toArray(parsed.fromClause).map(table => {
+//     const alias = NodeIs.TableAlias(table) ? table.alias : null;
+//     return findTable(tables, table.table, alias);
+//   });
 
-  // Validate SELECT and extract columns
-  const columns = resolveColumns(selectedTables, allColumns, parsed.select);
-  // Validate WHERE and extract variables
-  const variables = resolveVariables(selectedTables, allColumns, columns, parsed.whereClause);
-  // console.log(JSON.stringify(variables, null, 2));
-  const outQuery = generateOutputQuery(parsed, variables);
-  // console.log(`========`);
-  // console.log(outQuery);
-  const name = formatName(fileName);
-  const outFn = generateOutputFn(name, outQuery, variables, columns);
-  // console.log(`========`);
-  // console.log(outFn);
-  return {
-    name,
-    body: outFn,
-  };
-}
+//   const allColumns: Array<ColumnResolved> = [];
+//   selectedTables.forEach(table => {
+//     table.columns.forEach(col => {
+//       allColumns.push({
+//         column: col.name.value,
+//         table: table.table,
+//         tableAlias: table.alias,
+//         alias: null,
+//         type: {
+//           dt: col.dataType,
+//           nullable: col.nullable,
+//         },
+//       });
+//     });
+//   });
 
-function resolveVariables(
-  _tables: Array<TableResolved>,
-  allColumns: Array<ColumnResolved>,
-  _columns: Array<ColumnResolved>,
-  where: WhereExpression
-): Array<VariableResolved> {
-  if (where === null) {
-    return [];
-  }
-  const res = resolvedExpression(allColumns, where);
-  if (res.resolved === false) {
-    throw new Error(`Cannot resolve WHERE expression type !`);
-  }
-  return res.variables;
-}
+//   // Validate SELECT and extract columns
+//   const columns = resolveColumns(selectedTables, allColumns, parsed.select);
+//   // Validate WHERE and extract variables
+//   const variables = resolveVariables(selectedTables, allColumns, columns, parsed.whereClause);
+//   // console.log(JSON.stringify(variables, null, 2));
+//   const outQuery = generateOutputQuery(parsed, variables);
+//   // console.log(`========`);
+//   // console.log(outQuery);
+//   const name = formatName(fileName);
+//   const outFn = generateOutputFn(name, outQuery, variables, columns);
+//   // console.log(`========`);
+//   // console.log(outFn);
+//   return {
+//     name,
+//     body: outFn,
+//   };
+// }
 
-function resolvedExpression(
-  allColumns: Array<ColumnResolved>,
-  expr: Expression
-): ResolvedExpression | PartiallyResolvedExpression {
-  if (NodeIs.IndexedVariable(expr)) {
-    throw new Error('IndexedVariables are not supported, use named variable instead !');
-  }
-  if (NodeIs.CompareOperation(expr) || NodeIs.BooleanOperation(expr) || NodeIs.ValueOperation(expr)) {
-    const left = resolvedExpression(allColumns, expr.left);
-    const right = resolvedExpression(allColumns, expr.right);
-    if (left.resolved && right.resolved) {
-      // TODO: Make sure it's the same type !
-      return {
-        resolved: true,
-        type: right.type,
-        variables: [...left.variables, ...right.variables],
-      };
-    }
-    if (left.resolved === false && right.resolved === false) {
-      return {
-        resolved: false,
-        variables: [...left.variables, ...right.variables],
-      };
-    }
-    if (left.resolved || right.resolved) {
-      const [value, partial]: [ResolvedExpression, PartiallyResolvedExpression] = left.resolved
-        ? ([left, right] as any)
-        : [right, left];
-      return {
-        resolved: true,
-        type: value.type,
-        variables: partial.variables.map(name => ({ type: value.type, name })),
-      };
-    }
-    throw new Error('Whaaat ?');
-  }
-  if (NodeIs.NamedVariable(expr)) {
-    return {
-      resolved: false,
-      variables: [expr.name],
-    };
-  }
-  if (NodeIs.Column(expr)) {
-    const col = resolveSingleColumn(expr, allColumns);
-    return {
-      resolved: true,
-      variables: [],
-      type: col.type,
-    };
-  }
-  if (NodeIs.String(expr)) {
-    return {
-      resolved: true,
-      type: {
-        dt: {
-          type: 'DataTypeIntParams',
-          dt: 'CHARACTER',
-          param: 100,
-        },
-        nullable: false,
-      },
-      variables: [],
-    };
-  }
-  if (NodeIs.Numeric(expr)) {
-    return {
-      resolved: true,
-      type: {
-        dt: {
-          type: 'DataTypeNoParams',
-          dt: 'REAL',
-        },
-        nullable: false,
-      },
-      variables: [],
-    };
-  }
+// function resolveVariables(
+//   _tables: Array<TableResolved>,
+//   allColumns: Array<ColumnResolved>,
+//   _columns: Array<ColumnResolved>,
+//   where: WhereExpression
+// ): Array<VariableResolved> {
+//   if (where === null) {
+//     return [];
+//   }
+//   const res = resolvedExpression(allColumns, where);
+//   if (res.resolved === false) {
+//     throw new Error(`Cannot resolve WHERE expression type !`);
+//   }
+//   return res.variables;
+// }
 
-  throw new Error(`Unhandled ${expr.type}`);
-}
+// function resolvedExpression(
+//   allColumns: Array<ColumnResolved>,
+//   expr: Expression
+// ): ResolvedExpression | PartiallyResolvedExpression {
+//   if (NodeIs.IndexedVariable(expr)) {
+//     throw new Error('IndexedVariables are not supported, use named variable instead !');
+//   }
+//   if (NodeIs.CompareOperation(expr) || NodeIs.BooleanOperation(expr) || NodeIs.ValueOperation(expr)) {
+//     const left = resolvedExpression(allColumns, expr.left);
+//     const right = resolvedExpression(allColumns, expr.right);
+//     if (left.resolved && right.resolved) {
+//       // TODO: Make sure it's the same type !
+//       return {
+//         resolved: true,
+//         type: right.type,
+//         variables: [...left.variables, ...right.variables],
+//       };
+//     }
+//     if (left.resolved === false && right.resolved === false) {
+//       return {
+//         resolved: false,
+//         variables: [...left.variables, ...right.variables],
+//       };
+//     }
+//     if (left.resolved || right.resolved) {
+//       const [value, partial]: [ResolvedExpression, PartiallyResolvedExpression] = left.resolved
+//         ? ([left, right] as any)
+//         : [right, left];
+//       return {
+//         resolved: true,
+//         type: value.type,
+//         variables: partial.variables.map(name => ({ type: value.type, name })),
+//       };
+//     }
+//     throw new Error('Whaaat ?');
+//   }
+//   if (NodeIs.NamedVariable(expr)) {
+//     return {
+//       resolved: false,
+//       variables: [expr.name],
+//     };
+//   }
+//   if (NodeIs.Column(expr)) {
+//     const col = resolveSingleColumn(expr, allColumns);
+//     return {
+//       resolved: true,
+//       variables: [],
+//       type: col.type,
+//     };
+//   }
+//   if (NodeIs.String(expr)) {
+//     return {
+//       resolved: true,
+//       type: {
+//         dt: {
+//           type: 'DataTypeIntParams',
+//           dt: 'CHARACTER',
+//           param: 100,
+//         },
+//         nullable: false,
+//       },
+//       variables: [],
+//     };
+//   }
+//   if (NodeIs.Numeric(expr)) {
+//     return {
+//       resolved: true,
+//       type: {
+//         dt: {
+//           type: 'DataTypeNoParams',
+//           dt: 'REAL',
+//         },
+//         nullable: false,
+//       },
+//       variables: [],
+//     };
+//   }
 
-function resolveColumns(
-  tables: Array<TableResolved>,
-  allColumns: Array<ColumnResolved>,
-  select: SelectExpression
-): Array<ColumnResolved> {
-  if (Array.isArray(select)) {
-    const cols: Array<ColumnResolved> = [];
-    select.forEach(selectItem => {
-      cols.push(...resolveColumns(tables, allColumns, selectItem));
-    });
-    return cols;
-  }
-  if (select.type === 'ColumnAll') {
-    return allColumns;
-  }
-  if (NodeIs.ColumnAllFromTable(select)) {
-    const selectStr = `${select.schema ? select.schema.value + '.' : ''}${select.table.value}.*`;
-    const matchTables = tables.filter(table => {
-      const matchAlias = table.alias ? select.table.value === table.alias : false;
-      const match = select.table.value === table.table;
-      if (match && table.alias) {
-        throw new Error(`Invalid column ${selectStr}, the table is aliased as ${table.alias}`);
-      }
-      return match || matchAlias;
-    });
-    if (matchTables.length === 0) {
-      throw new Error(`Invalid column ${selectStr}, Cannot find table !`);
-    }
-    if (matchTables.length > 1) {
-      throw new Error(`Invalid column ${selectStr}, match more than one table !`);
-    }
-    const table = matchTables[0];
-    const cols: Array<ColumnResolved> = [];
-    table.columns.forEach(col => {
-      cols.push({
-        column: col.name.value,
-        table: table.table,
-        tableAlias: null,
-        alias: null,
-        type: {
-          dt: col.dataType,
-          nullable: col.nullable,
-        },
-      });
-    });
-    return cols;
-  }
-  if (NodeIs.Column(select) || NodeIs.ColumnAlias(select)) {
-    return [resolveSingleColumn(select, allColumns)];
-  }
-  console.warn(`Unhandled type ${select.type}`);
-  return [];
-}
+//   throw new Error(`Unhandled ${expr.type}`);
+// }
 
-function resolveSingleColumn(
-  column: Node<'Column' | 'ColumnAlias'>,
-  allColumns: Array<ColumnResolved>
-): ColumnResolved {
-  const colStr = `${column.schema ? column.schema.value + '.' : ''}${column.table ? column.table.value + '.' : ''}${
-    column.column.value
-  }`;
-  const matchCols = allColumns.filter(col => {
-    const match = (column.table ? column.table.value === col.table : true) && column.column.value === col.column;
-    const matchAlias = column.table && column.table.value === col.tableAlias && column.column.value === col.column;
-    if (!matchAlias && match && col.tableAlias && column.table) {
-      throw new Error(`Invalid column ${colStr}, the table is aliased as ${col.tableAlias}`);
-    }
-    return match || matchAlias;
-  });
-  if (matchCols.length === 0) {
-    throw new Error(`Invalid column ${colStr}, Cannot find column !`);
-  }
-  if (matchCols.length > 1) {
-    throw new Error(`Invalid column ${colStr}, match more than one column !`);
-  }
-  const col = matchCols[0];
-  return {
-    ...col,
-    alias: NodeIs.ColumnAlias(column) ? column.alias.value : null,
-  };
-}
+// function resolveColumns(
+//   tables: Array<TableResolved>,
+//   allColumns: Array<ColumnResolved>,
+//   select: SelectExpression
+// ): Array<ColumnResolved> {
+//   if (Array.isArray(select)) {
+//     const cols: Array<ColumnResolved> = [];
+//     select.forEach(selectItem => {
+//       cols.push(...resolveColumns(tables, allColumns, selectItem));
+//     });
+//     return cols;
+//   }
+//   if (select.type === 'ColumnAll') {
+//     return allColumns;
+//   }
+//   if (NodeIs.ColumnAllFromTable(select)) {
+//     const selectStr = `${select.schema ? select.schema.value + '.' : ''}${select.table.value}.*`;
+//     const matchTables = tables.filter(table => {
+//       const matchAlias = table.alias ? select.table.value === table.alias : false;
+//       const match = select.table.value === table.table;
+//       if (match && table.alias) {
+//         throw new Error(`Invalid column ${selectStr}, the table is aliased as ${table.alias}`);
+//       }
+//       return match || matchAlias;
+//     });
+//     if (matchTables.length === 0) {
+//       throw new Error(`Invalid column ${selectStr}, Cannot find table !`);
+//     }
+//     if (matchTables.length > 1) {
+//       throw new Error(`Invalid column ${selectStr}, match more than one table !`);
+//     }
+//     const table = matchTables[0];
+//     const cols: Array<ColumnResolved> = [];
+//     table.columns.forEach(col => {
+//       cols.push({
+//         column: col.name.value,
+//         table: table.table,
+//         tableAlias: null,
+//         alias: null,
+//         type: {
+//           dt: col.dataType,
+//           nullable: col.nullable,
+//         },
+//       });
+//     });
+//     return cols;
+//   }
+//   if (NodeIs.Column(select) || NodeIs.ColumnAlias(select)) {
+//     return [resolveSingleColumn(select, allColumns)];
+//   }
+//   console.warn(`Unhandled type ${select.type}`);
+//   return [];
+// }
 
-function findTable(tables: Tables, table: Identifier, alias: Identifier | null): TableResolved {
-  const tableResolved = tables.find(t => t.table.table.value === table.value);
-  if (tableResolved === undefined) {
-    throw new Error(`Invalid table ${table.value}`);
-  }
-  return {
-    table: table.value,
-    columns: tableResolved.columns,
-    alias: alias ? alias.value : null,
-  };
-}
+// function resolveSingleColumn(
+//   column: Node<'Column' | 'ColumnAlias'>,
+//   allColumns: Array<ColumnResolved>
+// ): ColumnResolved {
+//   const colStr = `${column.schema ? column.schema.value + '.' : ''}${column.table ? column.table.value + '.' : ''}${
+//     column.column.value
+//   }`;
+//   const matchCols = allColumns.filter(col => {
+//     const match = (column.table ? column.table.value === col.table : true) && column.column.value === col.column;
+//     const matchAlias = column.table && column.table.value === col.tableAlias && column.column.value === col.column;
+//     if (!matchAlias && match && col.tableAlias && column.table) {
+//       throw new Error(`Invalid column ${colStr}, the table is aliased as ${col.tableAlias}`);
+//     }
+//     return match || matchAlias;
+//   });
+//   if (matchCols.length === 0) {
+//     throw new Error(`Invalid column ${colStr}, Cannot find column !`);
+//   }
+//   if (matchCols.length > 1) {
+//     throw new Error(`Invalid column ${colStr}, match more than one column !`);
+//   }
+//   const col = matchCols[0];
+//   return {
+//     ...col,
+//     alias: NodeIs.ColumnAlias(column) ? column.alias.value : null,
+//   };
+// }
 
-function toArray<T>(val: null | T | Array<T>): Array<T> {
-  return val === null ? [] : Array.isArray(val) ? val : [val];
-}
+// function findTable(tables: Tables, table: Identifier, alias: Identifier | null): TableResolved {
+//   const tableResolved = tables.find(t => t.table.table.value === table.value);
+//   if (tableResolved === undefined) {
+//     throw new Error(`Invalid table ${table.value}`);
+//   }
+//   return {
+//     table: table.value,
+//     columns: tableResolved.columns,
+//     alias: alias ? alias.value : null,
+//   };
+// }
 
-function generateOutputQuery(query: Node<'SelectStatements'>, variables: Array<VariableResolved>): string {
-  function replaceVariable(expr: Expression): Expression {
-    if (NodeIs.IndexedVariable(expr)) {
-      throw new Error('IndexedVariables are not supported, use named variable instead !');
-    }
-    if (NodeIs.CompareOperation(expr) || NodeIs.BooleanOperation(expr) || NodeIs.ValueOperation(expr)) {
-      const left = replaceVariable(expr.left);
-      const right = replaceVariable(expr.right);
-      if (left === expr.left && right === expr.right) {
-        return expr;
-      }
-      return {
-        ...expr,
-        left,
-        right,
-      };
-    }
-    if (NodeIs.NamedVariable(expr)) {
-      const num = variables.findIndex(v => v.name === expr.name);
-      if (num === -1) {
-        throw new Error(`Cannot find variable ${expr.name} in resolved variables !`);
-      }
-      return {
-        type: 'IndexedVariable',
-        num: num + 1,
-      };
-    }
+// function toArray<T>(val: null | T | Array<T>): Array<T> {
+//   return val === null ? [] : Array.isArray(val) ? val : [val];
+// }
 
-    return expr;
-  }
+// function generateOutputQuery(query: Node<'SelectStatements'>, variables: Array<VariableResolved>): string {
+//   function replaceVariable(expr: Expression): Expression {
+//     if (NodeIs.IndexedVariable(expr)) {
+//       throw new Error('IndexedVariables are not supported, use named variable instead !');
+//     }
+//     if (NodeIs.CompareOperation(expr) || NodeIs.BooleanOperation(expr) || NodeIs.ValueOperation(expr)) {
+//       const left = replaceVariable(expr.left);
+//       const right = replaceVariable(expr.right);
+//       if (left === expr.left && right === expr.right) {
+//         return expr;
+//       }
+//       return {
+//         ...expr,
+//         left,
+//         right,
+//       };
+//     }
+//     if (NodeIs.NamedVariable(expr)) {
+//       const num = variables.findIndex(v => v.name === expr.name);
+//       if (num === -1) {
+//         throw new Error(`Cannot find variable ${expr.name} in resolved variables !`);
+//       }
+//       return {
+//         type: 'IndexedVariable',
+//         num: num + 1,
+//       };
+//     }
 
-  const transformedQuery: Node<'SelectStatements'> = {
-    ...query,
-  };
-  if (query.whereClause) {
-    transformedQuery.whereClause = replaceVariable(query.whereClause);
-  }
-  const generatedQuery = Serializer.serialize(transformedQuery);
-  return generatedQuery;
-}
+//     return expr;
+//   }
 
-function generateTypes(type: ColumnType | null): string {
-  if (type === null) {
-    return 'any';
-  }
-  const dt = type.dt.dt;
-  const base = (() => {
-    switch (dt) {
-      case 'BOOL':
-      case 'BOOLEAN':
-        return 'boolean';
-      case 'CHAR':
-      case 'CHARACTER':
-      case 'VARCHAR':
-      case 'UUID':
-      case 'TIMESTAMPTZ':
-        return 'string';
-      case 'DECIMAL':
-      case 'INT':
-      case 'INTEGER':
-      case 'NUMERIC':
-      case 'REAL':
-      case 'SERIAL':
-      case 'SMALLINT':
-        return 'number';
-      case 'JSON':
-      case 'JSONB':
-        return 'any';
-      default:
-        throw new Error(`Unhandled type ${type.dt.type} (${dt})`);
-    }
-  })();
-  if (type.nullable) {
-    return `${base} | null`;
-  }
-  return base;
-}
+//   const transformedQuery: Node<'SelectStatements'> = {
+//     ...query,
+//   };
+//   if (query.whereClause) {
+//     transformedQuery.whereClause = replaceVariable(query.whereClause);
+//   }
+//   const generatedQuery = Serializer.serialize(transformedQuery);
+//   return generatedQuery;
+// }
 
-function formatName(fileName: string): string {
-  return fileName.replace(/\.sql$/, '');
-}
+// function generateTypes(type: ColumnType | null): string {
+//   if (type === null) {
+//     return 'any';
+//   }
+//   const dt = type.dt.dt;
+//   const base = (() => {
+//     switch (dt) {
+//       case 'BOOL':
+//       case 'BOOLEAN':
+//         return 'boolean';
+//       case 'CHAR':
+//       case 'CHARACTER':
+//       case 'VARCHAR':
+//       case 'UUID':
+//       case 'TIMESTAMPTZ':
+//         return 'string';
+//       case 'DECIMAL':
+//       case 'INT':
+//       case 'INTEGER':
+//       case 'NUMERIC':
+//       case 'REAL':
+//       case 'SERIAL':
+//       case 'SMALLINT':
+//         return 'number';
+//       case 'JSON':
+//       case 'JSONB':
+//         return 'any';
+//       default:
+//         throw new Error(`Unhandled type ${type.dt.type} (${dt})`);
+//     }
+//   })();
+//   if (type.nullable) {
+//     return `${base} | null`;
+//   }
+//   return base;
+// }
 
-function generateOutputFn(
-  name: string,
-  outQuery: string,
-  variables: Array<VariableResolved>,
-  columns: Array<ColumnResolved>
-): string {
-  const interfaceName = name.substring(0, 1).toUpperCase() + name.substring(1) + 'Result';
+// function formatName(fileName: string): string {
+//   return fileName.replace(/\.sql$/, '');
+// }
 
-  const option =
-    variables.length === 0
-      ? null
-      : variables.length === 1
-      ? `${variables[0].name}: ${generateTypes(variables[0].type)}`
-      : `params: { ${variables.map(v => `${v.name}: ${generateTypes(v.type)}`).join('; ')} }`;
+// function generateOutputFn(
+//   name: string,
+//   outQuery: string,
+//   variables: Array<VariableResolved>,
+//   columns: Array<ColumnResolved>
+// ): string {
+//   const interfaceName = name.substring(0, 1).toUpperCase() + name.substring(1) + 'Result';
 
-  return [
-    `interface ${interfaceName} {`,
-    ...columns.map(col => {
-      return `  ${col.alias ? col.alias : col.column}: ${generateTypes(col.type)};`;
-    }),
-    `}`,
-    ``,
-    `function ${name}(pool: Pool${option ? ', ' + option : ''}): Promise<QueryResult<${interfaceName}>> {`,
-    variables.length > 1 ? `  const { ${variables.map(v => v.name).join(', ')} } = params;` : null,
-    `  return pool.query(`,
-    `    \`${outQuery}\`,`,
-    `    [${variables.map(v => v.name).join(', ')}]`,
-    `  );`,
-    `}`,
-  ]
-    .filter(v => v !== null)
-    .join('\n');
-}
+//   const option =
+//     variables.length === 0
+//       ? null
+//       : variables.length === 1
+//       ? `${variables[0].name}: ${generateTypes(variables[0].type)}`
+//       : `params: { ${variables.map(v => `${v.name}: ${generateTypes(v.type)}`).join('; ')} }`;
 
-export async function saveFile(path: string, content: string) {
-  const prettierConf = await prettier.resolveConfig(path);
-  const formatted = prettier.format(content, {
-    ...prettierConf,
-    filepath: path,
-  });
-  await fse.writeFile(path, formatted);
-}
+//   return [
+//     `interface ${interfaceName} {`,
+//     ...columns.map(col => {
+//       return `  ${col.alias ? col.alias : col.column}: ${generateTypes(col.type)};`;
+//     }),
+//     `}`,
+//     ``,
+//     `function ${name}(pool: Pool${option ? ', ' + option : ''}): Promise<QueryResult<${interfaceName}>> {`,
+//     variables.length > 1 ? `  const { ${variables.map(v => v.name).join(', ')} } = params;` : null,
+//     `  return pool.query(`,
+//     `    \`${outQuery}\`,`,
+//     `    [${variables.map(v => v.name).join(', ')}]`,
+//     `  );`,
+//     `}`,
+//   ]
+//     .filter(v => v !== null)
+//     .join('\n');
+// }
+
+// export async function saveFile(path: string, content: string) {
+//   const prettierConf = await prettier.resolveConfig(path);
+//   const formatted = prettier.format(content, {
+//     ...prettierConf,
+//     filepath: path,
+//   });
+//   await fse.writeFile(path, formatted);
+// }
