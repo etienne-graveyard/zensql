@@ -1,4 +1,4 @@
-# scripts (private)
+# @zensql/parser
 
 ## ZenSQL
 

@@ -1,5 +1,5 @@
 {
-  "name": "safeql",
+  "name": "zensql",
   "version": "1.0.0-alpha.0",
   "description": "A typescript type-safe SQL system",
   "keywords": [
@@ -7,22 +7,22 @@
     "ts",
     "typescript"
   ],
-  "repository": "git@github.com:etienne-dldc/safeql.git",
+  "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
   "files": [
     "dist"
   ],
   "main": "dist/index.js",
-  "module": "dist/safeql.esm.js",
+  "module": "dist/zensql.esm.js",
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsdx build --target node",
     "start": "tsdx watch --target node"
   },
   "dependencies": {
-    "@safeql/generate": "^1.0.0-alpha.0",
-    "@safeql/parser": "^1.0.0-alpha.0"
+    "@zensql/generate": "^1.0.0-alpha.0",
+    "@zensql/parser": "^1.0.0-alpha.0"
   },
   "devDependencies": {
     "tsdx": "^0.10.5"

@@ -1,17 +1,17 @@
 {
-  "name": "@safeql/generate",
+  "name": "@zensql/generate",
   "version": "1.0.0",
-  "repository": "git@github.com:etienne-dldc/safeql.git",
+  "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
   "files": [
     "dist"
   ],
   "main": "dist/index.js",
-  "module": "dist/safeql.generate.esm.js",
+  "module": "dist/zensql.generate.esm.js",
   "typings": "dist/index.d.ts",
   "bin": {
-    "safeql-generate": "./bin/safeql-generate.js"
+    "zensql-generate": "./bin/zensql-generate.js"
   },
   "scripts": {
     "build": "tsdx build --target node",
@@ -20,7 +20,7 @@
     "try": "node ./dist/index.js"
   },
   "dependencies": {
-    "@safeql/parser": "^1.0.0",
+    "@zensql/parser": "^1.0.0",
     "fs-extra": "^8.1.0",
     "prettier": "^1.18.2"
   },

@@ -25,7 +25,7 @@ async function normPackageJson() {
   const isExample = pkgPath.startsWith(examplesFolder + '/');
   if (isExample) {
     const folder = path.basename(path.dirname(pkgPath));
-    const packageName = `@safeql-example/${folder}`;
+    const packageName = `@zensql-example/${folder}`;
     pkg.name = packageName;
   }
 
@@ -38,7 +38,7 @@ async function normReadme(pkg: any) {
   const readmeLocalPath = process.env.PWD + '/README.local.md';
   const readmeTemplatePath = process.env.LERNA_ROOT_PATH + '/README.template.md';
   const rootReadmePath = process.env.LERNA_ROOT_PATH + '/README.md';
-  if (process.env.LERNA_PACKAGE_NAME === 'safeql') {
+  if (process.env.LERNA_PACKAGE_NAME === 'zensql') {
     const rootReadme = (await fse.readFile(rootReadmePath)).toString();
     await saveFile(readmePath, rootReadme);
     return;

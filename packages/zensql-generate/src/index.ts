@@ -10,7 +10,7 @@ import {
   Expression,
   SelectExpression,
   Identifier,
-} from '@safeql/parser';
+} from '@zensql/parser';
 import prettier from 'prettier';
 
 type Tables = Array<Node<'CreateTableStatements'>>;

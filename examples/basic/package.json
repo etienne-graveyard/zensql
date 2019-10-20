@@ -1,9 +1,9 @@
 {
-  "name": "@safeql-example/basic",
+  "name": "@zensql-example/basic",
   "version": "1.0.0-alpha.0",
   "private": true,
-  "description": "Basic example of safeql",
-  "repository": "git@github.com:etienne-dldc/safeql.git",
+  "description": "Basic example of zensql",
+  "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
   "main": "index.js",

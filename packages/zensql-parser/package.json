@@ -1,7 +1,7 @@
 {
-  "name": "@safeql/parser",
+  "name": "@zensql/parser",
   "version": "1.0.0",
-  "repository": "git@github.com:etienne-dldc/safeql.git",
+  "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
   "files": [

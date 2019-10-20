@@ -2,7 +2,7 @@
   "name": "scripts",
   "version": "1.0.0-alpha.0",
   "private": true,
-  "repository": "git@github.com:etienne-dldc/safeql.git",
+  "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
   "main": "index.js",
