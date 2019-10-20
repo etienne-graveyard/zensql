@@ -5,3 +5,7 @@
 # ☯️ ZenSQL
 
 > A typescript type-safe SQL system
+
+## Docs
+
+> Comming soon
