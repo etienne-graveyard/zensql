@@ -1,6 +1,6 @@
 {
   "name": "@zensql/parser",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.0",
   "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
@@ -15,7 +15,6 @@
     "start": "tsdx watch --target node",
     "test": "tsdx test"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/jest": "^24.0.19",
     "tsdx": "^0.10.5"
