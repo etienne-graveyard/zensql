@@ -64,9 +64,8 @@ interface Nodes {
 
   // Table
   Table: { schema: Identifier | null; table: Identifier };
-  TableAlias: {
-    schema: Identifier | null;
-    table: Identifier;
+  FromExpressionTableAlias: {
+    table: TableExpression;
     alias: Identifier;
   };
 
@@ -143,7 +142,7 @@ const NODES_OBJ: { [K in NodeType]: null } = {
   ColumnAll: null,
   ColumnAllFromTable: null,
   Table: null,
-  TableAlias: null,
+  FromExpressionTableAlias: null,
   SelectStatement: null,
   Empty: null,
   CreateTableStatement: null,
@@ -175,6 +174,7 @@ export type DataType = Node<'DataTypeNoParams' | 'DataTypeNumeric' | 'DataTypeIn
 export type TableExpression = Node<'Table' | 'LeftJoin'>;
 export type SelectExpressionItem = Node<'Column' | 'ColumnAlias' | 'ColumnAll' | 'ColumnAllFromTable'>;
 export type SelectExpression = Array<SelectExpressionItem>;
-export type FromExpressionTable = Node<'TableAlias'> | TableExpression;
+export type FromExpressionTable = Node<'FromExpressionTableAlias'> | TableExpression;
 
 export type Statement = Node<'SelectStatement' | 'CreateTableStatement'>;
+export type Statements = Array<Statement>;

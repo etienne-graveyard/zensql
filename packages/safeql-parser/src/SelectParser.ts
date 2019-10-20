@@ -1,4 +1,12 @@
-import { Node, Expression, Identifier, SelectExpression, SelectExpressionItem, FromExpressionTable } from './Node';
+import {
+  Node,
+  Expression,
+  Identifier,
+  SelectExpression,
+  SelectExpressionItem,
+  FromExpressionTable,
+  TableExpression,
+} from './Node';
 import { TokenStream } from './TokenStream';
 import { ParserUtils } from './ParserUtils';
 import { ExpressionParser } from './ExpressionParser';
@@ -132,15 +140,29 @@ export function SelectParser(input: TokenStream) {
 
   function parseFromExpressionTable(): FromExpressionTable {
     skipComment();
-    const table = parseTable();
+    let table: TableExpression = parseTable();
+    while (isKeyword('LEFT')) {
+      skipKeyword('LEFT');
+      skipKeyword('JOIN');
+      const right = parseTable();
+      skipKeyword('ON');
+      const condition = parseExpression();
+      const join: Node<'LeftJoin'> = {
+        type: 'LeftJoin',
+        left: table,
+        condition,
+        right,
+      };
+      table = join;
+    }
+
     if (isKeyword('AS')) {
       skipKeyword('AS');
       const alias = parseIdentifier(true);
       return {
-        type: 'TableAlias',
+        type: 'FromExpressionTableAlias',
         alias,
-        schema: table.schema,
-        table: table.table,
+        table: table,
       };
     }
     return table;

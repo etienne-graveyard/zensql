@@ -18,7 +18,7 @@ export function InputStream(input: string): InputStream {
   };
 
   function next(): string {
-    var ch = input.charAt(pos++);
+    const ch = input.charAt(pos++);
     if (ch == '\n') {
       line++;
       col = 0;

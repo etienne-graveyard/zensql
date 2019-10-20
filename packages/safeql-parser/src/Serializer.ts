@@ -108,8 +108,14 @@ function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | 
   if (NodeIs.Table(node)) {
     return serializeCol(node.schema, node.table, null);
   }
-  if (NodeIs.TableAlias(node)) {
-    return `${serializeCol(node.schema, node.table, null)} AS ${serializeInternal(node.alias, null)}`;
+  if (NodeIs.FromExpressionTableAlias(node)) {
+    return `${serializeInternal(node.table, null)} AS ${serializeInternal(node.alias, null)}`;
+  }
+  if (NodeIs.LeftJoin(node)) {
+    return `${serializeInternal(node.left, null)} LEFT JOIN ${serializeInternal(
+      node.right,
+      null
+    )} ON ${serializeInternal(node.condition, null)}`;
   }
   if (NodeIs.ValueOperation(node)) {
     const op = node.operator;

@@ -58,7 +58,7 @@ export function TokenStream(input: InputStream): TokenStream {
   }
 
   function maybeNext(): Token | null {
-    let tok = current;
+    const tok = current;
     current = null;
     return tok || readNext();
   }
@@ -80,7 +80,7 @@ export function TokenStream(input: InputStream): TokenStream {
     if (input.eof()) {
       return null;
     }
-    let ch = input.peek();
+    const ch = input.peek();
     if (ch === '*') {
       return readStar();
     }
@@ -185,7 +185,7 @@ export function TokenStream(input: InputStream): TokenStream {
 
   function readNumber(negative: boolean = false): TokenNumber {
     let hasDot = false;
-    let number = readWhile(ch => {
+    const number = readWhile(ch => {
       if (ch == '.') {
         if (hasDot) {
           return false;
@@ -199,7 +199,7 @@ export function TokenStream(input: InputStream): TokenStream {
   }
 
   function readIdentifier(): TokenIdentifier {
-    let id = readWhile(isNameChar);
+    const id = readWhile(isNameChar);
     return {
       type: 'Identifier',
       value: id,
@@ -218,7 +218,7 @@ export function TokenStream(input: InputStream): TokenStream {
     let str = '';
     input.next();
     while (!input.eof()) {
-      let ch = input.next();
+      const ch = input.next();
       if (escaped) {
         str += ch;
         escaped = false;

@@ -1,6 +1,6 @@
 import { TokenStream } from './TokenStream';
 import { InputStream } from './InputStream';
-import { Statements, Statement, EmptyResult, NodeIs } from './Node';
+import { Statements, Statement, Node, NodeIs } from './Node';
 import { ParserUtils } from './ParserUtils';
 import { SelectParser } from './SelectParser';
 import { CreateParser } from './CreateParser';
@@ -9,7 +9,7 @@ export const Parser = {
   parse,
 };
 
-export type Result = Statements | Statement | EmptyResult;
+export type Result = Statements | Statement | Node<'Empty'>;
 
 function parse(inputStr: string): Result {
   const inputStream = InputStream(inputStr);
@@ -22,7 +22,7 @@ function parse(inputStr: string): Result {
   return parseTopLevel();
 
   function parseTopLevel(): Result {
-    let statements: Array<Statement> = [];
+    const statements: Statements = [];
     while (!input.eof()) {
       skipComment();
       const next = parseStatement();

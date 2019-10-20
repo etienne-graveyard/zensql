@@ -18,10 +18,11 @@ describe('parse and serialize all sort of queries without error with same result
     `SELECT * FROM foo WHERE id = "AZERT";`,
     `SELECT * FROM foo WHERE size > 0;`,
     `SELECT emp_id, name FROM employee_tbl WHERE emp_id = "0000";`,
+    `SELECT foo FROM bar LEFT JOIN boo ON bar.id = boo.bar_id;`,
   ];
 
   QUERIES.forEach(q => {
-    it(`parse the serialize ${q}`, () => {
+    it(`parse & serialize ${q}`, () => {
       const parsed = Parser.parse(q);
       expect(() => Serializer.serialize(parsed)).not.toThrow();
       expect(Serializer.serialize(parsed)).toEqual(q);
