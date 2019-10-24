@@ -16,7 +16,6 @@
   "scripts": {
     "build": "tsdx build --target node",
     "start": "tsdx watch --target node",
-    "test": "tsdx test",
     "try": "node ./dist/index.js"
   },
   "dependencies": {
