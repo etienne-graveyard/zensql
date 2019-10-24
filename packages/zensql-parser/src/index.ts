@@ -15,6 +15,10 @@ export {
   Value,
   Variable,
   DataType,
+  FromExpressionTable,
+  SelectExpression,
+  SelectExpressionItem,
+  Statements,
 } from './Node';
 export { BooleanOperator, CompareOperator, ValueOperator } from './Operator';
 export { Parser, Result } from './Parser';

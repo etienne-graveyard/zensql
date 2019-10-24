@@ -184,3 +184,92 @@ describe('parse all sort of queries without error', () => {
 it('parse a LEFT JOIN', () => {
   expect(() => Parser.parse('SELECT foo FROM bar LEFT JOIN boo ON bar.id = boo.bar_id')).not.toThrowError();
 });
+
+it('parse a mulitple LEFT JOIN', () => {
+  expect(() =>
+    Parser.parse(
+      'SELECT col1 FROM table1 LEFT JOIN table2 ON table1.id = table2.table1_id LEFT JOIN table3 ON table3.id = table2.table3_id'
+    )
+  ).not.toThrowError();
+});
+
+it('LEFT JOIN output correctly', () => {
+  expect(Parser.parse('SELECT foo FROM bar LEFT JOIN boo ON bar.id = boo.bar_id')).toEqual({
+    from: {
+      tables: [
+        {
+          type: 'LeftJoin',
+          left: { schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' },
+          condition: {
+            left: {
+              column: { type: 'Identifier', value: 'id' },
+              schema: null,
+              table: { type: 'Identifier', value: 'bar' },
+              type: 'Column',
+            },
+            operator: 'Equal',
+            right: {
+              column: { type: 'Identifier', value: 'bar_id' },
+              schema: null,
+              table: { type: 'Identifier', value: 'boo' },
+              type: 'Column',
+            },
+            type: 'CompareOperation',
+          },
+          right: { schema: null, table: { type: 'Identifier', value: 'boo' }, type: 'Table' },
+        },
+      ],
+      type: 'FromExpression',
+      where: null,
+    },
+    select: [{ column: { type: 'Identifier', value: 'foo' }, schema: null, table: null, type: 'Column' }],
+    type: 'SelectStatement',
+  });
+});
+
+it('mulitple LEFT JOIN output', () => {
+  const parsed = Parser.parse(
+    'SELECT col1 FROM table1 LEFT JOIN table2 ON table1.id = table2.table1_id LEFT JOIN table3 ON table3.id = table2.table3_id'
+  );
+  expect((parsed as any).from.tables[0]).toEqual({
+    type: 'LeftJoin',
+    left: {
+      type: 'LeftJoin',
+      left: { schema: null, table: { type: 'Identifier', value: 'table1' }, type: 'Table' },
+      condition: {
+        left: {
+          column: { type: 'Identifier', value: 'id' },
+          schema: null,
+          table: { type: 'Identifier', value: 'table1' },
+          type: 'Column',
+        },
+        operator: 'Equal',
+        right: {
+          column: { type: 'Identifier', value: 'table1_id' },
+          schema: null,
+          table: { type: 'Identifier', value: 'table2' },
+          type: 'Column',
+        },
+        type: 'CompareOperation',
+      },
+      right: { schema: null, table: { type: 'Identifier', value: 'table2' }, type: 'Table' },
+    },
+    condition: {
+      left: {
+        column: { type: 'Identifier', value: 'id' },
+        schema: null,
+        table: { type: 'Identifier', value: 'table3' },
+        type: 'Column',
+      },
+      operator: 'Equal',
+      right: {
+        column: { type: 'Identifier', value: 'table3_id' },
+        schema: null,
+        table: { type: 'Identifier', value: 'table2' },
+        type: 'Column',
+      },
+      type: 'CompareOperation',
+    },
+    right: { schema: null, table: { type: 'Identifier', value: 'table3' }, type: 'Table' },
+  });
+});
