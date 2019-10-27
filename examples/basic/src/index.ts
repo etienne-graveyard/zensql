@@ -1,7 +1,7 @@
 import * as path from 'path';
-import { generateQueries } from '@zensql/generate';
+import { runCommand } from '@zensql/generate';
 
-generateQueries({
+runCommand({
   source: path.resolve(__dirname, './sql'),
   target: path.resolve(__dirname, './sql.ts'),
 });
