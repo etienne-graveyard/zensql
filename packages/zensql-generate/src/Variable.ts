@@ -48,8 +48,6 @@ function replaceVariable(expr: ZenExpression, variables: Array<VariableResolved>
     };
   }
   if (NodeIs.NamedVariable(expr)) {
-    console.log('NamedVariable', expr.name);
-
     const num = variables.findIndex(v => v.name === expr.name);
     if (num === -1) {
       throw new Error(`Cannot find variable ${expr.name} in resolved variables !`);
