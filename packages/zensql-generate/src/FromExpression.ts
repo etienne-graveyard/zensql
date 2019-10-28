@@ -1,4 +1,4 @@
-import { Node, FromExpressionTable, NodeIs, Identifier } from '@zensql/parser';
+import { Node, TableExpression, NodeIs, Identifier } from '@zensql/parser';
 import { DatabaseSchema } from './DatabaseSchema';
 
 export const FromExpression = {
@@ -16,27 +16,30 @@ export interface TableResolved {
 function resolveFromExpression(schema: DatabaseSchema, expr: Node<'FromExpression'>): Array<TableResolved> {
   // Validate FROM and extract selected tables
   return expr.tables
-    .map(fromExpre => resolveFromExpressionTable(schema, fromExpre))
+    .map(fromExpre => resolveTableExpression(schema, fromExpre))
     .reduce<Array<TableResolved>>((acc, val) => {
       acc.push(...val);
       return acc;
     }, []);
 }
 
-function resolveFromExpressionTable(schema: DatabaseSchema, table: FromExpressionTable): Array<TableResolved> {
+function resolveTableExpression(schema: DatabaseSchema, table: TableExpression): Array<TableResolved> {
   if (NodeIs.LeftJoin(table)) {
     return resolveLeftJoin(schema, table);
   }
   if (NodeIs.Table(table)) {
     return [findTable(schema, table.table, null)];
   }
+  if (NodeIs.TableAlias(table)) {
+    return [findTable(schema, table.table.table, table.alias)];
+  }
   throw new Error(`Unhandled type ${table.type}`);
 }
 
 function resolveLeftJoin(schema: DatabaseSchema, join: Node<'LeftJoin'>): Array<TableResolved> {
   // TODO: validate condition
-  const left = resolveFromExpressionTable(schema, join.left);
-  const right = resolveFromExpressionTable(schema, join.right);
+  const left = resolveTableExpression(schema, join.left);
+  const right = resolveTableExpression(schema, join.right);
   return [...left, ...right];
 }
 
