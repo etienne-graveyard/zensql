@@ -1,6 +1,6 @@
 {
   "name": "@zensql-example/basic",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "private": true,
   "description": "Basic example of zensql",
   "repository": "git@github.com:etienne-dldc/zensql.git",
@@ -13,9 +13,9 @@
     "sql": "zensql ./src/sql ./src/sql.ts"
   },
   "dependencies": {
-    "zensql": "^1.0.0-alpha.0",
     "@types/pg": "^7.11.2",
-    "pg": "^7.12.1"
+    "pg": "^7.12.1",
+    "zensql": "^1.0.0-alpha.1"
   },
   "devDependencies": {
     "ts-node": "^8.4.1",

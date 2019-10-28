@@ -1,6 +1,6 @@
 {
   "name": "@zensql/generate",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
@@ -19,7 +19,7 @@
     "try": "node ./dist/index.js"
   },
   "dependencies": {
-    "@zensql/parser": "^1.0.0-alpha.0",
+    "@zensql/parser": "^1.0.0-alpha.1",
     "fs-extra": "^8.1.0",
     "prettier": "^1.18.2"
   },
