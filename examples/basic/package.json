@@ -11,13 +11,13 @@
     "dev": "ts-node-dev ./src/index.ts",
     "start": "ts-node ./src/index.ts"
   },
-  "devDependencies": {
-    "ts-node": "^8.4.1",
-    "ts-node-dev": "^1.0.0-pre.43"
-  },
   "dependencies": {
     "@types/pg": "^7.11.2",
     "@zensql/generate": "^1.0.0-alpha.0",
     "pg": "^7.12.1"
+  },
+  "devDependencies": {
+    "ts-node": "^8.4.1",
+    "ts-node-dev": "^1.0.0-pre.43"
   }
 }
