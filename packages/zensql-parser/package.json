@@ -18,5 +18,6 @@
   "devDependencies": {
     "@types/jest": "^24.0.19",
     "tsdx": "^0.10.5"
-  }
+  },
+  "gitHead": "a0e3f23cbd47c48cd8c87f70fbf585f67780e090"
 }
