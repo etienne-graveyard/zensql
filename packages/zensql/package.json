@@ -1,6 +1,6 @@
 {
   "name": "zensql",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "A typescript type-safe SQL system",
   "keywords": [
     "sql",
@@ -25,7 +25,7 @@
     "start": "tsdx watch --target node"
   },
   "dependencies": {
-    "@zensql/generate": "^1.0.0-alpha.2",
+    "@zensql/generate": "^1.0.0-alpha.3",
     "@zensql/parser": "^1.0.0-alpha.2"
   },
   "devDependencies": {
