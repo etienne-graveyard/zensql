@@ -3,6 +3,8 @@ import { DatabaseSchema } from './DatabaseSchema';
 import { Query } from './Query';
 import { Printer } from './Printer';
 
+export { DatabaseDefinition } from './DatabaseSchema';
+
 export interface Options {
   source: string;
   target: string;

@@ -2,13 +2,13 @@ import { Node, Parser, NodeIs } from '@zensql/parser';
 import fse from 'fs-extra';
 import path from 'path';
 
-export type DatabaseSchema = Array<Node<'CreateTableStatement'>>;
+export type DatabaseDefinition = Array<Node<'CreateTableStatement'>>;
 
 export const DatabaseSchema = {
   parse: parseDatabaseSchema,
 };
 
-async function parseDatabaseSchema(sqlTablesFolder: string): Promise<DatabaseSchema> {
+async function parseDatabaseSchema(sqlTablesFolder: string): Promise<DatabaseDefinition> {
   const tablesFiles = await fse.readdir(sqlTablesFolder);
   const tables = tablesFiles.map(fileName => {
     const fullPath = path.resolve(sqlTablesFolder, fileName);

@@ -1,5 +1,5 @@
 import { Node, TableExpression, NodeIs, Identifier } from '@zensql/parser';
-import { DatabaseSchema } from './DatabaseSchema';
+import { DatabaseDefinition } from './DatabaseSchema';
 
 export const FromExpression = {
   resolve: resolveFromExpression,
@@ -13,7 +13,7 @@ export interface TableResolved {
   alias: string | null;
 }
 
-function resolveFromExpression(schema: DatabaseSchema, expr: Node<'FromExpression'>): Array<TableResolved> {
+function resolveFromExpression(schema: DatabaseDefinition, expr: Node<'FromExpression'>): Array<TableResolved> {
   // Validate FROM and extract selected tables
   return expr.tables
     .map(fromExpre => resolveTableExpression(schema, fromExpre))
@@ -23,7 +23,7 @@ function resolveFromExpression(schema: DatabaseSchema, expr: Node<'FromExpressio
     }, []);
 }
 
-function resolveTableExpression(schema: DatabaseSchema, table: TableExpression): Array<TableResolved> {
+function resolveTableExpression(schema: DatabaseDefinition, table: TableExpression): Array<TableResolved> {
   if (NodeIs.LeftJoin(table)) {
     return resolveLeftJoin(schema, table);
   }
@@ -36,14 +36,14 @@ function resolveTableExpression(schema: DatabaseSchema, table: TableExpression):
   throw new Error(`Unhandled type ${table.type}`);
 }
 
-function resolveLeftJoin(schema: DatabaseSchema, join: Node<'LeftJoin'>): Array<TableResolved> {
+function resolveLeftJoin(schema: DatabaseDefinition, join: Node<'LeftJoin'>): Array<TableResolved> {
   // TODO: validate condition
   const left = resolveTableExpression(schema, join.left);
   const right = resolveTableExpression(schema, join.right);
   return [...left, ...right];
 }
 
-function findTable(schema: DatabaseSchema, table: Identifier, alias: Identifier | null): TableResolved {
+function findTable(schema: DatabaseDefinition, table: Identifier, alias: Identifier | null): TableResolved {
   const tableResolved = schema.find(t => t.table.table.value === table.value);
   if (tableResolved === undefined) {
     throw new Error(`Invalid table ${table.value}`);

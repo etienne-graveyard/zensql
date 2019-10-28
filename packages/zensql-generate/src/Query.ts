@@ -4,7 +4,7 @@ import { Parser, NodeIs, Node } from '@zensql/parser';
 import { TableResolved, FromExpression } from './FromExpression';
 import { ColumnResolved, Column } from './Column';
 import { Variable } from './Variable';
-import { DatabaseSchema } from './DatabaseSchema';
+import { DatabaseDefinition } from './DatabaseSchema';
 import { VariableResolved } from './Expression';
 
 export const Query = {
@@ -54,7 +54,7 @@ function parseQuery(queryPath: string): Node<'SelectStatement'> {
   return parsed;
 }
 
-function resolveQuery(schema: DatabaseSchema, queryPath: string): QueryResolved {
+function resolveQuery(schema: DatabaseDefinition, queryPath: string): QueryResolved {
   const query = Query.parse(queryPath);
   const tables = FromExpression.resolve(schema, query.from);
   const allColumns = Column.findAll(tables);
