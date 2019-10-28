@@ -9,11 +9,12 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev ./src/index.ts",
-    "start": "ts-node ./src/index.ts"
+    "start": "ts-node ./src/index.ts",
+    "sql": "zensql ./src/sql ./src/sql.ts"
   },
   "dependencies": {
+    "zensql": "^1.0.0-alpha.0",
     "@types/pg": "^7.11.2",
-    "@zensql/generate": "^1.0.0-alpha.0",
     "pg": "^7.12.1"
   },
   "devDependencies": {

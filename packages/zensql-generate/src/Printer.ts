@@ -59,8 +59,6 @@ function printQuery(query: QueryResolved): string {
   const outQuery = Variable.replace(query.query, query.variables);
   const interfaceName = query.name.substring(0, 1).toUpperCase() + query.name.substring(1) + 'Result';
 
-  console.log(outQuery.from.where);
-
   const option =
     query.variables.length === 0
       ? null

@@ -1,7 +1,10 @@
-import * as path from 'path';
-import { runCommand } from '@zensql/generate';
+import { QUERIES } from './sql';
+import { Pool } from 'pg';
 
-runCommand({
-  source: path.resolve(__dirname, './sql'),
-  target: path.resolve(__dirname, './sql.ts'),
-});
+const pool = new Pool();
+
+async function doStuff() {
+  await QUERIES.getResource(pool, 'my-doc');
+}
+
+doStuff();
