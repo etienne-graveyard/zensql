@@ -15,7 +15,6 @@ export {
   Value,
   Variable,
   DataType,
-  FromExpressionTable,
   SelectExpression,
   SelectExpressionItem,
   Statements,

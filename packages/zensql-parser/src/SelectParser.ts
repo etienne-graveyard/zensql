@@ -15,6 +15,7 @@ export function SelectParser(input: TokenStream) {
     parseIdentifier,
     isPunctuation,
     skipPunctuation,
+    parseTable,
   } = ParserUtils(input);
   const { parseExpression } = ExpressionParser(input);
 
@@ -132,11 +133,11 @@ export function SelectParser(input: TokenStream) {
 
   function parseFromExpressionTable(): TableExpression {
     skipComment();
-    let table: TableExpression = parseTable();
+    let table: TableExpression = parseTableOrTableAlias();
     while (isKeyword('LEFT')) {
       skipKeyword('LEFT');
       skipKeyword('JOIN');
-      const right = parseTable();
+      const right = parseTableOrTableAlias();
       skipKeyword('ON');
       const condition = parseExpression();
       const join: Node<'LeftJoin'> = {
@@ -150,16 +151,16 @@ export function SelectParser(input: TokenStream) {
     return table;
   }
 
-  function parseTable(): Node<'Table'> {
-    const first = parseIdentifier(false);
-    const second = isPunctuation('.') ? (skipPunctuation('.'), parseIdentifier(true)) : null;
-    const alias = isKeyword('AS') ? (skipKeyword('AS'), parseIdentifier(true)) : null;
-    const [schema, table] = second === null ? [null, first] : [first, second];
-    return {
-      type: 'Table',
-      schema,
-      table,
-      alias,
-    };
+  function parseTableOrTableAlias(): Node<'Table' | 'TableAlias'> {
+    const table = parseTable();
+    if (isKeyword('AS')) {
+      skipKeyword('AS');
+      return {
+        type: 'TableAlias',
+        table,
+        alias: parseIdentifier(true),
+      };
+    }
+    return table;
   }
 }

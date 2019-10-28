@@ -63,7 +63,11 @@ interface Nodes {
   ColumnAllFromTable: { schema: Identifier | null; table: Identifier };
 
   // Table
-  Table: { schema: Identifier | null; table: Identifier; alias: Identifier | null };
+  Table: { schema: Identifier | null; table: Identifier };
+  TableAlias: {
+    table: Node<'Table'>;
+    alias: Identifier;
+  };
 
   // Join
   LeftJoin: {
@@ -138,6 +142,7 @@ const NODES_OBJ: { [K in NodeType]: null } = {
   ColumnAll: null,
   ColumnAllFromTable: null,
   Table: null,
+  TableAlias: null,
   SelectStatement: null,
   Empty: null,
   CreateTableStatement: null,
@@ -166,7 +171,7 @@ export type Term = Value | Variable | Node<'Column'>;
 export type BinaryOperation = Node<'BooleanOperation' | 'CompareOperation' | 'ValueOperation'>;
 export type Expression = BinaryOperation | Term;
 export type DataType = Node<'DataTypeNoParams' | 'DataTypeNumeric' | 'DataTypeIntParams'>;
-export type TableExpression = Node<'Table' | 'LeftJoin'>;
+export type TableExpression = Node<'TableAlias' | 'Table' | 'LeftJoin'>;
 export type SelectExpressionItem = Node<'Column' | 'ColumnAlias' | 'ColumnAll' | 'ColumnAllFromTable'>;
 export type SelectExpression = Array<SelectExpressionItem>;
 

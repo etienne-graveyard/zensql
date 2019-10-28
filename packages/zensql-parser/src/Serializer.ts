@@ -105,10 +105,11 @@ function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | 
     // TODO: handle escape !!
     return `"${node.value}"`;
   }
+  if (NodeIs.TableAlias(node)) {
+    return `${serializeInternal(node.table, null)} AS ${serializeInternal(node.alias, null)}`;
+  }
   if (NodeIs.Table(node)) {
-    return (
-      serializeCol(node.schema, node.table, null) + (node.alias ? ` AS ${serializeInternal(node.alias, null)}` : '')
-    );
+    return serializeCol(node.schema, node.table, null);
   }
   if (NodeIs.LeftJoin(node)) {
     return `${serializeInternal(node.left, null)} LEFT JOIN ${serializeInternal(

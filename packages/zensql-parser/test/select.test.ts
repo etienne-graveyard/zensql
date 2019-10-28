@@ -11,7 +11,6 @@ it('parse a simple request', () => {
             value: 'bar',
           },
           type: 'Table',
-          alias: null,
         },
       ],
       type: 'FromExpression',
@@ -42,7 +41,6 @@ it('parse a request with quoted column', () => {
           type: 'Table',
           schema: null,
           table: { type: 'Identifier', value: 'bar' },
-          alias: null,
         },
       ],
       where: {
@@ -75,7 +73,7 @@ it('parse a request with a comment after', () => {
   ).toEqual({
     from: {
       type: 'FromExpression',
-      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table', alias: null }],
+      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' }],
       where: null,
     },
     select: [{ column: { type: 'Identifier', value: 'foo' }, schema: null, table: null, type: 'Column' }],
@@ -86,7 +84,7 @@ it('parse a request with a comment after', () => {
 it('identifier are not case sensitive', () => {
   expect(Parser.parse(`SELECT foo FROM BAr;`)).toEqual({
     from: {
-      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table', alias: null }],
+      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' }],
       type: 'FromExpression',
       where: null,
     },
@@ -108,7 +106,7 @@ it('parse double quote as column name', () => {
     type: 'SelectStatement',
     from: {
       type: 'FromExpression',
-      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table', alias: null }],
+      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' }],
       where: {
         type: 'CompareOperation',
         left: { column: { type: 'Identifier', value: 'foo' }, schema: null, table: null, type: 'Column' },
@@ -130,7 +128,7 @@ it('parse a request with a named variable', () => {
     type: 'SelectStatement',
     from: {
       type: 'FromExpression',
-      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table', alias: null }],
+      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' }],
       where: {
         type: 'CompareOperation',
         left: { column: { type: 'Identifier', value: 'id' }, schema: null, table: null, type: 'Column' },
@@ -147,7 +145,7 @@ it('parse a request with an indexed variable', () => {
     type: 'SelectStatement',
     from: {
       type: 'FromExpression',
-      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table', alias: null }],
+      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' }],
       where: {
         type: 'CompareOperation',
         left: { type: 'Column', column: { type: 'Identifier', value: 'id' }, schema: null, table: null },
@@ -203,7 +201,7 @@ it('LEFT JOIN output correctly', () => {
       tables: [
         {
           type: 'LeftJoin',
-          left: { schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table', alias: null },
+          left: { schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' },
           condition: {
             left: {
               column: { type: 'Identifier', value: 'id' },
@@ -220,7 +218,7 @@ it('LEFT JOIN output correctly', () => {
             },
             type: 'CompareOperation',
           },
-          right: { schema: null, table: { type: 'Identifier', value: 'boo' }, type: 'Table', alias: null },
+          right: { schema: null, table: { type: 'Identifier', value: 'boo' }, type: 'Table' },
         },
       ],
       type: 'FromExpression',
@@ -239,7 +237,7 @@ it('mulitple LEFT JOIN output', () => {
     type: 'LeftJoin',
     left: {
       type: 'LeftJoin',
-      left: { schema: null, table: { type: 'Identifier', value: 'table1' }, type: 'Table', alias: null },
+      left: { schema: null, table: { type: 'Identifier', value: 'table1' }, type: 'Table' },
       condition: {
         left: {
           type: 'Column',
@@ -256,7 +254,7 @@ it('mulitple LEFT JOIN output', () => {
         },
         type: 'CompareOperation',
       },
-      right: { schema: null, table: { type: 'Identifier', value: 'table2' }, type: 'Table', alias: null },
+      right: { schema: null, table: { type: 'Identifier', value: 'table2' }, type: 'Table' },
     },
     condition: {
       left: {
@@ -274,6 +272,6 @@ it('mulitple LEFT JOIN output', () => {
       },
       type: 'CompareOperation',
     },
-    right: { schema: null, table: { type: 'Identifier', value: 'table3' }, type: 'Table', alias: null },
+    right: { schema: null, table: { type: 'Identifier', value: 'table3' }, type: 'Table' },
   });
 });

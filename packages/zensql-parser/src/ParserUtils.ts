@@ -1,7 +1,7 @@
 import { TokenStream } from './TokenStream';
 import { TokenIs, TokenPunctuation, TokenStar, TokenIdentifier, Token } from './Token';
 import { Keyword, Keywords } from './Keyword';
-import { Identifier } from './Node';
+import { Identifier, Node } from './Node';
 import { DataTypeAny, DataTypes } from './DataType';
 
 export function ParserUtils(input: TokenStream) {
@@ -20,6 +20,7 @@ export function ParserUtils(input: TokenStream) {
     isDataType,
     skipDataType,
     parseInteger,
+    parseTable,
   };
 
   function skipComment(): void {
@@ -146,5 +147,16 @@ export function ParserUtils(input: TokenStream) {
       };
     }
     return unexpected();
+  }
+
+  function parseTable(): Node<'Table'> {
+    const first = parseIdentifier(false);
+    const second = isPunctuation('.') ? (skipPunctuation('.'), parseIdentifier(true)) : null;
+    const [schema, table] = second === null ? [null, first] : [first, second];
+    return {
+      type: 'Table',
+      schema,
+      table,
+    };
   }
 }

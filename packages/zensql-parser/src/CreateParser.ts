@@ -16,6 +16,7 @@ export function CreateParser(input: TokenStream) {
     unexpected,
     parseInteger,
     isKeyword,
+    parseTable,
   } = ParserUtils(input);
 
   return {
@@ -32,24 +33,6 @@ export function CreateParser(input: TokenStream) {
       type: 'CreateTableStatement',
       table,
       columns,
-    };
-  }
-
-  function parseTable(): Node<'Table'> {
-    const first = parseIdentifier(false);
-    if (!isPunctuation('.')) {
-      return {
-        type: 'Table',
-        schema: null,
-        table: first,
-      };
-    }
-    skipPunctuation('.');
-    const second = parseIdentifier(true);
-    return {
-      type: 'Table',
-      schema: first,
-      table: second,
     };
   }
 
