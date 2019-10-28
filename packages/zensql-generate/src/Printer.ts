@@ -11,7 +11,16 @@ export const Printer = {
   print,
 };
 
-async function print(targetPath: string, schema: DatabaseSchema, queries: Array<QueryResolved>): Promise<void> {
+interface Options {
+  targetPath: string;
+  schema: DatabaseSchema;
+  queries: Array<QueryResolved>;
+  importFrom: string;
+}
+
+async function print(options: Options): Promise<void> {
+  const { targetPath, queries, schema, importFrom } = options;
+
   await fse.ensureDir(path.dirname(targetPath));
 
   const content = [
@@ -21,7 +30,7 @@ async function print(targetPath: string, schema: DatabaseSchema, queries: Array<
     ` */`,
     ``,
     `import { Pool, QueryResult } from "pg";`,
-    `import { Node } from '@zensql/parser';`,
+    `import { Node } from '${importFrom}';`,
     ``,
     printQueries(queries),
     ``,
