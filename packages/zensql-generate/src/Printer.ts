@@ -99,6 +99,8 @@ function generateTypes(type: ColumnType | null): string {
       case 'CHARACTER':
       case 'VARCHAR':
       case 'UUID':
+      case 'TEXT':
+      case 'DATE':
       case 'TIMESTAMPTZ':
         return 'string';
       case 'DECIMAL':
