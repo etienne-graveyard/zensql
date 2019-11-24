@@ -1,7 +1,8 @@
 import { BooleanOperator, CompareOperator, ValueOperator } from './Operator';
 import { DataTypeIntParam, DataTypeNoParams, DataTypeNumeric } from './DataType';
+import { Cursor } from './InputStream';
 
-interface Nodes {
+export interface Nodes {
   // Basics
   String: { value: string };
   Numeric: { value: number };
@@ -117,9 +118,13 @@ interface Nodes {
   };
 }
 
-type NodeType = keyof Nodes;
+export type NodeType = keyof Nodes;
 
-export type Node<K extends NodeType = NodeType> = Nodes[K] & { type: K };
+type NodeCommon = {
+  cursor: Cursor;
+};
+
+export type Node<K extends NodeType = NodeType> = Nodes[K] & { type: K } & NodeCommon;
 
 const NODES_OBJ: { [K in NodeType]: null } = {
   String: null,

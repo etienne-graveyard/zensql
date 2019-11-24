@@ -13,6 +13,7 @@ export function ExpressionParser(input: TokenStream) {
     skipPunctuation,
     isStar,
     parseIdentifier,
+    createNode,
   } = ParserUtils(input);
 
   return {
@@ -33,12 +34,11 @@ export function ExpressionParser(input: TokenStream) {
       const hisPrec = Operators.getPrecedence(valOp);
       if (hisPrec > myPrec) {
         input.next();
-        const nextLeft: Node<'ValueOperation'> = {
-          type: 'ValueOperation',
+        const nextLeft = createNode('ValueOperation', {
           left,
           operator: valOp,
           right: maybeOperation(parseAtom(), hisPrec),
-        };
+        });
         return maybeOperation(nextLeft, myPrec);
       }
     }
@@ -47,12 +47,11 @@ export function ExpressionParser(input: TokenStream) {
       const hisPrec = Operators.getPrecedence(compOp);
       if (hisPrec > myPrec) {
         input.next();
-        const nextLeft: Node<'CompareOperation'> = {
-          type: 'CompareOperation',
+        const nextLeft = createNode('CompareOperation', {
           left,
           operator: compOp,
           right: maybeOperation(parseAtom(), hisPrec),
-        };
+        });
         return maybeOperation(nextLeft, myPrec);
       }
     }
@@ -61,12 +60,11 @@ export function ExpressionParser(input: TokenStream) {
       const hisPrec = Operators.getPrecedence(boolOp);
       if (hisPrec > myPrec) {
         input.next();
-        const nextLeft: Node<'BooleanOperation'> = {
-          type: 'BooleanOperation',
+        const nextLeft = createNode('BooleanOperation', {
           left,
           operator: boolOp,
           right: maybeOperation(parseAtom(), hisPrec),
-        };
+        });
         return maybeOperation(nextLeft, myPrec);
       }
     }
@@ -87,20 +85,20 @@ export function ExpressionParser(input: TokenStream) {
     //   return { type: 'CaseSensitiveIdentifier', value: tok.value };
     // }
     if (isKeyword()) {
-      return { type: 'Null' };
+      return createNode('Null', {});
     }
     const tok = input.next();
     if (TokenIs.NamedVariable(tok)) {
-      return { type: 'NamedVariable', name: tok.name };
+      return createNode('NamedVariable', { name: tok.name });
     }
     if (TokenIs.IndexedVariable(tok)) {
-      return { type: 'IndexedVariable', num: tok.num };
+      return createNode('IndexedVariable', { num: tok.num });
     }
     if (TokenIs.Number(tok)) {
-      return { type: 'Numeric', value: tok.value };
+      return createNode('Numeric', { value: tok.value });
     }
     if (TokenIs.String(tok)) {
-      return { type: 'String', value: tok.value.toLowerCase() };
+      return createNode('String', { value: tok.value.toLowerCase() });
     }
     return unexpected();
   }
@@ -176,11 +174,10 @@ export function ExpressionParser(input: TokenStream) {
       : second
       ? [null, first, second]
       : [null, null, first];
-    return {
-      type: 'Column',
+    return createNode('Column', {
       schema,
       table,
       column,
-    };
+    });
   }
 }

@@ -15,7 +15,7 @@ function parse(inputStr: string): Result {
   const inputStream = InputStream(inputStr);
   const input = TokenStream(inputStream);
 
-  const { skipComment, skipPunctuation, isKeyword, unexpected } = ParserUtils(input);
+  const { skipComment, skipPunctuation, isKeyword, unexpected, createNode } = ParserUtils(input);
   const { parseSelectStatement } = SelectParser(input);
   const { parseCreateStatement } = CreateParser(input);
 
@@ -35,7 +35,7 @@ function parse(inputStr: string): Result {
       skipComment();
     }
     if (statements.length === 0) {
-      return { type: 'Empty' };
+      return createNode('Empty', {});
     }
     if (statements.length === 1) {
       return statements[0];

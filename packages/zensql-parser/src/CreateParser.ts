@@ -17,6 +17,7 @@ export function CreateParser(input: TokenStream) {
     parseInteger,
     isKeyword,
     parseTable,
+    createNode,
   } = ParserUtils(input);
 
   return {
@@ -29,11 +30,7 @@ export function CreateParser(input: TokenStream) {
     skipPunctuation('(');
     const columns = parseMultiple(',', parseColumnDef);
     skipPunctuation(')');
-    return {
-      type: 'CreateTableStatement',
-      table,
-      columns,
-    };
+    return createNode('CreateTableStatement', { table, columns });
   }
 
   function parseColumnDef(): Node<'ColumnDef'> {
@@ -50,15 +47,14 @@ export function CreateParser(input: TokenStream) {
       unique = true;
     }
 
-    return {
-      type: 'ColumnDef',
+    return createNode('ColumnDef', {
       dataType,
       name,
       nullable,
       unique,
       primary,
       reference,
-    };
+    });
   }
 
   function parseMaybeReference(): null | Node<'Column'> {
@@ -77,13 +73,11 @@ export function CreateParser(input: TokenStream) {
     skipPunctuation(')');
 
     const [schema, table] = second ? [first, second] : [null, first];
-
-    return {
-      type: 'Column',
+    return createNode('Column', {
       schema,
       table,
       column,
-    };
+    });
   }
 
   function parseMaybeNotNull(): boolean {
@@ -112,25 +106,17 @@ export function CreateParser(input: TokenStream) {
     const dt = dtTok.value.toUpperCase();
     skipDataType();
     if (DataTypes.isNoParamsDataType(dt)) {
-      return {
-        type: 'DataTypeNoParams',
-        dt,
-      };
+      return createNode('DataTypeNoParams', { dt });
     }
     if (DataTypes.isIntParamDataType(dt)) {
       const param = parseMaybeIntParam();
-      return {
-        type: 'DataTypeIntParams',
-        dt,
-        param,
-      };
+      return createNode('DataTypeIntParams', { dt, param });
     }
     if (DataTypes.isNumericDataType(dt)) {
-      return {
-        type: 'DataTypeNumeric',
+      return createNode('DataTypeNumeric', {
         dt,
         params: parseMaybeNumericParams(),
-      };
+      });
     }
     return unexpected(`Unknow DataType ${dt}`);
   }

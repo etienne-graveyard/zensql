@@ -1,7 +1,7 @@
 import { TokenStream } from './TokenStream';
 import { TokenIs, TokenPunctuation, TokenStar, TokenIdentifier, Token } from './Token';
 import { Keyword, Keywords } from './Keyword';
-import { Identifier, Node } from './Node';
+import { Identifier, Node, NodeType, Nodes } from './Node';
 import { DataTypeAny, DataTypes } from './DataType';
 
 export function ParserUtils(input: TokenStream) {
@@ -21,7 +21,16 @@ export function ParserUtils(input: TokenStream) {
     skipDataType,
     parseInteger,
     parseTable,
+    createNode,
   };
+
+  function createNode<K extends NodeType>(type: K, data: Nodes[K]): Node<K> {
+    return {
+      type,
+      ...data,
+      cursor: input.cursor(),
+    };
+  }
 
   function skipComment(): void {
     const next = input.maybePeek();
@@ -134,17 +143,15 @@ export function ParserUtils(input: TokenStream) {
     }
     if (TokenIs.QuotedIdentifier(next)) {
       input.next();
-      return {
-        type: 'CaseSensitiveIdentifier',
+      return createNode('CaseSensitiveIdentifier', {
         value: next.value,
-      };
+      });
     }
     if (TokenIs.Identifier(next)) {
       input.next();
-      return {
-        type: 'Identifier',
+      return createNode('Identifier', {
         value: next.value.toLowerCase(),
-      };
+      });
     }
     return unexpected();
   }
@@ -153,10 +160,9 @@ export function ParserUtils(input: TokenStream) {
     const first = parseIdentifier(false);
     const second = isPunctuation('.') ? (skipPunctuation('.'), parseIdentifier(true)) : null;
     const [schema, table] = second === null ? [null, first] : [first, second];
-    return {
-      type: 'Table',
+    return createNode('Table', {
       schema,
       table,
-    };
+    });
   }
 }

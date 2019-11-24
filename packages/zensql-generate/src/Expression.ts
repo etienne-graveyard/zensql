@@ -79,6 +79,7 @@ function resolveExpression(
           type: 'DataTypeIntParams',
           dt: 'CHARACTER',
           param: 100,
+          cursor: expr.cursor,
         },
         nullable: false,
       },
@@ -92,6 +93,7 @@ function resolveExpression(
         dt: {
           type: 'DataTypeNoParams',
           dt: 'REAL',
+          cursor: expr.cursor,
         },
         nullable: false,
       },

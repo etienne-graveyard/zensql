@@ -3,7 +3,13 @@ export interface InputStream {
   peek(): string;
   eof(): boolean;
   croak(msg: string): never;
+  cursor(): Cursor;
 }
+
+export type Cursor = {
+  line: number;
+  column: number;
+};
 
 export function InputStream(input: string): InputStream {
   let pos = 0;
@@ -11,11 +17,19 @@ export function InputStream(input: string): InputStream {
   let col = 0;
 
   return {
-    next: next,
-    peek: peek,
-    eof: eof,
-    croak: croak,
+    next,
+    peek,
+    eof,
+    croak,
+    cursor,
   };
+
+  function cursor(): Cursor {
+    return {
+      line,
+      column: col,
+    };
+  }
 
   function next(): string {
     const ch = input.charAt(pos++);

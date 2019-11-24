@@ -16,6 +16,7 @@ export function SelectParser(input: TokenStream) {
     isPunctuation,
     skipPunctuation,
     parseTable,
+    createNode,
   } = ParserUtils(input);
   const { parseExpression } = ExpressionParser(input);
 
@@ -26,11 +27,10 @@ export function SelectParser(input: TokenStream) {
   function parseSelectStatement(): Node<'SelectStatement'> {
     const select = parseSelectExpression();
     const fromExpression = parseFromExpression();
-    return {
-      type: 'SelectStatement',
+    return createNode('SelectStatement', {
       select,
       from: fromExpression,
-    };
+    });
   }
 
   function parseSelectExpression(): SelectExpression {
@@ -55,11 +55,10 @@ export function SelectParser(input: TokenStream) {
     if (tables.length === 0) {
       return unexpected();
     }
-    return {
-      type: 'FromExpression',
+    return createNode('FromExpression', {
       tables,
       where,
-    };
+    });
   }
 
   function parseWhereExpression(): null | Expression {
@@ -75,29 +74,25 @@ export function SelectParser(input: TokenStream) {
     skipComment();
     if (isStar()) {
       skipStar();
-      return {
-        type: 'ColumnAll',
-      };
+      return createNode('ColumnAll', {});
     }
     const column = parseColumn();
     if (column.schema === null && isStar()) {
       skipStar();
-      return {
-        type: 'ColumnAllFromTable',
+      return createNode('ColumnAllFromTable', {
         schema: column.table,
         table: column.column,
-      };
+      });
     }
     if (isKeyword('AS')) {
       skipKeyword('AS');
       const alias = parseIdentifier(false);
-      return {
-        type: 'ColumnAlias',
+      return createNode('ColumnAlias', {
         alias,
         schema: column.schema,
         table: column.table,
         column: column.column,
-      };
+      });
     }
     return column;
   }
@@ -123,12 +118,11 @@ export function SelectParser(input: TokenStream) {
       : second
       ? [null, first, second]
       : [null, null, first];
-    return {
-      type: 'Column',
+    return createNode('Column', {
       schema,
       table,
       column,
-    };
+    });
   }
 
   function parseFromExpressionTable(): TableExpression {
@@ -140,12 +134,11 @@ export function SelectParser(input: TokenStream) {
       const right = parseTableOrTableAlias();
       skipKeyword('ON');
       const condition = parseExpression();
-      const join: Node<'LeftJoin'> = {
-        type: 'LeftJoin',
+      const join: Node<'LeftJoin'> = createNode('LeftJoin', {
         left: table,
         condition,
         right,
-      };
+      });
       table = join;
     }
     return table;
@@ -155,11 +148,10 @@ export function SelectParser(input: TokenStream) {
     const table = parseTable();
     if (isKeyword('AS')) {
       skipKeyword('AS');
-      return {
-        type: 'TableAlias',
+      return createNode('TableAlias', {
         table,
         alias: parseIdentifier(true),
-      };
+      });
     }
     return table;
   }

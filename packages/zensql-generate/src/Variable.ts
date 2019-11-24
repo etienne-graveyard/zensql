@@ -55,6 +55,7 @@ function replaceVariable(expr: ZenExpression, variables: Array<VariableResolved>
     return {
       type: 'IndexedVariable',
       num: num + 1,
+      cursor: expr.cursor,
     };
   }
 

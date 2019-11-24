@@ -1,4 +1,4 @@
-import { InputStream } from './InputStream';
+import { InputStream, Cursor } from './InputStream';
 import {
   Token,
   TokenNumber,
@@ -26,6 +26,7 @@ export interface TokenStream {
   maybePeek(): Token | null;
   eof(): boolean;
   croak(msg: string): never;
+  cursor(): Cursor;
 }
 
 export function TokenStream(input: InputStream): TokenStream {
@@ -38,6 +39,7 @@ export function TokenStream(input: InputStream): TokenStream {
     maybePeek,
     eof,
     croak,
+    cursor: input.cursor,
   };
 
   function croak(msg: string): never {
