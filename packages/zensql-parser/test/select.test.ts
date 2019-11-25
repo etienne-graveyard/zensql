@@ -2,14 +2,14 @@ import { Parser } from '../src';
 
 it('parse a simple request', () => {
   expect(Parser.parse(`SELECT foo FROM bar`)).toEqual({
+    cursor: { column: 19, line: 1 },
     from: {
+      cursor: { column: 19, line: 1 },
       tables: [
         {
+          cursor: { column: 19, line: 1 },
           schema: null,
-          table: {
-            type: 'Identifier',
-            value: 'bar',
-          },
+          table: { cursor: { column: 19, line: 1 }, originalValue: 'bar', type: 'Identifier', value: 'bar' },
           type: 'Table',
         },
       ],
@@ -18,10 +18,8 @@ it('parse a simple request', () => {
     },
     select: [
       {
-        column: {
-          type: 'Identifier',
-          value: 'foo',
-        },
+        column: { cursor: { column: 10, line: 1 }, originalValue: 'foo', type: 'Identifier', value: 'foo' },
+        cursor: { column: 15, line: 1 },
         schema: null,
         table: null,
         type: 'Column',
@@ -32,129 +30,52 @@ it('parse a simple request', () => {
 });
 
 it('parse a request with quoted column', () => {
-  expect(Parser.parse(`SELECT foo FROM bar WHERE "foo" = 2`)).toEqual({
-    type: 'SelectStatement',
-    from: {
-      type: 'FromExpression',
-      tables: [
-        {
-          type: 'Table',
-          schema: null,
-          table: { type: 'Identifier', value: 'bar' },
-        },
-      ],
-      where: {
-        type: 'CompareOperation',
-        left: {
-          type: 'Column',
-          column: { type: 'CaseSensitiveIdentifier', value: 'foo' },
-          schema: null,
-          table: null,
-        },
-        operator: 'Equal',
-        right: { type: 'Numeric', value: 2 },
-      },
-    },
-    select: [
-      {
-        type: 'Column',
-        column: { type: 'Identifier', value: 'foo' },
-        schema: null,
-        table: null,
-      },
-    ],
-  });
+  const result: any = Parser.parse(`SELECT foo FROM bar WHERE "foo" = 2`);
+  expect(result.from.where.left.column.type).toBe('CaseSensitiveIdentifier');
 });
 
 it('parse a request with a comment after', () => {
   expect(
     Parser.parse(`SELECT foo FROM bar;
     -- comment`)
-  ).toEqual({
-    from: {
-      type: 'FromExpression',
-      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' }],
-      where: null,
-    },
-    select: [{ column: { type: 'Identifier', value: 'foo' }, schema: null, table: null, type: 'Column' }],
-    type: 'SelectStatement',
-  });
+  ).toEqual(Parser.parse(`SELECT foo FROM bar;`));
 });
 
 it('identifier are not case sensitive', () => {
-  expect(Parser.parse(`SELECT foo FROM BAr;`)).toEqual({
-    from: {
-      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' }],
-      type: 'FromExpression',
-      where: null,
-    },
-    select: [{ column: { type: 'Identifier', value: 'foo' }, schema: null, table: null, type: 'Column' }],
-    type: 'SelectStatement',
-  });
+  expect((Parser.parse(`SELECT foo FROM BAr;`) as any).from.tables[0].table.value).toEqual('bar');
 });
 
 it('identifier are not case sensitive for real', () => {
-  expect(Parser.parse(`SELECT foo FROM BAR;`)).toEqual(Parser.parse(`SELECT FOO FROM bar;`));
+  expect((Parser.parse(`SELECT foo FROM BAR;`) as any).from.tables[0].table.value).toEqual(
+    (Parser.parse(`SELECT FOO FROM bar;`) as any).from.tables[0].table.value
+  );
 });
 
 it('does not parse backtick', () => {
-  expect(() => Parser.parse('SELECT foo FROM bar WHERE foo = `hey`')).toThrowError();
+  expect(() => Parser.parse('SELECT foo FROM bar WHERE foo = `hey`')).toThrowError('Backtick are not supported');
 });
 
 it('parse double quote as column name', () => {
-  expect(Parser.parse(`SELECT foo FROM bar WHERE foo = "other column"`)).toEqual({
-    type: 'SelectStatement',
-    from: {
-      type: 'FromExpression',
-      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' }],
-      where: {
-        type: 'CompareOperation',
-        left: { column: { type: 'Identifier', value: 'foo' }, schema: null, table: null, type: 'Column' },
-        operator: 'Equal',
-        right: {
-          column: { type: 'CaseSensitiveIdentifier', value: 'other column' },
-          schema: null,
-          table: null,
-          type: 'Column',
-        },
-      },
-    },
-    select: [{ column: { type: 'Identifier', value: 'foo' }, schema: null, table: null, type: 'Column' }],
-  });
+  expect((Parser.parse(`SELECT foo FROM bar WHERE foo = "other column"`) as any).from.where.right.type).toEqual(
+    'Column'
+  );
 });
 
 it('parse a request with a named variable', () => {
-  expect(Parser.parse(`SELECT foo FROM bar WHERE id = :id`)).toEqual({
-    type: 'SelectStatement',
-    from: {
-      type: 'FromExpression',
-      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' }],
-      where: {
-        type: 'CompareOperation',
-        left: { column: { type: 'Identifier', value: 'id' }, schema: null, table: null, type: 'Column' },
-        operator: 'Equal',
-        right: { name: 'id', type: 'NamedVariable' },
-      },
-    },
-    select: [{ column: { type: 'Identifier', value: 'foo' }, schema: null, table: null, type: 'Column' }],
-  });
+  expect((Parser.parse(`SELECT foo FROM bar WHERE id = :id`) as any).from.where.right.type).toEqual('NamedVariable');
 });
 
 it('parse a request with an indexed variable', () => {
-  expect(Parser.parse(`SELECT foo FROM bar WHERE id = $1`)).toEqual({
-    type: 'SelectStatement',
-    from: {
-      type: 'FromExpression',
-      tables: [{ schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' }],
-      where: {
-        type: 'CompareOperation',
-        left: { type: 'Column', column: { type: 'Identifier', value: 'id' }, schema: null, table: null },
-        operator: 'Equal',
-        right: { num: 1, type: 'IndexedVariable' },
-      },
-    },
-    select: [{ column: { type: 'Identifier', value: 'foo' }, schema: null, table: null, type: 'Column' }],
-  });
+  expect((Parser.parse(`SELECT foo FROM bar WHERE id = $1`) as any).from.where.right.type).toEqual('IndexedVariable');
+});
+
+it('parse escaped single quote', () => {
+  expect(() => Parser.parse(`SELECT foo FROM bar WHERE foo = 'john''s'`)).not.toThrow();
+});
+
+it('parse escaped single quote correctly', () => {
+  const parsed: any = Parser.parse(`SELECT foo FROM bar WHERE foo = 'john''s'`);
+  expect(parsed.from.where.right.value).toEqual(`john's`);
 });
 
 describe('parse all sort of queries without error', () => {
@@ -196,82 +117,17 @@ it('parse a mulitple LEFT JOIN', () => {
 });
 
 it('LEFT JOIN output correctly', () => {
-  expect(Parser.parse('SELECT foo FROM bar LEFT JOIN boo ON bar.id = boo.bar_id')).toEqual({
-    from: {
-      tables: [
-        {
-          type: 'LeftJoin',
-          left: { schema: null, table: { type: 'Identifier', value: 'bar' }, type: 'Table' },
-          condition: {
-            left: {
-              column: { type: 'Identifier', value: 'id' },
-              schema: null,
-              table: { type: 'Identifier', value: 'bar' },
-              type: 'Column',
-            },
-            operator: 'Equal',
-            right: {
-              column: { type: 'Identifier', value: 'bar_id' },
-              schema: null,
-              table: { type: 'Identifier', value: 'boo' },
-              type: 'Column',
-            },
-            type: 'CompareOperation',
-          },
-          right: { schema: null, table: { type: 'Identifier', value: 'boo' }, type: 'Table' },
-        },
-      ],
-      type: 'FromExpression',
-      where: null,
-    },
-    select: [{ column: { type: 'Identifier', value: 'foo' }, schema: null, table: null, type: 'Column' }],
-    type: 'SelectStatement',
-  });
+  const result: any = Parser.parse('SELECT foo FROM bar LEFT JOIN boo ON bar.id = boo.bar_id');
+  expect(result.from.tables[0].type).toEqual('LeftJoin');
+  expect(result.from.tables[0].left.type).toBe('Table');
+  expect(result.from.tables[0].right.type).toBe('Table');
 });
 
 it('mulitple LEFT JOIN output', () => {
-  const parsed = Parser.parse(
+  const parsed: any = Parser.parse(
     'SELECT col1 FROM table1 LEFT JOIN table2 ON table1.id = table2.table1_id LEFT JOIN table3 ON table3.id = table2.table3_id'
   );
-  expect((parsed as any).from.tables[0]).toEqual({
-    type: 'LeftJoin',
-    left: {
-      type: 'LeftJoin',
-      left: { schema: null, table: { type: 'Identifier', value: 'table1' }, type: 'Table' },
-      condition: {
-        left: {
-          type: 'Column',
-          column: { type: 'Identifier', value: 'id' },
-          schema: null,
-          table: { type: 'Identifier', value: 'table1' },
-        },
-        operator: 'Equal',
-        right: {
-          type: 'Column',
-          column: { type: 'Identifier', value: 'table1_id' },
-          schema: null,
-          table: { type: 'Identifier', value: 'table2' },
-        },
-        type: 'CompareOperation',
-      },
-      right: { schema: null, table: { type: 'Identifier', value: 'table2' }, type: 'Table' },
-    },
-    condition: {
-      left: {
-        column: { type: 'Identifier', value: 'id' },
-        schema: null,
-        table: { type: 'Identifier', value: 'table3' },
-        type: 'Column',
-      },
-      operator: 'Equal',
-      right: {
-        column: { type: 'Identifier', value: 'table3_id' },
-        schema: null,
-        table: { type: 'Identifier', value: 'table2' },
-        type: 'Column',
-      },
-      type: 'CompareOperation',
-    },
-    right: { schema: null, table: { type: 'Identifier', value: 'table3' }, type: 'Table' },
-  });
+  expect(parsed.from.tables[0].type).toBe('LeftJoin');
+  expect(parsed.from.tables[0].left.type).toBe('LeftJoin');
+  expect(parsed.from.tables[0].right.type).toBe('Table');
 });

@@ -128,7 +128,10 @@ export function TokenStream(input: InputStream): TokenStream {
         value: readWhile(isOpChar),
       };
     }
-    return input.croak("Can't handle character: " + ch);
+    if (ch === '`') {
+      return input.croak(`Backtick are not supported`);
+    }
+    return input.croak(`Unexpected token: "${ch}"`);
   }
 
   function isDigit(ch: string): boolean {
@@ -217,17 +220,26 @@ export function TokenStream(input: InputStream): TokenStream {
 
   function readEscaped(end: string): string {
     let escaped = false;
+    let endFound = false;
     let str = '';
     input.next();
     while (!input.eof()) {
       const ch = input.next();
+      if (endFound && ch !== end) {
+        break;
+      }
       if (escaped) {
         str += ch;
         escaped = false;
       } else if (ch == '\\') {
         escaped = true;
       } else if (ch == end) {
-        break;
+        if (endFound) {
+          str += end;
+          endFound = false;
+        } else {
+          endFound = true;
+        }
       } else {
         str += ch;
       }

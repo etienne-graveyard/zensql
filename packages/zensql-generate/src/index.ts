@@ -7,14 +7,14 @@ export { DatabaseDefinition } from './DatabaseSchema';
 
 type Command = 'generate' | 'setup';
 
-export function resolveCommand(argv: Array<string>): [Command, Array<string>] {
+export function resolveCommand(argv: Array<string>): { command: Command; args: Array<string> } {
   if (argv[2] === 'setup') {
-    return ['setup', argv.slice(3)];
+    return { command: 'setup', args: argv.slice(3) };
   }
   if (argv[2] === 'generate') {
-    return ['generate', argv.slice(3)];
+    return { command: 'generate', args: argv.slice(3) };
   }
-  return ['generate', argv.slice(2)];
+  return { command: 'generate', args: argv.slice(2) };
 }
 
 export interface GenerateOptions {
@@ -40,13 +40,13 @@ export function resolveSetupOptions(argv: Array<string>): SetupOptions {
   return { connectUrl };
 }
 
-export async function command(argv: Array<string>) {
+export function command(argv: Array<string>) {
   try {
-    const [command, args] = resolveCommand(argv);
-    if (command === 'generate') {
-      return await runGenerateCommand(resolveGenerateOptions(args));
+    const info = resolveCommand(argv);
+    if (info.command === 'generate') {
+      return runGenerateCommand(resolveGenerateOptions(info.args));
     }
-    return runSetupCommand(resolveSetupOptions(args));
+    return runSetupCommand(resolveSetupOptions(info.args));
   } catch (error) {
     console.log('Something bad happened');
     console.error(error);
