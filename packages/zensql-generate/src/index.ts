@@ -23,11 +23,15 @@ export interface GenerateOptions {
   importFrom?: string;
 }
 
-export function resolveGenerateOptions(argv: Array<string>): GenerateOptions {
+export interface GlobalOptions {
+  importFrom?: string;
+}
+
+export function resolveGenerateOptions(argv: Array<string>, options: GlobalOptions = {}): GenerateOptions {
   const source = path.resolve(process.cwd(), argv[0]);
   const target = path.resolve(process.cwd(), argv[1]);
   // TODO: validate options
-  return { source, target };
+  return { source, target, importFrom: options.importFrom };
 }
 
 export interface SetupOptions {
@@ -40,11 +44,11 @@ export function resolveSetupOptions(argv: Array<string>): SetupOptions {
   return { connectUrl };
 }
 
-export function command(argv: Array<string>) {
+export function command(argv: Array<string>, options: GlobalOptions = {}) {
   try {
     const info = resolveCommand(argv);
     if (info.command === 'generate') {
-      return runGenerateCommand(resolveGenerateOptions(info.args));
+      return runGenerateCommand(resolveGenerateOptions(info.args, options));
     }
     return runSetupCommand(resolveSetupOptions(info.args));
   } catch (error) {
