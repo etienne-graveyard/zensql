@@ -1,6 +1,6 @@
 {
   "name": "tests",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.7",
   "private": true,
   "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
