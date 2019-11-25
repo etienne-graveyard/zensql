@@ -15,7 +15,12 @@ export interface Nodes {
   IndexedVariable: { num: number };
 
   // Identifier
-  Identifier: { value: string };
+  Identifier: {
+    // the value as used by Postgres in lowercas
+    value: string;
+    // original value for linteng purpose
+    originalValue: string;
+  };
   CaseSensitiveIdentifier: { value: string };
 
   // Expression

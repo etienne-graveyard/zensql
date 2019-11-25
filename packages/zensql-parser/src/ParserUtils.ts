@@ -151,6 +151,7 @@ export function ParserUtils(input: TokenStream) {
       input.next();
       return createNode('Identifier', {
         value: next.value.toLowerCase(),
+        originalValue: next.value,
       });
     }
     return unexpected();

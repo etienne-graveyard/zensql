@@ -5,28 +5,55 @@ import { Printer } from './Printer';
 
 export { DatabaseDefinition } from './DatabaseSchema';
 
-export interface Options {
+type Command = 'generate' | 'setup';
+
+export function resolveCommand(argv: Array<string>): [Command, Array<string>] {
+  if (argv[2] === 'setup') {
+    return ['setup', argv.slice(3)];
+  }
+  if (argv[2] === 'generate') {
+    return ['generate', argv.slice(3)];
+  }
+  return ['generate', argv.slice(2)];
+}
+
+export interface GenerateOptions {
   source: string;
   target: string;
   importFrom?: string;
 }
 
-export function resolveArgv(argv: Array<string>): Options {
-  const source = path.resolve(process.cwd(), argv[2]);
-  const target = path.resolve(process.cwd(), argv[3]);
+export function resolveGenerateOptions(argv: Array<string>): GenerateOptions {
+  const source = path.resolve(process.cwd(), argv[0]);
+  const target = path.resolve(process.cwd(), argv[1]);
+  // TODO: validate options
   return { source, target };
+}
+
+export interface SetupOptions {
+  connectUrl: string;
+}
+
+export function resolveSetupOptions(argv: Array<string>): SetupOptions {
+  const connectUrl = argv[0];
+  // TODO: validate options
+  return { connectUrl };
 }
 
 export async function command(argv: Array<string>) {
   try {
-    await runCommand(resolveArgv(argv));
+    const [command, args] = resolveCommand(argv);
+    if (command === 'generate') {
+      return await runGenerateCommand(resolveGenerateOptions(args));
+    }
+    return runSetupCommand(resolveSetupOptions(args));
   } catch (error) {
     console.log('Something bad happened');
     console.error(error);
   }
 }
 
-export async function runCommand(options: Options) {
+export async function runGenerateCommand(options: GenerateOptions) {
   const { source, target, importFrom = '@zensql/parser' } = options;
 
   const SQL_TABLES_FOLDER = path.resolve(source, 'tables');
@@ -43,4 +70,9 @@ export async function runCommand(options: Options) {
     queries,
     importFrom,
   });
+}
+
+export function runSetupCommand(options: SetupOptions) {
+  const { connectUrl } = options;
+  console.log('todo', connectUrl);
 }
