@@ -1,5 +1,5 @@
 {
-  "name": "@zensql/generate",
+  "name": "@zensql/scripts",
   "version": "1.0.0-alpha.7",
   "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
@@ -9,10 +9,10 @@
     "bin"
   ],
   "main": "dist/index.js",
-  "module": "dist/zensql.generate.esm.js",
+  "module": "dist/zensql.scripts.esm.js",
   "typings": "dist/index.d.ts",
   "bin": {
-    "zensql-generate": "./bin/zensql-generate.js"
+    "zensql-scripts": "./bin/zensql-scripts.js"
   },
   "scripts": {
     "build": "tsdx build --target node",

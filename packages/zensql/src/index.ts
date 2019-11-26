@@ -1,5 +1,5 @@
-import * as zenslqGenerate from '@zensql/generate';
-export { DatabaseDefinition } from '@zensql/generate';
+import * as zenslqGenerate from '@zensql/scripts';
+export { DatabaseDefinition } from '@zensql/scripts';
 
 export interface Options {
   source: string;

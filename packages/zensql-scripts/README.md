@@ -1,4 +1,4 @@
-# @zensql/generate
+# @zensql/scripts
 
 ## ZenSQL
 
