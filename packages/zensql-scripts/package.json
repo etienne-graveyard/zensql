@@ -33,5 +33,8 @@
     "@types/yup": "^0.26.24",
     "tsdx": "^0.11.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "gitHead": "a0e3f23cbd47c48cd8c87f70fbf585f67780e090"
 }
