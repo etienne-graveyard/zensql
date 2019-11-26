@@ -9,15 +9,20 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev ./src/index.ts",
-    "sql": "zensql ./src/sql ./src/sql.ts",
+    "sql": "zensql generate",
+    "sql-setup": "zensql setup",
     "start": "ts-node ./src/index.ts"
   },
+  "zensql": {
+    "sqlFolder": "src/sql",
+    "generatedFile": "src/sql.ts"
+  },
   "dependencies": {
-    "@types/pg": "^7.11.2",
     "pg": "^7.14.0",
     "zensql": "^1.0.0-alpha.7"
   },
   "devDependencies": {
+    "@types/pg": "^7.11.2",
     "ts-node": "^8.5.2",
     "ts-node-dev": "^1.0.0-pre.44"
   }

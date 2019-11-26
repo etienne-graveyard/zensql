@@ -3,7 +3,7 @@ import fse from 'fs-extra';
 import { QueryResolved } from './Query';
 import { DatabaseDefinition } from './DatabaseSchema';
 import { Variable } from './Variable';
-import { saveFile } from './utils';
+import { saveFile } from '../common/utils';
 import { ColumnType } from './Column';
 import { Serializer } from '@zensql/parser';
 

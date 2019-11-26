@@ -22,11 +22,15 @@
   "dependencies": {
     "@zensql/parser": "^1.0.0-alpha.7",
     "fs-extra": "^8.1.0",
-    "prettier": "^1.19.1"
+    "pg": "^7.14.0",
+    "prettier": "^1.19.1",
+    "yup": "^0.27.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.0.1",
+    "@types/pg": "^7.11.2",
     "@types/prettier": "^1.19.0",
+    "@types/yup": "^0.26.24",
     "tsdx": "^0.11.0"
   },
   "gitHead": "a0e3f23cbd47c48cd8c87f70fbf585f67780e090"
