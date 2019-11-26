@@ -219,7 +219,6 @@ export function TokenStream(input: InputStream): TokenStream {
   }
 
   function readEscaped(end: string): string {
-    let escaped = false;
     let endFound = false;
     let str = '';
     input.next();
@@ -228,12 +227,7 @@ export function TokenStream(input: InputStream): TokenStream {
       if (endFound && ch !== end) {
         break;
       }
-      if (escaped) {
-        str += ch;
-        escaped = false;
-      } else if (ch == '\\') {
-        escaped = true;
-      } else if (ch == end) {
+      if (ch === end) {
         if (endFound) {
           str += end;
           endFound = false;
