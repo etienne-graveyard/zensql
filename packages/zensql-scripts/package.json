@@ -1,6 +1,6 @@
 {
   "name": "@zensql/scripts",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.9",
   "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
@@ -20,7 +20,7 @@
     "try": "node ./dist/index.js"
   },
   "dependencies": {
-    "@zensql/parser": "^1.0.0-alpha.8",
+    "@zensql/parser": "^1.0.0-alpha.9",
     "fs-extra": "^8.1.0",
     "pg": "^7.14.0",
     "prettier": "^1.19.1",
