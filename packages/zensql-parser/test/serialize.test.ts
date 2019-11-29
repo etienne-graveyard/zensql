@@ -19,6 +19,7 @@ describe('parse and serialize all sort of queries without error with same result
     `SELECT * FROM foo WHERE size > 0;`,
     `SELECT emp_id, name FROM employee_tbl WHERE emp_id = "0000";`,
     `SELECT foo FROM bar LEFT JOIN boo ON bar.id = boo.bar_id;`,
+    `CREATE TABLE public.documents (id TEXT);`,
   ];
 
   QUERIES.forEach(q => {

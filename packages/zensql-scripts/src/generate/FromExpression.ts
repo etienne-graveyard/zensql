@@ -1,5 +1,5 @@
 import { Node, TableExpression, NodeIs, Identifier } from '@zensql/parser';
-import { DatabaseDefinition } from './DatabaseSchema';
+import { Tables } from '../common/Tables';
 
 export const FromExpression = {
   resolve: resolveFromExpression,
@@ -13,17 +13,17 @@ export interface TableResolved {
   alias: string | null;
 }
 
-function resolveFromExpression(schema: DatabaseDefinition, expr: Node<'FromExpression'>): Array<TableResolved> {
+function resolveFromExpression(tables: Tables, expr: Node<'FromExpression'>): Array<TableResolved> {
   // Validate FROM and extract selected tables
   return expr.tables
-    .map(fromExpre => resolveTableExpression(schema, fromExpre))
+    .map(fromExpre => resolveTableExpression(tables, fromExpre))
     .reduce<Array<TableResolved>>((acc, val) => {
       acc.push(...val);
       return acc;
     }, []);
 }
 
-function resolveTableExpression(schema: DatabaseDefinition, table: TableExpression): Array<TableResolved> {
+function resolveTableExpression(schema: Tables, table: TableExpression): Array<TableResolved> {
   if (NodeIs.LeftJoin(table)) {
     return resolveLeftJoin(schema, table);
   }
@@ -36,21 +36,21 @@ function resolveTableExpression(schema: DatabaseDefinition, table: TableExpressi
   throw new Error(`Unhandled type ${table.type}`);
 }
 
-function resolveLeftJoin(schema: DatabaseDefinition, join: Node<'LeftJoin'>): Array<TableResolved> {
+function resolveLeftJoin(tables: Tables, join: Node<'LeftJoin'>): Array<TableResolved> {
   // TODO: validate condition
-  const left = resolveTableExpression(schema, join.left);
-  const right = resolveTableExpression(schema, join.right);
+  const left = resolveTableExpression(tables, join.left);
+  const right = resolveTableExpression(tables, join.right);
   return [...left, ...right];
 }
 
-function findTable(schema: DatabaseDefinition, table: Identifier, alias: Identifier | null): TableResolved {
-  const tableResolved = schema.find(t => t.table.table.value === table.value);
+function findTable(tables: Tables, table: Identifier, alias: Identifier | null): TableResolved {
+  const tableResolved = tables.find(t => t.ast.table.table.value === table.value);
   if (tableResolved === undefined) {
     throw new Error(`Invalid table ${table.value}`);
   }
   return {
     table: table.value,
-    columns: tableResolved.columns,
+    columns: tableResolved.ast.columns,
     alias: alias ? alias.value : null,
   };
 }

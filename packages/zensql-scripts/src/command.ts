@@ -25,7 +25,8 @@ export async function command(argv: Array<string>, options: GlobalOptions = {}) 
       return runGenerateCommand(generateOptions);
     }
     if (info.command === 'setup') {
-      return runSetupCommand(resolveSetupOptions(info.args));
+      const setupOptions = await resolveSetupOptions(info.args);
+      return runSetupCommand(setupOptions);
     }
     return;
   } catch (error) {

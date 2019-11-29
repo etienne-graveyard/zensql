@@ -1,7 +1,7 @@
 import path from 'path';
 import fse from 'fs-extra';
 import { QueryResolved } from './Query';
-import { DatabaseDefinition } from './DatabaseSchema';
+import { Tables } from '../common/Tables';
 import { Variable } from './Variable';
 import { saveFile } from '../common/utils';
 import { ColumnType } from './Column';
@@ -13,7 +13,7 @@ export const Printer = {
 
 interface Options {
   targetPath: string;
-  schema: DatabaseDefinition;
+  schema: Tables;
   queries: Array<QueryResolved>;
   importFrom: string;
 }
@@ -40,7 +40,7 @@ async function print(options: Options): Promise<void> {
   await saveFile(targetPath, content);
 }
 
-function printSchema(schema: DatabaseDefinition): string {
+function printSchema(schema: Tables): string {
   return [``, `export const TABLES: DatabaseDefinition = ${JSON.stringify(schema)}`, ``].join('\n');
 }
 

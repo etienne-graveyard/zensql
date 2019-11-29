@@ -19,7 +19,20 @@ const ZensqlConfigSchema = Yup.object().shape<ZensqlConfig>({
 
 export const Config = {
   read: readConfig,
+  resolveSqlFolders,
 };
+
+interface SqlFolders {
+  tables: string;
+  queries: string;
+}
+
+function resolveSqlFolders(sqlFolder: string): SqlFolders {
+  return {
+    tables: path.resolve(sqlFolder, 'tables'),
+    queries: path.resolve(sqlFolder, 'queries'),
+  };
+}
 
 async function readConfig(projectPath: string): Promise<ZensqlConfig> {
   const pkgPath = path.resolve(projectPath, 'package.json');

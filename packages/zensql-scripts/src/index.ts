@@ -1,2 +1,2 @@
-export { DatabaseDefinition } from './generate/DatabaseSchema';
+export { Tables } from './common/Tables';
 export { command } from './command';

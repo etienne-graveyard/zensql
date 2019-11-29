@@ -1,4 +1,4 @@
-import { NodeIs, Node, Identifier } from './Node';
+import { Node, Identifier, NodeType } from './Node';
 import { BooleanOperator, CompareOperator, ValueOperator, Operators, Operator } from './Operator';
 
 export const Serializer = {
@@ -18,33 +18,38 @@ function formatOperator(
   return parenthese ? `(${content})` : content;
 }
 
-function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | null): string {
-  if (Array.isArray(node)) {
-    return node.map(serializeInternal).join(`\n`);
-  }
-  if (NodeIs.Boolean(node)) {
-    return node.value ? 'TRUE' : 'FALSE';
-  }
-  if (NodeIs.BooleanOperation(node)) {
+const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | null) => string } = {
+  Boolean: node => (node.value ? 'TRUE' : 'FALSE'),
+  BooleanOperation: (node, parentPrecedence) => {
     const sep = node.operator === BooleanOperator.And ? 'AND' : 'OR';
     return formatOperator(sep, node.left, node.right, node.operator, parentPrecedence);
-  }
-  if (NodeIs.Column(node)) {
+  },
+  Case: () => {
+    throw new Error('Unsuported');
+  },
+  CaseSensitiveIdentifier: node => {
+    return `"${node.value}"`;
+  },
+  CaseWhen: () => {
+    throw new Error('Unsuported');
+  },
+  Column: node => {
     return serializeCol(node.schema, node.table, node.column);
-  }
-  if (NodeIs.ColumnAlias(node)) {
+  },
+  ColumnAlias: node => {
     return `${serializeCol(node.schema, node.table, node.column)} AS ${serializeInternal(node.alias, null)}`;
-  }
-  if (NodeIs.ColumnAll(node)) {
-    return `*`;
-  }
-  if (NodeIs.ColumnAllFromTable(node)) {
+  },
+  ColumnAll: () => '*',
+  ColumnAllFromTable: node => {
     return `${serializeCol(node.schema, node.table, null)}.*`;
-  }
-  if (NodeIs.Comment(node)) {
-    return '';
-  }
-  if (NodeIs.CompareOperation(node)) {
+  },
+  ColumnDef: node => {
+    return `${serializeInternal(node.name, null)} ${serializeInternal(node.dataType, null)}`;
+  },
+  Comment: () => {
+    throw new Error('Unsuported');
+  },
+  CompareOperation: (node, parentPrecedence) => {
     const op = node.operator;
     const sep =
       op === CompareOperator.Equal
@@ -64,60 +69,65 @@ function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | 
       throw new Error(`Invalid CompareOperator ${op}`);
     }
     return formatOperator(sep, node.left, node.right, node.operator, parentPrecedence);
-  }
-  if (NodeIs.Empty(node)) {
-    return '';
-  }
-  if (NodeIs.Identifier(node)) {
-    return node.value;
-  }
-  if (NodeIs.CaseSensitiveIdentifier(node)) {
-    return `"${node.value}"`;
-  }
-  if (NodeIs.IndexedVariable(node)) {
-    return '$' + node.num;
-  }
-  if (NodeIs.NamedVariable(node)) {
-    return ':' + node.name;
-  }
-  if (NodeIs.Null(node)) {
-    return `NULL`;
-  }
-  if (NodeIs.Numeric(node)) {
-    return node.value.toString();
-  }
-  if (NodeIs.SelectStatement(node)) {
-    return (
-      [`SELECT ${serializeArray(node.select)}`, serializeInternal(node.from, null)]
-        .filter((v): v is string => v !== null)
-        .join(' ') + ';'
-    );
-  }
-  if (NodeIs.FromExpression(node)) {
+  },
+  CreateTableStatement: node => {
+    return `CREATE TABLE ${serializeInternal(node.table, null)} (${serializeArray(node.columns, ', ')});`;
+  },
+  DataTypeIntParams: () => {
+    throw new Error('Unsuported');
+  },
+  DataTypeNoParams: node => {
+    return node.dt;
+  },
+  DataTypeNumeric: () => {
+    throw new Error('Unsuported');
+  },
+  Empty: () => '',
+  FromExpression: node => {
     return [
       `FROM ${serializeArray(node.tables)}`,
       node.where === null ? null : `WHERE ${serializeInternal(node.where, null)}`,
     ]
       .filter((v): v is string => v !== null)
       .join(' ');
-  }
-  if (NodeIs.String(node)) {
-    // TODO: handle escape !!
-    return `"${node.value}"`;
-  }
-  if (NodeIs.TableAlias(node)) {
-    return `${serializeInternal(node.table, null)} AS ${serializeInternal(node.alias, null)}`;
-  }
-  if (NodeIs.Table(node)) {
-    return serializeCol(node.schema, node.table, null);
-  }
-  if (NodeIs.LeftJoin(node)) {
+  },
+  Identifier: node => node.value,
+  IndexedVariable: node => {
+    return '$' + node.num;
+  },
+  LeftJoin: node => {
     return `${serializeInternal(node.left, null)} LEFT JOIN ${serializeInternal(
       node.right,
       null
     )} ON ${serializeInternal(node.condition, null)}`;
-  }
-  if (NodeIs.ValueOperation(node)) {
+  },
+  NamedVariable: node => {
+    return ':' + node.name;
+  },
+  Null: () => {
+    return `NULL`;
+  },
+  Numeric: node => {
+    return node.value.toString();
+  },
+  SelectStatement: node => {
+    return (
+      [`SELECT ${serializeArray(node.select)}`, serializeInternal(node.from, null)]
+        .filter((v): v is string => v !== null)
+        .join(' ') + ';'
+    );
+  },
+  String: node => {
+    // TODO: handle escape !!
+    return `"${node.value}"`;
+  },
+  Table: node => {
+    return serializeCol(node.schema, node.table, null);
+  },
+  TableAlias: node => {
+    return `${serializeInternal(node.table, null)} AS ${serializeInternal(node.alias, null)}`;
+  },
+  ValueOperation: (node, parentPrecedence) => {
     const op = node.operator;
     const sep =
       op === ValueOperator.Plus
@@ -135,6 +145,19 @@ function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | 
       throw new Error(`Invalid ValueOperation ${op}`);
     }
     return formatOperator(sep, node.left, node.right, node.operator, parentPrecedence);
+  },
+  When: () => {
+    throw new Error('Unsuported');
+  },
+};
+
+function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | null): string {
+  if (Array.isArray(node)) {
+    return node.map(serializeInternal).join(`\n`);
+  }
+  const ser = SERIALIZER[node.type];
+  if (ser) {
+    return ser(node as any, parentPrecedence);
   }
   throw new Error(`Unsuported serialize on Node of type ${node.type}`);
 }
