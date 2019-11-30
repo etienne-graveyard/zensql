@@ -88,13 +88,16 @@ export interface Nodes {
     where: Expression | null;
   };
 
+  // Constraints
+  NotNullConstraint: {};
+  PrimaryKeyConstraint: {};
+  UniqueConstraint: {};
+
   // ColumnDef
   ColumnDef: {
     name: Identifier;
     dataType: DataType;
-    nullable: boolean;
-    primary: boolean;
-    unique: boolean;
+    constraints: Array<Constraint>;
     reference: null | Node<'Column'>;
   };
 
@@ -132,36 +135,39 @@ type NodeCommon = {
 export type Node<K extends NodeType = NodeType> = Nodes[K] & { type: K } & NodeCommon;
 
 const NODES_OBJ: { [K in NodeType]: null } = {
-  String: null,
-  Numeric: null,
   Boolean: null,
-  Null: null,
-  IndexedVariable: null,
-  NamedVariable: null,
-  Identifier: null,
-  CaseSensitiveIdentifier: null,
-  Comment: null,
-  When: null,
-  Case: null,
-  CaseWhen: null,
   BooleanOperation: null,
-  CompareOperation: null,
-  ValueOperation: null,
+  Case: null,
+  CaseSensitiveIdentifier: null,
+  CaseWhen: null,
   Column: null,
   ColumnAlias: null,
   ColumnAll: null,
   ColumnAllFromTable: null,
+  ColumnDef: null,
+  Comment: null,
+  CompareOperation: null,
+  CreateTableStatement: null,
+  DataTypeIntParams: null,
+  DataTypeNoParams: null,
+  DataTypeNumeric: null,
+  Empty: null,
+  FromExpression: null,
+  Identifier: null,
+  IndexedVariable: null,
+  LeftJoin: null,
+  NamedVariable: null,
+  NotNullConstraint: null,
+  Null: null,
+  Numeric: null,
+  PrimaryKeyConstraint: null,
+  SelectStatement: null,
+  String: null,
   Table: null,
   TableAlias: null,
-  SelectStatement: null,
-  Empty: null,
-  CreateTableStatement: null,
-  ColumnDef: null,
-  DataTypeNoParams: null,
-  DataTypeIntParams: null,
-  DataTypeNumeric: null,
-  FromExpression: null,
-  LeftJoin: null,
+  UniqueConstraint: null,
+  ValueOperation: null,
+  When: null,
 };
 
 const NODES = Object.keys(NODES_OBJ) as Array<NodeType>;
@@ -184,6 +190,7 @@ export type DataType = Node<'DataTypeNoParams' | 'DataTypeNumeric' | 'DataTypeIn
 export type TableExpression = Node<'TableAlias' | 'Table' | 'LeftJoin'>;
 export type SelectExpressionItem = Node<'Column' | 'ColumnAlias' | 'ColumnAll' | 'ColumnAllFromTable'>;
 export type SelectExpression = Array<SelectExpressionItem>;
+export type Constraint = Node<'NotNullConstraint' | 'PrimaryKeyConstraint' | 'UniqueConstraint'>;
 
 export type Statement = Node<'SelectStatement' | 'CreateTableStatement'>;
 export type Statements = Array<Statement>;

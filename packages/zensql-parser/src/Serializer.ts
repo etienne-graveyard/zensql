@@ -149,6 +149,11 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
   When: () => {
     throw new Error('Unsuported');
   },
+  NotNullConstraint: () => {
+    return 'NOT NULL';
+  },
+  PrimaryKeyConstraint: () => `PRIMARY KEY`,
+  UniqueConstraint: () => `UNIQUE`,
 };
 
 function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | null): string {

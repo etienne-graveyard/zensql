@@ -1,5 +1,5 @@
 import { TokenStream } from './TokenStream';
-import { Node, DataType, Identifier } from './Node';
+import { Node, DataType, Identifier, Constraint } from './Node';
 import { ParserUtils } from './ParserUtils';
 import { DataTypes } from './DataType';
 
@@ -37,22 +37,13 @@ export function CreateParser(input: TokenStream) {
     skipComment();
     const name = parseIdentifier(false);
     const dataType = parseDataType();
-    let nullable = parseMaybeNotNull();
-    let unique = false;
-    const primary = parseMaybePrimaryKey();
     const reference = parseMaybeReference();
-
-    if (primary) {
-      nullable = false;
-      unique = true;
-    }
+    const constraints = parseConstraints();
 
     return createNode('ColumnDef', {
       dataType,
       name,
-      nullable,
-      unique,
-      primary,
+      constraints,
       reference,
     });
   }
@@ -80,22 +71,36 @@ export function CreateParser(input: TokenStream) {
     });
   }
 
-  function parseMaybeNotNull(): boolean {
+  function parseConstraints(): Array<Constraint> {
+    const result: Array<Constraint> = [];
+    let next = parseConstraint();
+    while (!input.eof() && next) {
+      result.push(next);
+      next = parseConstraint();
+    }
+    return result;
+  }
+
+  function parseConstraint(): Constraint | null {
+    return parseMaybeNotNull() || parseMaybePrimaryKey();
+  }
+
+  function parseMaybeNotNull(): Node<'NotNullConstraint'> | null {
     if (isKeyword('NOT')) {
       skipKeyword('NOT');
       skipKeyword('NULL');
-      return false;
+      return createNode('NotNullConstraint', {});
     }
-    return true;
+    return null;
   }
 
-  function parseMaybePrimaryKey(): boolean {
+  function parseMaybePrimaryKey(): Node<'PrimaryKeyConstraint'> | null {
     if (isKeyword('PRIMARY')) {
       skipKeyword('PRIMARY');
       skipKeyword('KEY');
-      return true;
+      return createNode('PrimaryKeyConstraint', {});
     }
-    return false;
+    return null;
   }
 
   function parseDataType(): DataType {
