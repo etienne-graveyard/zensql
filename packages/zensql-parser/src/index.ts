@@ -18,6 +18,9 @@ export {
   SelectExpression,
   SelectExpressionItem,
   Statements,
+  Constraint,
+  NodeType,
+  TableConstraint,
 } from './core/Node';
 export { BooleanOperator, CompareOperator, ValueOperator } from './core/Operator';
 export { Parser, Result } from './Parser';

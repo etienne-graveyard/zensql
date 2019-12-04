@@ -1,9 +1,9 @@
 import path from 'path';
 import fse from 'fs-extra';
-import { QueryResolved } from './Query';
+import { QueryResolved, SelectQueryResolved, InsertQueryResolved } from './Query';
 import { Variable } from './Variable';
 import { saveFile } from '../common/utils';
-import { ColumnType } from './Column';
+import { ColumnType } from '../common/ColumnUtils';
 import { Serializer } from '@zensql/parser';
 
 export const Printer = {
@@ -46,6 +46,39 @@ function printQueries(queries: Array<QueryResolved>): string {
 }
 
 function printQuery(query: QueryResolved): string {
+  if (query.type === 'Select') {
+    return printSelectQuery(query);
+  }
+  if (query.type === 'Insert') {
+    return printInsertQuery(query);
+  }
+  throw new Error('Not implemented yet');
+}
+
+function printInsertQuery(query: InsertQueryResolved): string {
+  const outQuery = Variable.replace(query.query, query.variables);
+
+  const option =
+    query.variables.length === 0
+      ? null
+      : query.variables.length === 1
+      ? `${query.variables[0].name}: ${generateTypes(query.variables[0].type)}`
+      : `params: { ${query.variables.map(v => `${v.name}: ${generateTypes(v.type)}`).join('; ')} }`;
+
+  return [
+    `function ${query.name}(pool: Pool${option ? ', ' + option : ''}): Promise<QueryResult<{}>> {`,
+    query.variables.length > 1 ? `  const { ${query.variables.map(v => v.name).join(', ')} } = params;` : null,
+    `  return pool.query(`,
+    `    \`${Serializer.serialize(outQuery)}\`,`,
+    `    [${query.variables.map(v => v.name).join(', ')}]`,
+    `  );`,
+    `}`,
+  ]
+    .filter(v => v !== null)
+    .join('\n');
+}
+
+function printSelectQuery(query: SelectQueryResolved): string {
   const outQuery = Variable.replace(query.query, query.variables);
   const interfaceName = query.name.substring(0, 1).toUpperCase() + query.name.substring(1) + 'Result';
 

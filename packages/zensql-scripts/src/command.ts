@@ -26,7 +26,7 @@ export async function command(argv: Array<string>) {
     }
     return;
   } catch (error) {
-    console.log('Something bad happened');
+    console.info('Something bad happened');
     console.error(error);
     return;
   }

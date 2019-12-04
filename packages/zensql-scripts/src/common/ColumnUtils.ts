@@ -1,10 +1,11 @@
-import { DataType, Node, NodeIs, SelectExpression, SelectExpressionItem } from '@zensql/parser';
-import { TableResolved } from './FromExpression';
+import { DataType, Node, NodeIs, SelectExpression, SelectExpressionItem, Identifier } from '@zensql/parser';
+import { TableResolved } from './TableUtils';
 
-export const Column = {
-  resolveSingle: resolveSingleColumn,
-  findAll: findAllColumns,
-  resolve: resolveColumns,
+export const ColumnUtils = {
+  resolveSingle,
+  findAll,
+  resolveSelectColumns,
+  resolveOnTable,
 };
 
 export interface ColumnResolved {
@@ -20,31 +21,45 @@ export interface ColumnType {
   nullable: boolean;
 }
 
-function findAllColumns(tables: Array<TableResolved>): Array<ColumnResolved> {
+function resolveColumn(table: TableResolved, col: Node<'ColumnDef'>): ColumnResolved {
+  return {
+    column: col.name.value,
+    table: table.table,
+    tableAlias: table.alias,
+    alias: null,
+    type: {
+      dt: col.dataType,
+      // TODO:
+      nullable: false,
+    },
+  };
+}
+
+function findAll(tables: Array<TableResolved>): Array<ColumnResolved> {
   const allColumns: Array<ColumnResolved> = [];
   tables.forEach(table => {
     table.columns.forEach(col => {
-      // make sure we don't add the same twice !
-      allColumns.push({
-        column: col.name.value,
-        table: table.table,
-        tableAlias: table.alias,
-        alias: null,
-        type: {
-          dt: col.dataType,
-          // TODO:
-          nullable: false,
-        },
-      });
+      // TODO: make sure each column is unique
+      allColumns.push(resolveColumn(table, col));
     });
   });
   return allColumns;
 }
 
-function resolveSingleColumn(
-  column: Node<'Column' | 'ColumnAlias'>,
-  allColumns: Array<ColumnResolved>
-): ColumnResolved {
+function resolveOnTable(table: TableResolved, columns: Array<Identifier> | null): Array<ColumnResolved> {
+  if (columns === null) {
+    return table.columns.map(col => resolveColumn(table, col));
+  }
+  return columns.map(column => {
+    const col = table.columns.find(c => c.name.value === column.value);
+    if (!col) {
+      throw new Error(`Cannot find column ${column.value}`);
+    }
+    return resolveColumn(table, col);
+  });
+}
+
+function resolveSingle(column: Node<'Column' | 'ColumnAlias'>, allColumns: Array<ColumnResolved>): ColumnResolved {
   const colStr = `${column.schema ? column.schema.value + '.' : ''}${column.table ? column.table.value + '.' : ''}${
     column.column.value
   }`;
@@ -69,20 +84,20 @@ function resolveSingleColumn(
   };
 }
 
-function resolveColumns(
+function resolveSelectColumns(
   tables: Array<TableResolved>,
   allColumns: Array<ColumnResolved>,
   select: SelectExpression
 ): Array<ColumnResolved> {
   return select
-    .map(sel => resolveColumn(tables, allColumns, sel))
+    .map(sel => resolveSelectColumn(tables, allColumns, sel))
     .reduce<Array<ColumnResolved>>((acc, val) => {
       acc.push(...val);
       return acc;
     }, []);
 }
 
-function resolveColumn(
+function resolveSelectColumn(
   tables: Array<TableResolved>,
   allColumns: Array<ColumnResolved>,
   select: SelectExpressionItem
@@ -124,7 +139,7 @@ function resolveColumn(
     return cols;
   }
   if (NodeIs.Column(select) || NodeIs.ColumnAlias(select)) {
-    return [resolveSingleColumn(select, allColumns)];
+    return [resolveSingle(select, allColumns)];
   }
   console.warn(`Unhandled type ${select.type}`);
   return [];

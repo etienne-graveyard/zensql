@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import inquirer from 'inquirer';
-import { Tables } from '../common/Tables';
+import { TableUtils } from '../common/TableUtils';
 import { Config } from '../common/Config';
 import { Serializer } from '@zensql/parser';
 
@@ -69,13 +69,13 @@ export async function runSetupCommand(options: SetupOptions) {
     }
     await prevTablesWithCounts.reduce<Promise<void>>(async (acc, item) => {
       await acc;
-      console.log(`Deleting ${item.name}`);
+      console.info(`Deleting ${item.name}`);
       await pool.query(`DROP TABLE ${item.name}`);
     }, Promise.resolve());
   }
 
-  const tables = await Tables.parse(sqlFolders.tables);
-  console.log(tables);
+  const tables = await TableUtils.parse(sqlFolders.tables);
+  console.info(tables);
 
   const answer = await inquirer.prompt([
     {
@@ -89,7 +89,7 @@ export async function runSetupCommand(options: SetupOptions) {
   }
   await tables.reduce<Promise<void>>(async (acc, item) => {
     await acc;
-    console.log(`Creating ${item.name}`);
+    console.info(`Creating ${item.name}`);
     await pool.query(Serializer.serialize(item.ast));
   }, Promise.resolve());
 }

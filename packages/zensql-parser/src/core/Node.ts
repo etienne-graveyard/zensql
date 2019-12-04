@@ -2,7 +2,7 @@ import { BooleanOperator, CompareOperator, ValueOperator } from './Operator';
 import { DataTypeIntParam, DataTypeNoParams, DataTypeNumeric } from '../utils/DataType';
 import { Cursor } from './InputStream';
 
-export interface Nodes {
+interface Nodes {
   // Basics
   String: { value: string };
   Numeric: { value: number };

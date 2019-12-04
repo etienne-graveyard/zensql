@@ -17,7 +17,8 @@
   "scripts": {
     "build": "tsdx build --target node",
     "start": "tsdx watch --target node",
-    "try": "node ./dist/index.js"
+    "try": "node ./dist/index.js",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@zensql/parser": "^1.0.0-alpha.10",

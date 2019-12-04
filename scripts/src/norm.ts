@@ -6,7 +6,7 @@ import * as sortPackageJson from 'sort-package-json';
 norm();
 
 async function norm() {
-  console.log('Norm in ' + process.env.LERNA_PACKAGE_NAME);
+  console.info('Norm in ' + process.env.LERNA_PACKAGE_NAME);
   const pkg = await normPackageJson();
   normReadme(pkg);
 }

@@ -61,7 +61,7 @@ export function CreateParser(input: TokenStream) {
 
   function parseColumnDef(): Node<'ColumnDef'> {
     skipComment();
-    const name = parseIdentifier(false);
+    const name = parseIdentifier(true);
     const dataType = parseDataType();
     const constraints = parseConstraints();
 

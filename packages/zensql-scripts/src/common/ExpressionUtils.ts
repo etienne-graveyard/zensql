@@ -1,4 +1,4 @@
-import { ColumnType, ColumnResolved, Column } from './Column';
+import { ColumnType, ColumnResolved, ColumnUtils } from './ColumnUtils';
 import { Expression, NodeIs } from '@zensql/parser';
 
 export const ExpressionUtils = {
@@ -64,7 +64,7 @@ function resolveExpression(
     };
   }
   if (NodeIs.Column(expr)) {
-    const col = Column.resolveSingle(expr, allColumns);
+    const col = ColumnUtils.resolveSingle(expr, allColumns);
     return {
       resolved: true,
       variables: [],

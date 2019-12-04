@@ -5,6 +5,6 @@ CREATE TABLE packages (
   weight REAL NOT NULL,
   sender_id INTEGER NOT NULL REFERENCES clients (id),
   recipient_id INTEGER NOT NULL REFERENCES clients (id),
-  PRIMARY KEY (shipment_id, package_number),
+  PRIMARY KEY (shipment_id, package_number)
 );
 
