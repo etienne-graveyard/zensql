@@ -51,7 +51,7 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
     ].join(' ');
   },
   Comment: () => {
-    throw new Error('Unsuported');
+    return '';
   },
   CompareOperation: (node, parentPrecedence) => {
     const op = node.operator;
@@ -77,14 +77,14 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
   CreateTableStatement: node => {
     return `CREATE TABLE ${serializeInternal(node.table, null)} (${serializeArray(node.items, ', ')});`;
   },
-  DataTypeIntParams: () => {
-    throw new Error('Unsuported');
+  DataTypeIntParams: node => {
+    return node.dt + (node.param !== null ? `(${node.param})` : '');
   },
   DataTypeNoParams: node => {
     return node.dt;
   },
-  DataTypeNumeric: () => {
-    throw new Error('Unsuported');
+  DataTypeNumeric: node => {
+    return node.dt + (node.params !== null ? `(${node.params.p}, ${node.params.s})` : '');
   },
   Empty: () => '',
   FromExpression: node => {
