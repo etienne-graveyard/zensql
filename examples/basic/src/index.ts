@@ -4,7 +4,7 @@ import { Pool } from 'pg';
 const pool = new Pool();
 
 async function doStuff() {
-  await QUERIES.getResource(pool, 'my-doc');
+  await QUERIES.createClient(pool, { id: 456, name: '555' });
 }
 
 doStuff();
