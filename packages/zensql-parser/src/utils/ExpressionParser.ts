@@ -1,8 +1,8 @@
-import { TokenStream } from './TokenStream';
-import { Expression, Node, Identifier } from './Node';
+import { TokenStream } from '../core/TokenStream';
+import { Expression, Node, Identifier } from '../core/Node';
+import { TokenIs, Token } from '../core/Token';
+import { ValueOperator, BooleanOperator, CompareOperator, Operators } from '../core/Operator';
 import { ParserUtils } from './ParserUtils';
-import { TokenIs, Token } from './Token';
-import { ValueOperator, BooleanOperator, CompareOperator, Operators } from './Operator';
 
 export function ExpressionParser(input: TokenStream) {
   const {

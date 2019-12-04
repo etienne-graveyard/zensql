@@ -19,10 +19,10 @@ it('parse a query with primary key', () => {
   expect(parsed.columns[0].constraints[0].type).toEqual('PrimaryKeyConstraint');
 });
 
-it.skip('parse a query with a reference', () => {
+it('parse a query with a reference', () => {
   const QUERY = `
     CREATE TABLE versions (
-      id uuid NOT NULL,
+      id uuid PRIMARY KEY,
       created timestamptz NOT NULL,
       document_id uuid NOT NULL REFERENCES documents (id),
       content json NOT NULL

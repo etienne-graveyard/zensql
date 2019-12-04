@@ -1,5 +1,5 @@
 import { BooleanOperator, CompareOperator, ValueOperator } from './Operator';
-import { DataTypeIntParam, DataTypeNoParams, DataTypeNumeric } from './DataType';
+import { DataTypeIntParam, DataTypeNoParams, DataTypeNumeric } from '../utils/DataType';
 import { Cursor } from './InputStream';
 
 export interface Nodes {
@@ -92,13 +92,15 @@ export interface Nodes {
   NotNullConstraint: {};
   PrimaryKeyConstraint: {};
   UniqueConstraint: {};
+  ReferenceConstraint: {
+    foreignKey: Node<'Column'>;
+  };
 
   // ColumnDef
   ColumnDef: {
     name: Identifier;
     dataType: DataType;
     constraints: Array<Constraint>;
-    reference: null | Node<'Column'>;
   };
 
   // DataTypes
@@ -119,6 +121,11 @@ export interface Nodes {
   SelectStatement: {
     select: SelectExpression;
     from: Node<'FromExpression'>;
+  };
+  InsertStatement: {
+    table: Node<'Table' | 'TableAlias'>;
+    columns: Array<Identifier>;
+    values: Array<Expression>;
   };
   CreateTableStatement: {
     table: Node<'Table'>;
@@ -168,6 +175,8 @@ const NODES_OBJ: { [K in NodeType]: null } = {
   UniqueConstraint: null,
   ValueOperation: null,
   When: null,
+  ReferenceConstraint: null,
+  InsertStatement: null,
 };
 
 const NODES = Object.keys(NODES_OBJ) as Array<NodeType>;
@@ -190,7 +199,9 @@ export type DataType = Node<'DataTypeNoParams' | 'DataTypeNumeric' | 'DataTypeIn
 export type TableExpression = Node<'TableAlias' | 'Table' | 'LeftJoin'>;
 export type SelectExpressionItem = Node<'Column' | 'ColumnAlias' | 'ColumnAll' | 'ColumnAllFromTable'>;
 export type SelectExpression = Array<SelectExpressionItem>;
-export type Constraint = Node<'NotNullConstraint' | 'PrimaryKeyConstraint' | 'UniqueConstraint'>;
+export type Constraint = Node<
+  'NotNullConstraint' | 'PrimaryKeyConstraint' | 'UniqueConstraint' | 'ReferenceConstraint'
+>;
 
-export type Statement = Node<'SelectStatement' | 'CreateTableStatement'>;
+export type Statement = Node<'SelectStatement' | 'CreateTableStatement' | 'InsertStatement'>;
 export type Statements = Array<Statement>;

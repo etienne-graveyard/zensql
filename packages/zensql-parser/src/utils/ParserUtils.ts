@@ -1,7 +1,7 @@
-import { TokenStream } from './TokenStream';
-import { TokenIs, TokenPunctuation, TokenStar, TokenIdentifier, Token } from './Token';
-import { Keyword, Keywords } from './Keyword';
-import { Identifier, Node, NodeType, Nodes } from './Node';
+import { TokenStream } from '../core/TokenStream';
+import { TokenIs, TokenPunctuation, TokenStar, TokenIdentifier, Token } from '../core/Token';
+import { Keyword, Keywords } from '../core/Keyword';
+import { Identifier, Node, NodeType, Nodes } from '../core/Node';
 import { DataTypeAny, DataTypes } from './DataType';
 
 export function ParserUtils(input: TokenStream) {

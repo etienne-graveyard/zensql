@@ -33,7 +33,7 @@ export function InputStream(input: string): InputStream {
 
   function next(): string {
     const ch = input.charAt(pos++);
-    if (ch == '\n') {
+    if (ch === '\n') {
       line++;
       col = 0;
     } else {

@@ -1,7 +1,7 @@
-import { Node, Expression, Identifier, SelectExpression, SelectExpressionItem, TableExpression } from './Node';
-import { TokenStream } from './TokenStream';
-import { ParserUtils } from './ParserUtils';
-import { ExpressionParser } from './ExpressionParser';
+import { Node, Expression, Identifier, SelectExpression, SelectExpressionItem, TableExpression } from './core/Node';
+import { TokenStream } from './core/TokenStream';
+import { ParserUtils } from './utils/ParserUtils';
+import { ExpressionParser } from './utils/ExpressionParser';
 
 export function SelectParser(input: TokenStream) {
   const {
@@ -25,6 +25,7 @@ export function SelectParser(input: TokenStream) {
   };
 
   function parseSelectStatement(): Node<'SelectStatement'> {
+    skipKeyword('SELECT');
     const select = parseSelectExpression();
     const fromExpression = parseFromExpression();
     return createNode('SelectStatement', {

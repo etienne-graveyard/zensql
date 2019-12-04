@@ -1,7 +1,7 @@
-import { TokenStream } from './TokenStream';
-import { Node, DataType, Identifier, Constraint } from './Node';
-import { ParserUtils } from './ParserUtils';
-import { DataTypes } from './DataType';
+import { TokenStream } from './core/TokenStream';
+import { Node, DataType, Identifier, Constraint } from './core/Node';
+import { ParserUtils } from './utils/ParserUtils';
+import { DataTypes } from './utils/DataType';
 
 export function CreateParser(input: TokenStream) {
   const {
@@ -25,6 +25,7 @@ export function CreateParser(input: TokenStream) {
   };
 
   function parseCreateStatement(): Node<'CreateTableStatement'> {
+    skipKeyword('CREATE');
     skipKeyword('TABLE');
     const table = parseTable();
     skipPunctuation('(');
@@ -37,37 +38,12 @@ export function CreateParser(input: TokenStream) {
     skipComment();
     const name = parseIdentifier(false);
     const dataType = parseDataType();
-    const reference = parseMaybeReference();
     const constraints = parseConstraints();
 
     return createNode('ColumnDef', {
       dataType,
       name,
       constraints,
-      reference,
-    });
-  }
-
-  function parseMaybeReference(): null | Node<'Column'> {
-    if (!isKeyword('REFERENCES')) {
-      return null;
-    }
-    skipKeyword('REFERENCES');
-    const first = parseIdentifier(false);
-    let second: Identifier | null = null;
-    if (isPunctuation('.')) {
-      skipPunctuation('.');
-      second = parseIdentifier(true);
-    }
-    skipPunctuation('(');
-    const column = parseIdentifier(false);
-    skipPunctuation(')');
-
-    const [schema, table] = second ? [first, second] : [null, first];
-    return createNode('Column', {
-      schema,
-      table,
-      column,
     });
   }
 
@@ -82,7 +58,15 @@ export function CreateParser(input: TokenStream) {
   }
 
   function parseConstraint(): Constraint | null {
-    return parseMaybeNotNull() || parseMaybePrimaryKey();
+    return parseMaybeNotNull() || parseMaybePrimaryKey() || parseMaybeUnique() || parseMaybeReference();
+  }
+
+  function parseMaybeUnique(): Node<'UniqueConstraint'> | null {
+    if (isKeyword('UNIQUE')) {
+      skipKeyword('UNIQUE');
+      return createNode('UniqueConstraint', {});
+    }
+    return null;
   }
 
   function parseMaybeNotNull(): Node<'NotNullConstraint'> | null {
@@ -101,6 +85,30 @@ export function CreateParser(input: TokenStream) {
       return createNode('PrimaryKeyConstraint', {});
     }
     return null;
+  }
+
+  function parseMaybeReference(): null | Node<'ReferenceConstraint'> {
+    if (!isKeyword('REFERENCES')) {
+      return null;
+    }
+    skipKeyword('REFERENCES');
+    const first = parseIdentifier(false);
+    let second: Identifier | null = null;
+    if (isPunctuation('.')) {
+      skipPunctuation('.');
+      second = parseIdentifier(true);
+    }
+    skipPunctuation('(');
+    const column = parseIdentifier(false);
+    skipPunctuation(')');
+
+    const [schema, table] = second ? [first, second] : [null, first];
+    const foreignKey = createNode('Column', {
+      schema,
+      table,
+      column,
+    });
+    return createNode('ReferenceConstraint', { foreignKey });
   }
 
   function parseDataType(): DataType {

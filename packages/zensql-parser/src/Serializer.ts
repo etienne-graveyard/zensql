@@ -1,5 +1,6 @@
-import { Node, Identifier, NodeType } from './Node';
-import { BooleanOperator, CompareOperator, ValueOperator, Operators, Operator } from './Operator';
+import { Node, Identifier, NodeType } from './core/Node';
+import { BooleanOperator, CompareOperator, ValueOperator, Operators, Operator } from './core/Operator';
+import { serialize } from 'v8';
 
 export const Serializer = {
   serialize: (node: Node | Array<Node>) => serializeInternal(node, null),
@@ -154,6 +155,12 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
   },
   PrimaryKeyConstraint: () => `PRIMARY KEY`,
   UniqueConstraint: () => `UNIQUE`,
+  ReferenceConstraint: node =>
+    `REFERENCES ${serializeCol(node.foreignKey.schema, node.foreignKey.table, null)} (${serialize(
+      node.foreignKey.column
+    )})`,
+  InsertStatement: node =>
+    `INSER INTO ${serialize(node.table)} (${serializeArray(node.columns)}) VALUES ${serializeArray(node.values)};`,
 };
 
 function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | null): string {

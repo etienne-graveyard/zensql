@@ -32,7 +32,8 @@ function findAllColumns(tables: Array<TableResolved>): Array<ColumnResolved> {
         alias: null,
         type: {
           dt: col.dataType,
-          nullable: col.nullable,
+          // TODO:
+          nullable: false,
         },
       });
     });
@@ -115,7 +116,8 @@ function resolveColumn(
         alias: null,
         type: {
           dt: col.dataType,
-          nullable: col.nullable,
+          // TODO:
+          nullable: false,
         },
       });
     });

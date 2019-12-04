@@ -1,9 +1,10 @@
-import { TokenStream } from './TokenStream';
-import { InputStream } from './InputStream';
-import { Statements, Statement, Node, NodeIs } from './Node';
-import { ParserUtils } from './ParserUtils';
+import { TokenStream } from './core/TokenStream';
+import { InputStream } from './core/InputStream';
+import { Statements, Statement, Node, NodeIs } from './core/Node';
+import { ParserUtils } from './utils/ParserUtils';
 import { SelectParser } from './SelectParser';
 import { CreateParser } from './CreateParser';
+import { InsertParser } from './InsertParser';
 
 export const Parser = {
   parse,
@@ -18,6 +19,7 @@ function parse(inputStr: string): Result {
   const { skipComment, skipPunctuation, isKeyword, unexpected, createNode } = ParserUtils(input);
   const { parseSelectStatement } = SelectParser(input);
   const { parseCreateStatement } = CreateParser(input);
+  const { parseInsertStatement } = InsertParser(input);
 
   return parseTopLevel();
 
@@ -28,7 +30,8 @@ function parse(inputStr: string): Result {
       const next = parseStatement();
       skipComment();
       statements.push(next);
-      const alowSemicolon = NodeIs.SelectStatement(next) || NodeIs.CreateTableStatement(next);
+      const alowSemicolon =
+        NodeIs.SelectStatement(next) || NodeIs.CreateTableStatement(next) || NodeIs.InsertStatement(next);
       if (!input.eof() && alowSemicolon) {
         skipPunctuation(';');
       }
@@ -46,12 +49,13 @@ function parse(inputStr: string): Result {
   function parseStatement(): Statement {
     skipComment();
     if (isKeyword('SELECT')) {
-      input.next();
       return parseSelectStatement();
     }
     if (isKeyword('CREATE')) {
-      input.next();
       return parseCreateStatement();
+    }
+    if (isKeyword('INSERT')) {
+      return parseInsertStatement();
     }
     return unexpected();
   }

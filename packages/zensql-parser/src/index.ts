@@ -1,8 +1,8 @@
 import { Parser } from './Parser';
 import { Serializer } from './Serializer';
 
-export { InputStream } from './InputStream';
-export { Keyword, Keywords } from './Keyword';
+export { InputStream } from './core/InputStream';
+export { Keyword, Keywords } from './core/Keyword';
 export {
   Expression,
   Identifier,
@@ -18,8 +18,8 @@ export {
   SelectExpression,
   SelectExpressionItem,
   Statements,
-} from './Node';
-export { BooleanOperator, CompareOperator, ValueOperator } from './Operator';
+} from './core/Node';
+export { BooleanOperator, CompareOperator, ValueOperator } from './core/Operator';
 export { Parser, Result } from './Parser';
 export { Serializer } from './Serializer';
 export {
@@ -34,8 +34,8 @@ export {
   TokenStar,
   TokenString,
   TokenVariable,
-} from './Token';
-export { TokenStream } from './TokenStream';
+} from './core/Token';
+export { TokenStream } from './core/TokenStream';
 
 const Sql = {
   parse: Parser.parse,
