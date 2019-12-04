@@ -1,7 +1,9 @@
 import { Parser } from '../src';
 
+const sql = String.raw;
+
 it('parse a query', () => {
-  const QUERY = `
+  const QUERY = sql`
     CREATE TABLE documents (
       id uuid PRIMARY KEY
     );
@@ -10,7 +12,7 @@ it('parse a query', () => {
 });
 
 it('parse a query with primary key', () => {
-  const QUERY = `
+  const QUERY = sql`
     CREATE TABLE public.documents (
       id text PRIMARY KEY
     )
@@ -20,7 +22,7 @@ it('parse a query with primary key', () => {
 });
 
 it('parse a query with a reference', () => {
-  const QUERY = `
+  const QUERY = sql`
     CREATE TABLE versions (
       id uuid PRIMARY KEY,
       created timestamptz NOT NULL,

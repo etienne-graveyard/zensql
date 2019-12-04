@@ -1,6 +1,5 @@
 import { Node, Identifier, NodeType } from './core/Node';
 import { BooleanOperator, CompareOperator, ValueOperator, Operators, Operator } from './core/Operator';
-import { serialize } from 'v8';
 
 export const Serializer = {
   serialize: (node: Node | Array<Node>) => serializeInternal(node, null),
@@ -45,7 +44,11 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
     return `${serializeCol(node.schema, node.table, null)}.*`;
   },
   ColumnDef: node => {
-    return `${serializeInternal(node.name, null)} ${serializeInternal(node.dataType, null)}`;
+    return [
+      serializeInternal(node.name, null),
+      serializeInternal(node.dataType, null),
+      ...node.constraints.map(constraint => serializeInternal(constraint, null)),
+    ].join(' ');
   },
   Comment: () => {
     throw new Error('Unsuported');
@@ -156,11 +159,20 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
   PrimaryKeyConstraint: () => `PRIMARY KEY`,
   UniqueConstraint: () => `UNIQUE`,
   ReferenceConstraint: node =>
-    `REFERENCES ${serializeCol(node.foreignKey.schema, node.foreignKey.table, null)} (${serialize(
-      node.foreignKey.column
+    `REFERENCES ${serializeCol(node.foreignKey.schema, node.foreignKey.table, null)} (${serializeInternal(
+      node.foreignKey.column,
+      null
     )})`,
   InsertStatement: node =>
-    `INSER INTO ${serialize(node.table)} (${serializeArray(node.columns)}) VALUES ${serializeArray(node.values)};`,
+    [
+      `INSERT INTO `,
+      serializeInternal(node.table, null),
+      node.columns ? ` (${serializeArray(node.columns)})` : '',
+      ` VALUES `,
+      serializeArray(node.values),
+      `;`,
+    ].join(''),
+  InserValues: node => `(${serializeArray(node.values)})`,
 };
 
 function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | null): string {

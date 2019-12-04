@@ -116,6 +116,10 @@ export interface Nodes {
     params: null | { p: number; s: number };
   };
 
+  InserValues: {
+    values: Array<Expression>;
+  };
+
   // Statements
   Empty: {};
   SelectStatement: {
@@ -124,8 +128,8 @@ export interface Nodes {
   };
   InsertStatement: {
     table: Node<'Table' | 'TableAlias'>;
-    columns: Array<Identifier>;
-    values: Array<Expression>;
+    columns: Array<Identifier> | null;
+    values: Array<Node<'InserValues'>>;
   };
   CreateTableStatement: {
     table: Node<'Table'>;
@@ -177,6 +181,7 @@ const NODES_OBJ: { [K in NodeType]: null } = {
   When: null,
   ReferenceConstraint: null,
   InsertStatement: null,
+  InserValues: null,
 };
 
 const NODES = Object.keys(NODES_OBJ) as Array<NodeType>;

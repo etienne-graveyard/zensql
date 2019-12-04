@@ -1,10 +1,18 @@
 import { TokenStream } from './core/TokenStream';
-import { Node } from './core/Node';
+import { Node, Identifier } from './core/Node';
 import { ParserUtils } from './utils/ParserUtils';
 import { ExpressionParser } from './utils/ExpressionParser';
 
 export function InsertParser(input: TokenStream) {
-  const { skipKeyword, parseTable, skipPunctuation, parseIdentifier, parseMultiple, createNode } = ParserUtils(input);
+  const {
+    skipKeyword,
+    parseTable,
+    skipPunctuation,
+    parseIdentifier,
+    parseMultiple,
+    createNode,
+    isPunctuation,
+  } = ParserUtils(input);
   const { parseExpression } = ExpressionParser(input);
 
   return {
@@ -15,17 +23,30 @@ export function InsertParser(input: TokenStream) {
     skipKeyword('INSERT');
     skipKeyword('INTO');
     const table = parseTable();
-    skipPunctuation('(');
-    const columns = parseMultiple(',', () => parseIdentifier(false));
-    skipPunctuation(')');
+    const columns = parseMaybeColumns();
     skipKeyword('VALUES');
-    skipPunctuation('(');
-    const values = parseMultiple(',', () => parseExpression());
-    skipPunctuation(')');
+    const values = parseMultiple(',', () => parseValues());
     return createNode('InsertStatement', {
       table,
       columns,
       values,
     });
+  }
+
+  function parseValues(): Node<'InserValues'> {
+    skipPunctuation('(');
+    const values = parseMultiple(',', () => parseExpression());
+    skipPunctuation(')');
+    return createNode('InserValues', { values });
+  }
+
+  function parseMaybeColumns(): Array<Identifier> | null {
+    if (isPunctuation('(')) {
+      skipPunctuation('(');
+      const columns = parseMultiple(',', () => parseIdentifier(false));
+      skipPunctuation(')');
+      return columns;
+    }
+    return null;
   }
 }
