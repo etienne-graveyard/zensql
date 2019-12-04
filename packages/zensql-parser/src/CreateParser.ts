@@ -1,5 +1,5 @@
 import { TokenStream } from './core/TokenStream';
-import { Node, DataType, Identifier, Constraint } from './core/Node';
+import { Node, DataType, Identifier, Constraint, TableConstraint } from './core/Node';
 import { ParserUtils } from './utils/ParserUtils';
 import { DataTypes } from './utils/DataType';
 
@@ -29,9 +29,34 @@ export function CreateParser(input: TokenStream) {
     skipKeyword('TABLE');
     const table = parseTable();
     skipPunctuation('(');
-    const columns = parseMultiple(',', parseColumnDef);
+    const items = parseMultiple(',', parseCreateItem);
     skipPunctuation(')');
-    return createNode('CreateTableStatement', { table, columns });
+    return createNode('CreateTableStatement', { table, items });
+  }
+
+  function parseCreateItem(): Node<'ColumnDef'> | TableConstraint {
+    skipComment();
+    const constraint = parseMaybeTableConstraint();
+    if (constraint) {
+      return constraint;
+    }
+    return parseColumnDef();
+  }
+
+  function parseMaybeTableConstraint(): TableConstraint | null {
+    return parseMaybePrimaryKeyTableConstraint();
+  }
+
+  function parseMaybePrimaryKeyTableConstraint(): Node<'PrimaryKeyTableConstraint'> | null {
+    if (isKeyword('PRIMARY')) {
+      skipKeyword('PRIMARY');
+      skipKeyword('KEY');
+      skipPunctuation('(');
+      const columns = parseMultiple(',', () => parseIdentifier(false));
+      skipPunctuation(')');
+      return createNode('PrimaryKeyTableConstraint', { columns });
+    }
+    return null;
   }
 
   function parseColumnDef(): Node<'ColumnDef'> {

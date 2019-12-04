@@ -75,7 +75,7 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
     return formatOperator(sep, node.left, node.right, node.operator, parentPrecedence);
   },
   CreateTableStatement: node => {
-    return `CREATE TABLE ${serializeInternal(node.table, null)} (${serializeArray(node.columns, ', ')});`;
+    return `CREATE TABLE ${serializeInternal(node.table, null)} (${serializeArray(node.items, ', ')});`;
   },
   DataTypeIntParams: () => {
     throw new Error('Unsuported');
@@ -173,6 +173,7 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
       `;`,
     ].join(''),
   InserValues: node => `(${serializeArray(node.values)})`,
+  PrimaryKeyTableConstraint: node => `PRIMARY KEY (${serializeArray(node.columns)})`,
 };
 
 function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | null): string {

@@ -1,17 +1,17 @@
 import { ColumnResolved } from './Column';
-import { Expression as ZenExpression, Node, NodeIs } from '@zensql/parser';
-import { Expression, VariableResolved } from './Expression';
+import { Expression, Node, NodeIs } from '@zensql/parser';
+import { ExpressionUtils, VariableResolved } from './ExpressionUtils';
 
 export const Variable = {
   resolve: resolveVariables,
   replace: replaceVariables,
 };
 
-function resolveVariables(allColumns: Array<ColumnResolved>, where: ZenExpression | null): Array<VariableResolved> {
+function resolveVariables(allColumns: Array<ColumnResolved>, where: Expression | null): Array<VariableResolved> {
   if (where === null) {
     return [];
   }
-  const res = Expression.resolve(allColumns, where);
+  const res = ExpressionUtils.resolve(allColumns, where);
   if (res.resolved === false) {
     throw new Error(`Cannot resolve WHERE expression type !`);
   }
@@ -31,7 +31,7 @@ function replaceVariables(query: Node<'SelectStatement'>, variables: Array<Varia
   return transformedQuery;
 }
 
-function replaceVariable(expr: ZenExpression, variables: Array<VariableResolved>): ZenExpression {
+function replaceVariable(expr: Expression, variables: Array<VariableResolved>): Expression {
   if (NodeIs.IndexedVariable(expr)) {
     throw new Error('IndexedVariables are not supported, use named variable instead !');
   }

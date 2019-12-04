@@ -1,7 +1,7 @@
 import { ColumnType, ColumnResolved, Column } from './Column';
-import { Expression as ZenExpression, NodeIs } from '@zensql/parser';
+import { Expression, NodeIs } from '@zensql/parser';
 
-export const Expression = {
+export const ExpressionUtils = {
   resolve: resolveExpression,
 };
 
@@ -23,7 +23,7 @@ interface PartiallyResolvedExpression {
 
 function resolveExpression(
   allColumns: Array<ColumnResolved>,
-  expr: ZenExpression
+  expr: Expression
 ): ResolvedExpression | PartiallyResolvedExpression {
   if (NodeIs.IndexedVariable(expr)) {
     throw new Error('IndexedVariables are not supported, use named variable instead !');

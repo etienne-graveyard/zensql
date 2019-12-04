@@ -2,11 +2,6 @@ import path from 'path';
 import fse from 'fs-extra';
 import * as Yup from 'yup';
 
-export interface GlobalOptions {
-  importFrom?: string;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ZensqlConfig {
   sqlFolder: string;
   generatedFile: string;

@@ -13,15 +13,11 @@ export function resolveCommand(argv: Array<string>): { command: Command; args: A
   return { command: 'generate', args: argv.slice(2) };
 }
 
-export interface GlobalOptions {
-  importFrom?: string;
-}
-
-export async function command(argv: Array<string>, options: GlobalOptions = {}) {
+export async function command(argv: Array<string>) {
   try {
     const info = resolveCommand(argv);
     if (info.command === 'generate') {
-      const generateOptions = await resolveGenerateOptions(options);
+      const generateOptions = await resolveGenerateOptions();
       return runGenerateCommand(generateOptions);
     }
     if (info.command === 'setup') {

@@ -95,6 +95,9 @@ export interface Nodes {
   ReferenceConstraint: {
     foreignKey: Node<'Column'>;
   };
+  PrimaryKeyTableConstraint: {
+    columns: Array<Identifier>;
+  };
 
   // ColumnDef
   ColumnDef: {
@@ -133,7 +136,7 @@ export interface Nodes {
   };
   CreateTableStatement: {
     table: Node<'Table'>;
-    columns: Array<Node<'ColumnDef'>>;
+    items: Array<Node<'ColumnDef'> | TableConstraint>;
   };
 }
 
@@ -182,6 +185,7 @@ const NODES_OBJ: { [K in NodeType]: null } = {
   ReferenceConstraint: null,
   InsertStatement: null,
   InserValues: null,
+  PrimaryKeyTableConstraint: null,
 };
 
 const NODES = Object.keys(NODES_OBJ) as Array<NodeType>;
@@ -207,6 +211,7 @@ export type SelectExpression = Array<SelectExpressionItem>;
 export type Constraint = Node<
   'NotNullConstraint' | 'PrimaryKeyConstraint' | 'UniqueConstraint' | 'ReferenceConstraint'
 >;
+export type TableConstraint = Node<'PrimaryKeyTableConstraint'>;
 
 export type Statement = Node<'SelectStatement' | 'CreateTableStatement' | 'InsertStatement'>;
 export type Statements = Array<Statement>;

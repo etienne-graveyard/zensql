@@ -5,7 +5,7 @@ import { TableResolved, FromExpression } from './FromExpression';
 import { ColumnResolved, Column } from './Column';
 import { Variable } from './Variable';
 import { Tables } from '../common/Tables';
-import { VariableResolved } from './Expression';
+import { VariableResolved } from './ExpressionUtils';
 
 export const Query = {
   find: findQueries,
