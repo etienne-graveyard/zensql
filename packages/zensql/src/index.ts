@@ -7,5 +7,5 @@ export interface Options {
 }
 
 export async function command(argv: Array<string>) {
-  return zenslqGenerate.command(argv, { importFrom: 'zensql' });
+  return zenslqGenerate.command(argv);
 }
