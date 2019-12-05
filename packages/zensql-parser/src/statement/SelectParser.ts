@@ -1,7 +1,7 @@
-import { Node, Expression, Identifier, SelectExpression, SelectExpressionItem, TableExpression } from './core/Node';
-import { TokenStream } from './core/TokenStream';
-import { ParserUtils } from './utils/ParserUtils';
-import { ExpressionParser } from './utils/ExpressionParser';
+import { Node, Expression, Identifier, SelectExpression, SelectExpressionItem, TableExpression } from '../core/Node';
+import { TokenStream } from '../core/TokenStream';
+import { ParserUtils } from '../utils/ParserUtils';
+import { ExpressionParser } from '../utils/ExpressionParser';
 
 export function SelectParser(input: TokenStream) {
   const {
@@ -39,7 +39,7 @@ export function SelectParser(input: TokenStream) {
     const items = parseMultiple(',', parseSelectExpressionItem);
     skipComment();
     if (items.length === 0) {
-      return unexpected();
+      return unexpected(`Expected at least one item in SELECT`);
     }
     return items;
   }
@@ -54,7 +54,7 @@ export function SelectParser(input: TokenStream) {
     skipComment();
     const where = parseWhereExpression();
     if (tables.length === 0) {
-      return unexpected();
+      return unexpected(`Expecting at least one item in WHERE`);
     }
     return createNode('FromExpression', {
       tables,

@@ -81,9 +81,6 @@ export function ExpressionParser(input: TokenStream) {
     if (TokenIs.Identifier(input.peek()) || TokenIs.QuotedIdentifier(input.peek())) {
       return parseColumnExpression();
     }
-    // if (TokenIs.QuotedIdentifier(input.peek())) {
-    //   return { type: 'CaseSensitiveIdentifier', value: tok.value };
-    // }
     if (isKeyword()) {
       return createNode('Null', {});
     }
@@ -100,7 +97,7 @@ export function ExpressionParser(input: TokenStream) {
     if (TokenIs.String(tok)) {
       return createNode('String', { value: tok.value.toLowerCase() });
     }
-    return unexpected();
+    return unexpected(`Expected an Expression`);
   }
 
   function getValueOperator(tok: Token<'Star' | 'Math'>): ValueOperator {
@@ -117,9 +114,9 @@ export function ExpressionParser(input: TokenStream) {
         ? ValueOperator.Divide
         : v === '%'
         ? ValueOperator.Modulo
-        : unexpected();
+        : unexpected(`Invalid Math operator`);
     }
-    return unexpected();
+    return unexpected(`Expected an Math operator`);
   }
 
   function getCompareOperator(tok: Token<'Operator'>): CompareOperator {
@@ -137,9 +134,9 @@ export function ExpressionParser(input: TokenStream) {
         ? CompareOperator.Less
         : v === '>'
         ? CompareOperator.Greater
-        : unexpected();
+        : unexpected(`Invalid compare operator`);
     }
-    return unexpected();
+    return unexpected(`Expected a compare operator`);
   }
 
   function getBoleanOperator(tok: Token<'Identifier'>): BooleanOperator {
@@ -150,9 +147,9 @@ export function ExpressionParser(input: TokenStream) {
       if (isKeywordToken(tok, 'OR')) {
         return BooleanOperator.Or;
       }
-      return unexpected();
+      return unexpected(`Invalid boolean operator`);
     }
-    return unexpected();
+    return unexpected(`Expected a boolean operator`);
   }
 
   function parseColumnExpression(): Node<'Column'> {

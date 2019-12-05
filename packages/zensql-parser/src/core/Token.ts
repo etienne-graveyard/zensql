@@ -48,3 +48,23 @@ export const TokenIs: {
   acc[key] = (token: Token) => token.type === key;
   return acc;
 }, {});
+
+const TOKEN_SERIALIZER: { [K in TokenType]: (token: Token<K>) => string } = {
+  Comment: token => token.value,
+  Identifier: t => t.value,
+  IndexedVariable: t => t.num.toString(),
+  Math: t => t.value,
+  NamedVariable: t => t.name,
+  Number: t => t.value.toString(),
+  Operator: t => t.value,
+  Punctuation: t => t.value,
+  QuotedIdentifier: t => t.value,
+  Star: () => '*',
+  String: t => t.value,
+};
+
+export const Token = {
+  serialize(token: Token): string {
+    return `${token.type}: ${TOKEN_SERIALIZER[token.type](token as any)}`;
+  },
+};

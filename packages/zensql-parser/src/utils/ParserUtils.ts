@@ -108,8 +108,8 @@ export function ParserUtils(input: TokenStream) {
     }
   }
 
-  function unexpected(msg?: string): never {
-    return input.croak(msg ? msg : 'Unexpected token: ' + JSON.stringify(input.peek()));
+  function unexpected(msg: string): never {
+    return input.croak(msg);
   }
 
   function parseMultiple<T>(separator: string, parser: () => T): Array<T> {
@@ -128,7 +128,7 @@ export function ParserUtils(input: TokenStream) {
   function parseInteger(): number {
     const tok = input.next();
     if (!TokenIs.Number(tok)) {
-      return unexpected();
+      return unexpected(`Expected an Integer`);
     }
     if (!Number.isInteger(tok.value)) {
       return unexpected(`Expected an integer, got ${tok.value}`);
@@ -139,7 +139,7 @@ export function ParserUtils(input: TokenStream) {
   function parseIdentifier(allowKeyword: boolean): Identifier {
     const next = input.peek();
     if (allowKeyword === false && isKeywordToken(next)) {
-      unexpected();
+      unexpected(`${next.value} is a reserved keyword and cannot be used as an identifier`);
     }
     if (TokenIs.QuotedIdentifier(next)) {
       input.next();
@@ -154,7 +154,7 @@ export function ParserUtils(input: TokenStream) {
         originalValue: next.value,
       });
     }
-    return unexpected();
+    return unexpected(`Expected an Identifier`);
   }
 
   function parseTable(): Node<'Table'> {

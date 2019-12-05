@@ -1,9 +1,9 @@
-import { TokenStream } from './core/TokenStream';
-import { Node, Identifier } from './core/Node';
-import { ParserUtils } from './utils/ParserUtils';
-import { ExpressionParser } from './utils/ExpressionParser';
+import { TokenStream } from '../core/TokenStream';
+import { Node, Identifier } from '../core/Node';
+import { ParserUtils } from '../utils/ParserUtils';
+import { ExpressionParser } from '../utils/ExpressionParser';
 
-export function InsertParser(input: TokenStream) {
+export function InsertIntoParser(input: TokenStream) {
   const {
     skipKeyword,
     parseTable,
@@ -19,14 +19,14 @@ export function InsertParser(input: TokenStream) {
     parseInsertStatement,
   };
 
-  function parseInsertStatement(): Node<'InsertStatement'> {
+  function parseInsertStatement(): Node<'InsertIntoStatement'> {
     skipKeyword('INSERT');
     skipKeyword('INTO');
     const table = parseTable();
     const columns = parseMaybeColumns();
     skipKeyword('VALUES');
     const values = parseMultiple(',', () => parseValues());
-    return createNode('InsertStatement', {
+    return createNode('InsertIntoStatement', {
       table,
       columns,
       values,

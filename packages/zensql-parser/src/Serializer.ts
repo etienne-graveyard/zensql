@@ -163,7 +163,7 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
       node.foreignKey.column,
       null
     )})`,
-  InsertStatement: node =>
+  InsertIntoStatement: node =>
     [
       `INSERT INTO `,
       serializeInternal(node.table, null),
@@ -174,6 +174,9 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
     ].join(''),
   InserValues: node => `(${serializeArray(node.values)})`,
   PrimaryKeyTableConstraint: node => `PRIMARY KEY (${serializeArray(node.columns)})`,
+  AlterTableStatement: () => {
+    throw new Error('Not implemented');
+  },
 };
 
 function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | null): string {

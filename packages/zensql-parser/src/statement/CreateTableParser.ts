@@ -1,9 +1,9 @@
-import { TokenStream } from './core/TokenStream';
-import { Node, DataType, Identifier, Constraint, TableConstraint } from './core/Node';
-import { ParserUtils } from './utils/ParserUtils';
-import { DataTypes } from './utils/DataType';
+import { TokenStream } from '../core/TokenStream';
+import { Node, DataType, Identifier, Constraint, TableConstraint } from '../core/Node';
+import { ParserUtils } from '../utils/ParserUtils';
+import { DataTypes } from '../utils/DataType';
 
-export function CreateParser(input: TokenStream) {
+export function CreateTableParser(input: TokenStream) {
   const {
     skipKeyword,
     parseIdentifier,
@@ -139,7 +139,7 @@ export function CreateParser(input: TokenStream) {
   function parseDataType(): DataType {
     const dtTok = isDataType();
     if (dtTok === false) {
-      return unexpected();
+      return unexpected(`Expected a data type`);
     }
     const dt = dtTok.value.toUpperCase();
     skipDataType();

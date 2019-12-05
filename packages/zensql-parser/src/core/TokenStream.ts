@@ -44,7 +44,8 @@ export function TokenStream(input: InputStream): TokenStream {
 
   function croak(msg: string): never {
     const isEof = eof();
-    return input.croak(msg + (isEof ? '' : ` (current is ${JSON.stringify(maybePeek())})`));
+    const next = maybePeek();
+    return input.croak(msg + (isEof ? '' : ` (current is ${next === null ? 'null' : Token.serialize(next)}`));
   }
 
   function maybePeek(): Token | null {
@@ -131,7 +132,7 @@ export function TokenStream(input: InputStream): TokenStream {
     if (ch === '`') {
       return input.croak(`Backtick are not supported`);
     }
-    return input.croak(`Unexpected token: "${ch}"`);
+    return input.croak(`Unexpected char: "${ch}"`);
   }
 
   function isDigit(ch: string): boolean {

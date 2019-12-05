@@ -2,9 +2,10 @@ import { TokenStream } from './core/TokenStream';
 import { InputStream } from './core/InputStream';
 import { Statements, Statement, Node, NodeIs } from './core/Node';
 import { ParserUtils } from './utils/ParserUtils';
-import { SelectParser } from './SelectParser';
-import { CreateParser } from './CreateParser';
-import { InsertParser } from './InsertParser';
+import { SelectParser } from './statement/SelectParser';
+import { CreateTableParser } from './statement/CreateTableParser';
+import { InsertIntoParser } from './statement/InsertIntoParser';
+import { AlterTableParser } from './statement/AlterTableParser';
 
 export const Parser = {
   parse,
@@ -18,8 +19,9 @@ function parse(inputStr: string): Result {
 
   const { skipComment, skipPunctuation, isKeyword, unexpected, createNode } = ParserUtils(input);
   const { parseSelectStatement } = SelectParser(input);
-  const { parseCreateStatement } = CreateParser(input);
-  const { parseInsertStatement } = InsertParser(input);
+  const { parseCreateStatement } = CreateTableParser(input);
+  const { parseInsertStatement } = InsertIntoParser(input);
+  const { parseAlterTableStatement } = AlterTableParser(input);
 
   return parseTopLevel();
 
@@ -31,7 +33,10 @@ function parse(inputStr: string): Result {
       skipComment();
       statements.push(next);
       const alowSemicolon =
-        NodeIs.SelectStatement(next) || NodeIs.CreateTableStatement(next) || NodeIs.InsertStatement(next);
+        NodeIs.SelectStatement(next) ||
+        NodeIs.CreateTableStatement(next) ||
+        NodeIs.InsertIntoStatement(next) ||
+        NodeIs.AlterTableStatement(next);
       if (!input.eof() && alowSemicolon) {
         skipPunctuation(';');
       }
@@ -57,6 +62,9 @@ function parse(inputStr: string): Result {
     if (isKeyword('INSERT')) {
       return parseInsertStatement();
     }
-    return unexpected();
+    if (isKeyword('ALTER')) {
+      return parseAlterTableStatement();
+    }
+    return unexpected(`Expected a Statement`);
   }
 }

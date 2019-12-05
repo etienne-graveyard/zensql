@@ -2,7 +2,7 @@ import { BooleanOperator, CompareOperator, ValueOperator } from './Operator';
 import { DataTypeIntParam, DataTypeNoParams, DataTypeNumeric } from '../utils/DataType';
 import { Cursor } from './InputStream';
 
-interface Nodes {
+export interface Nodes {
   // Basics
   String: { value: string };
   Numeric: { value: number };
@@ -129,7 +129,7 @@ interface Nodes {
     select: SelectExpression;
     from: Node<'FromExpression'>;
   };
-  InsertStatement: {
+  InsertIntoStatement: {
     table: Node<'Table' | 'TableAlias'>;
     columns: Array<Identifier> | null;
     values: Array<Node<'InserValues'>>;
@@ -137,6 +137,9 @@ interface Nodes {
   CreateTableStatement: {
     table: Node<'Table'>;
     items: Array<Node<'ColumnDef'> | TableConstraint>;
+  };
+  AlterTableStatement: {
+    table: Node<'Table'>;
   };
 }
 
@@ -149,6 +152,7 @@ type NodeCommon = {
 export type Node<K extends NodeType = NodeType> = Nodes[K] & { type: K } & NodeCommon;
 
 const NODES_OBJ: { [K in NodeType]: null } = {
+  AlterTableStatement: null,
   Boolean: null,
   BooleanOperation: null,
   Case: null,
@@ -169,12 +173,16 @@ const NODES_OBJ: { [K in NodeType]: null } = {
   FromExpression: null,
   Identifier: null,
   IndexedVariable: null,
+  InsertIntoStatement: null,
+  InserValues: null,
   LeftJoin: null,
   NamedVariable: null,
   NotNullConstraint: null,
   Null: null,
   Numeric: null,
   PrimaryKeyConstraint: null,
+  PrimaryKeyTableConstraint: null,
+  ReferenceConstraint: null,
   SelectStatement: null,
   String: null,
   Table: null,
@@ -182,10 +190,6 @@ const NODES_OBJ: { [K in NodeType]: null } = {
   UniqueConstraint: null,
   ValueOperation: null,
   When: null,
-  ReferenceConstraint: null,
-  InsertStatement: null,
-  InserValues: null,
-  PrimaryKeyTableConstraint: null,
 };
 
 const NODES = Object.keys(NODES_OBJ) as Array<NodeType>;
@@ -213,5 +217,7 @@ export type Constraint = Node<
 >;
 export type TableConstraint = Node<'PrimaryKeyTableConstraint'>;
 
-export type Statement = Node<'SelectStatement' | 'CreateTableStatement' | 'InsertStatement'>;
+export type Statement = Node<
+  'SelectStatement' | 'CreateTableStatement' | 'InsertIntoStatement' | 'AlterTableStatement'
+>;
 export type Statements = Array<Statement>;

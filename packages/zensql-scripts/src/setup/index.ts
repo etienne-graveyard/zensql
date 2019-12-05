@@ -88,6 +88,12 @@ export async function runSetupCommand(options: SetupOptions) {
   if (answer.confirmCreate !== true) {
     return;
   }
+  // TODO:
+  // 1. extract all REFERENCES contraints
+  // 2. convert them to ALTER TABLE ADD CONSTRAINT
+  // 3. Run all CREATE
+  // 4. Run all Constaints
+
   const allCreateStatements = tables.map(table => Serializer.serialize(table.ast)).join('\n\n');
 
   console.info(`Creating tables`);
