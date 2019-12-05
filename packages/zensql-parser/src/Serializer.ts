@@ -1,5 +1,11 @@
 import { Node, Identifier, NodeType } from './core/Node';
-import { BooleanOperator, CompareOperator, ValueOperator, Operators, Operator } from './core/Operator';
+import {
+  BooleanOperator,
+  CompareOperator,
+  ValueOperator,
+  Operators,
+  Operator,
+} from './core/Operator';
 
 export const Serializer = {
   serialize: (node: Node | Array<Node>) => serializeInternal(node, null),
@@ -13,12 +19,17 @@ function formatOperator(
   parentPrecedence: null | number
 ): string {
   const precedence = Operators.getPrecedence(operator);
-  const content = `${serializeInternal(left, precedence)} ${sep} ${serializeInternal(right, precedence)}`;
+  const content = `${serializeInternal(left, precedence)} ${sep} ${serializeInternal(
+    right,
+    precedence
+  )}`;
   const parenthese = parentPrecedence !== null && parentPrecedence > precedence;
   return parenthese ? `(${content})` : content;
 }
 
-const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | null) => string } = {
+const SERIALIZER: {
+  [K in NodeType]: (node: Node<K>, parentPrecedence: number | null) => string;
+} = {
   Boolean: node => (node.value ? 'TRUE' : 'FALSE'),
   BooleanOperation: (node, parentPrecedence) => {
     const sep = node.operator === BooleanOperator.And ? 'AND' : 'OR';
@@ -37,7 +48,10 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
     return serializeCol(node.schema, node.table, node.column);
   },
   ColumnAlias: node => {
-    return `${serializeCol(node.schema, node.table, node.column)} AS ${serializeInternal(node.alias, null)}`;
+    return `${serializeCol(node.schema, node.table, node.column)} AS ${serializeInternal(
+      node.alias,
+      null
+    )}`;
   },
   ColumnAll: () => '*',
   ColumnAllFromTable: node => {
@@ -75,7 +89,10 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
     return formatOperator(sep, node.left, node.right, node.operator, parentPrecedence);
   },
   CreateTableStatement: node => {
-    return `CREATE TABLE ${serializeInternal(node.table, null)} (${serializeArray(node.items, ', ')});`;
+    return `CREATE TABLE ${serializeInternal(node.table, null)} (${serializeArray(
+      node.items,
+      ', '
+    )});`;
   },
   DataTypeIntParams: node => {
     return node.dt + (node.param !== null ? `(${node.param})` : '');
@@ -159,10 +176,11 @@ const SERIALIZER: { [K in NodeType]: (node: Node<K>, parentPrecedence: number | 
   PrimaryKeyConstraint: () => `PRIMARY KEY`,
   UniqueConstraint: () => `UNIQUE`,
   ReferenceConstraint: node =>
-    `REFERENCES ${serializeCol(node.foreignKey.schema, node.foreignKey.table, null)} (${serializeInternal(
-      node.foreignKey.column,
+    `REFERENCES ${serializeCol(
+      node.foreignKey.schema,
+      node.foreignKey.table,
       null
-    )})`,
+    )} (${serializeInternal(node.foreignKey.column, null)})`,
   InsertIntoStatement: node =>
     [
       `INSERT INTO `,
@@ -190,7 +208,11 @@ function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | 
   throw new Error(`Unsuported serialize on Node of type ${node.type}`);
 }
 
-function serializeCol(schema: null | Identifier, table: null | Identifier, column: null | Identifier): string {
+function serializeCol(
+  schema: null | Identifier,
+  table: null | Identifier,
+  column: null | Identifier
+): string {
   return [schema, table, column]
     .filter((v): v is Identifier => v !== null)
     .map(serializeInternal)

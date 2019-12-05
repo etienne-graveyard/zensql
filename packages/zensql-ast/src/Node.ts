@@ -207,14 +207,18 @@ export const NodeIs: {
 
 // Alias
 export type Identifier = Node<'Identifier' | 'CaseSensitiveIdentifier'>;
-export type Value = Node<'CaseSensitiveIdentifier' | 'Identifier' | 'String' | 'Numeric' | 'Boolean' | 'Null'>;
+export type Value = Node<
+  'CaseSensitiveIdentifier' | 'Identifier' | 'String' | 'Numeric' | 'Boolean' | 'Null'
+>;
 export type Variable = Node<'NamedVariable' | 'IndexedVariable'>;
 export type Term = Value | Variable | Node<'Column'>;
 export type BinaryOperation = Node<'BooleanOperation' | 'CompareOperation' | 'ValueOperation'>;
 export type Expression = BinaryOperation | Term;
 export type DataType = Node<'DataTypeNoParams' | 'DataTypeNumeric' | 'DataTypeIntParams'>;
 export type TableExpression = Node<'TableAlias' | 'Table' | 'LeftJoin'>;
-export type SelectExpressionItem = Node<'Column' | 'ColumnAlias' | 'ColumnAll' | 'ColumnAllFromTable'>;
+export type SelectExpressionItem = Node<
+  'Column' | 'ColumnAlias' | 'ColumnAll' | 'ColumnAllFromTable'
+>;
 export type SelectExpression = Array<SelectExpressionItem>;
 export type Constraint = Node<
   'NotNullConstraint' | 'PrimaryKeyConstraint' | 'UniqueConstraint' | 'ReferenceConstraint'
