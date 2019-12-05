@@ -67,6 +67,7 @@ export async function runSetupCommand(options: SetupOptions) {
     if (answer.confirmDelete !== true) {
       return;
     }
+
     await prevTablesWithCounts.reduce<Promise<void>>(async (acc, item) => {
       await acc;
       console.info(`Deleting ${item.name}`);
@@ -87,9 +88,8 @@ export async function runSetupCommand(options: SetupOptions) {
   if (answer.confirmCreate !== true) {
     return;
   }
-  await tables.reduce<Promise<void>>(async (acc, item) => {
-    await acc;
-    console.info(`Creating ${item.name}`);
-    await pool.query(Serializer.serialize(item.ast));
-  }, Promise.resolve());
+  const allCreateStatements = tables.map(table => Serializer.serialize(table.ast)).join('\n\n');
+
+  console.info(`Creating tables`);
+  await pool.query(allCreateStatements);
 }
