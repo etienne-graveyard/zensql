@@ -1,6 +1,6 @@
 {
   "name": "zensql",
-  "version": "1.0.0-alpha.12",
+  "version": "1.0.0-alpha.13",
   "description": "A typescript type-safe SQL system",
   "keywords": [
     "sql",
@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@zensql/parser": "^1.0.0-alpha.12",
-    "@zensql/scripts": "^1.0.0-alpha.12"
+    "@zensql/scripts": "^1.0.0-alpha.13"
   },
   "devDependencies": {
     "tsdx": "^0.11.0"
