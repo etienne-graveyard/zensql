@@ -1,6 +1,6 @@
 {
   "name": "@zensql-example/basic",
-  "version": "1.0.0-alpha.11",
+  "version": "1.0.0-alpha.12",
   "private": true,
   "description": "Basic example of zensql",
   "repository": "git@github.com:etienne-dldc/zensql.git",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "pg": "^7.14.0",
-    "zensql": "^1.0.0-alpha.11"
+    "zensql": "^1.0.0-alpha.12"
   },
   "devDependencies": {
     "@types/pg": "^7.11.2",
