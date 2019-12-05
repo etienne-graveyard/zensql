@@ -8,7 +8,7 @@
     "dist"
   ],
   "main": "dist/index.js",
-  "module": "dist/sql-ast.esm.js",
+  "module": "dist/ast.zensql.esm.js",
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsdx build --target node",

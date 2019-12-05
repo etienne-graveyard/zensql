@@ -198,6 +198,16 @@ const NODES_OBJ: { [K in NodeType]: null } = {
 
 const NODES = Object.keys(NODES_OBJ) as Array<NodeType>;
 
+export const Node = {
+  create<K extends NodeType>(type: K, data: Nodes[K], cursor?: Cursor): Node<K> {
+    return {
+      type,
+      ...data,
+      cursor,
+    };
+  },
+};
+
 export const NodeIs: {
   [K in NodeType]: (node: Node) => node is Node<K>;
 } = NODES.reduce<any>((acc, key) => {

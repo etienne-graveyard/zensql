@@ -1,5 +1,13 @@
 import { TokenStream } from '../core/TokenStream';
-import { Expression, Node, Identifier, ValueOperator, BooleanOperator, CompareOperator, Operators } from '@zensql/ast';
+import {
+  Expression,
+  Node,
+  Identifier,
+  ValueOperator,
+  BooleanOperator,
+  CompareOperator,
+  Operators,
+} from '@zensql/ast';
 import { TokenIs, Token } from '../core/Token';
 import { ParserUtils } from './ParserUtils';
 

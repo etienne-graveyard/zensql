@@ -1,4 +1,4 @@
-import { InputStream, Cursor } from './InputStream';
+import { InputStream } from './InputStream';
 import {
   Token,
   TokenNumber,
@@ -9,6 +9,7 @@ import {
   TokenStar,
   TokenComment,
 } from './Token';
+import { Cursor } from '@zensql/ast';
 
 const PUNCTUACTIONS = ';(),.';
 
@@ -45,7 +46,9 @@ export function TokenStream(input: InputStream): TokenStream {
   function croak(msg: string): never {
     const isEof = eof();
     const next = maybePeek();
-    return input.croak(msg + (isEof ? '' : ` (current is ${next === null ? 'null' : Token.serialize(next)}`));
+    return input.croak(
+      msg + (isEof ? '' : ` (current is ${next === null ? 'null' : Token.serialize(next)}`)
+    );
   }
 
   function maybePeek(): Token | null {

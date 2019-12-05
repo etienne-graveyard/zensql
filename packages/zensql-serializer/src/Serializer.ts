@@ -1,11 +1,13 @@
-import { Node, Identifier, NodeType } from './core/Node';
 import {
+  Node,
+  Identifier,
+  NodeType,
   BooleanOperator,
   CompareOperator,
   ValueOperator,
   Operators,
   Operator,
-} from './core/Operator';
+} from '@zensql/ast';
 
 export const Serializer = {
   serialize: (node: Node | Array<Node>) => serializeInternal(node, null),

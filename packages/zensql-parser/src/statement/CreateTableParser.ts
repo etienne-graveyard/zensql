@@ -1,7 +1,6 @@
 import { TokenStream } from '../core/TokenStream';
-import { Node, DataType, Identifier, Constraint, TableConstraint } from '../core/Node';
+import { Node, DataType, Identifier, Constraint, TableConstraint, DataTypes } from '@zensql/ast';
 import { ParserUtils } from '../utils/ParserUtils';
-import { DataTypes } from '../utils/DataType';
 
 export function CreateTableParser(input: TokenStream) {
   const {
@@ -83,7 +82,9 @@ export function CreateTableParser(input: TokenStream) {
   }
 
   function parseConstraint(): Constraint | null {
-    return parseMaybeNotNull() || parseMaybePrimaryKey() || parseMaybeUnique() || parseMaybeReference();
+    return (
+      parseMaybeNotNull() || parseMaybePrimaryKey() || parseMaybeUnique() || parseMaybeReference()
+    );
   }
 
   function parseMaybeUnique(): Node<'UniqueConstraint'> | null {

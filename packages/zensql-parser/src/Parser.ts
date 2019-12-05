@@ -1,6 +1,6 @@
+import { Statements, Statement, Node, NodeIs } from '@zensql/ast';
 import { TokenStream } from './core/TokenStream';
 import { InputStream } from './core/InputStream';
-import { Statements, Statement, Node, NodeIs } from './core/Node';
 import { ParserUtils } from './utils/ParserUtils';
 import { SelectParser } from './statement/SelectParser';
 import { CreateTableParser } from './statement/CreateTableParser';

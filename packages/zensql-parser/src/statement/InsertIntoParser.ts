@@ -1,5 +1,5 @@
 import { TokenStream } from '../core/TokenStream';
-import { Node, Identifier } from '../core/Node';
+import { Node, Identifier } from '@zensql/ast';
 import { ParserUtils } from '../utils/ParserUtils';
 import { ExpressionParser } from '../utils/ExpressionParser';
 

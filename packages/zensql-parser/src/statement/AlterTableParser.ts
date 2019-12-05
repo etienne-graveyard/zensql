@@ -1,5 +1,5 @@
 import { TokenStream } from '../core/TokenStream';
-import { Node } from '../core/Node';
+import { Node } from '@zensql/ast';
 import { ParserUtils } from '../utils/ParserUtils';
 
 export function AlterTableParser(input: TokenStream) {

@@ -1,7 +1,15 @@
 import { TokenStream } from '../core/TokenStream';
 import { TokenIs, TokenPunctuation, TokenStar, TokenIdentifier, Token } from '../core/Token';
-import { Keyword, Keywords, Identifier, Node, NodeType, Nodes } from '@zensql/ast';
-import { DataTypeAny, DataTypes } from './DataType';
+import {
+  Keyword,
+  Keywords,
+  Identifier,
+  Node,
+  NodeType,
+  Nodes,
+  DataTypeAny,
+  DataTypes,
+} from '@zensql/ast';
 
 export function ParserUtils(input: TokenStream) {
   return {
@@ -24,11 +32,7 @@ export function ParserUtils(input: TokenStream) {
   };
 
   function createNode<K extends NodeType>(type: K, data: Nodes[K]): Node<K> {
-    return {
-      type,
-      ...data,
-      cursor: input.cursor(),
-    };
+    return Node.create(type, data, input.cursor());
   }
 
   function skipComment(): void {

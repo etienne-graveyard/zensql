@@ -9,7 +9,7 @@
     "bin"
   ],
   "main": "dist/index.js",
-  "module": "dist/zensql.scripts.esm.js",
+  "module": "dist/scripts.zensql.esm.js",
   "typings": "dist/index.d.ts",
   "bin": {
     "zensql-scripts": "./bin/zensql-scripts.js"

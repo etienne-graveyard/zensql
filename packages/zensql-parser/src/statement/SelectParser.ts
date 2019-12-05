@@ -1,4 +1,11 @@
-import { Node, Expression, Identifier, SelectExpression, SelectExpressionItem, TableExpression } from '../core/Node';
+import {
+  Node,
+  Expression,
+  Identifier,
+  SelectExpression,
+  SelectExpressionItem,
+  TableExpression,
+} from '@zensql/ast';
 import { TokenStream } from '../core/TokenStream';
 import { ParserUtils } from '../utils/ParserUtils';
 import { ExpressionParser } from '../utils/ExpressionParser';
