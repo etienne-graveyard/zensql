@@ -1,7 +1,6 @@
 import { TokenStream } from '../core/TokenStream';
-import { Expression, Node, Identifier } from '../core/Node';
+import { Expression, Node, Identifier, ValueOperator, BooleanOperator, CompareOperator, Operators } from '@zensql/ast';
 import { TokenIs, Token } from '../core/Token';
-import { ValueOperator, BooleanOperator, CompareOperator, Operators } from '../core/Operator';
 import { ParserUtils } from './ParserUtils';
 
 export function ExpressionParser(input: TokenStream) {

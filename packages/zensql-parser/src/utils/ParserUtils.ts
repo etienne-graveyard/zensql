@@ -1,7 +1,6 @@
 import { TokenStream } from '../core/TokenStream';
 import { TokenIs, TokenPunctuation, TokenStar, TokenIdentifier, Token } from '../core/Token';
-import { Keyword, Keywords } from '../core/Keyword';
-import { Identifier, Node, NodeType, Nodes } from '../core/Node';
+import { Keyword, Keywords, Identifier, Node, NodeType, Nodes } from '@zensql/ast';
 import { DataTypeAny, DataTypes } from './DataType';
 
 export function ParserUtils(input: TokenStream) {

@@ -16,6 +16,9 @@
     "test": "tsdx test",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@zensql/ast": "1.0.0-alpha.12"
+  },
   "devDependencies": {
     "@types/jest": "^24.0.23",
     "tsdx": "^0.11.0"

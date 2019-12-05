@@ -142,9 +142,18 @@ export interface Nodes {
   };
 }
 
+export type Cursor = {
+  line: number;
+  column: number;
+};
+
+export interface NodeCommon {
+  cursor?: Cursor;
+}
+
 export type NodeType = keyof Nodes;
 
-export type Node<K extends NodeType = NodeType> = Nodes[K] & { type: K };
+export type Node<K extends NodeType = NodeType> = Nodes[K] & { type: K } & NodeCommon;
 
 const NODES_OBJ: { [K in NodeType]: null } = {
   AlterTableStatement: null,

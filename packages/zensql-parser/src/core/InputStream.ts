@@ -1,3 +1,5 @@
+import { Cursor } from '@zensql/ast';
+
 export interface InputStream {
   next(): string;
   peek(): string;
@@ -5,11 +7,6 @@ export interface InputStream {
   croak(msg: string): never;
   cursor(): Cursor;
 }
-
-export type Cursor = {
-  line: number;
-  column: number;
-};
 
 export function InputStream(input: string): InputStream {
   let pos = 0;
