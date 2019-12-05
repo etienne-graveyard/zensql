@@ -1,5 +1,5 @@
 import { ColumnType, ColumnResolved, ColumnUtils } from './ColumnUtils';
-import { Expression, NodeIs } from '@zensql/parser';
+import { Expression, NodeIs } from '@zensql/ast';
 
 export const ExpressionUtils = {
   resolve: resolveExpression,
@@ -28,7 +28,11 @@ function resolveExpression(
   if (NodeIs.IndexedVariable(expr)) {
     throw new Error('IndexedVariables are not supported, use named variable instead !');
   }
-  if (NodeIs.CompareOperation(expr) || NodeIs.BooleanOperation(expr) || NodeIs.ValueOperation(expr)) {
+  if (
+    NodeIs.CompareOperation(expr) ||
+    NodeIs.BooleanOperation(expr) ||
+    NodeIs.ValueOperation(expr)
+  ) {
     const left = resolveExpression(allColumns, expr.left);
     const right = resolveExpression(allColumns, expr.right);
     if (left.resolved && right.resolved) {

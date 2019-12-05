@@ -22,6 +22,8 @@
   },
   "dependencies": {
     "@zensql/parser": "^1.0.0-alpha.12",
+    "@zensql/ast": "^1.0.0-alpha.12",
+    "@zensql/serializer": "^1.0.0-alpha.12",
     "fs-extra": "^8.1.0",
     "inquirer": "^7.0.0",
     "pg": "^7.14.0",

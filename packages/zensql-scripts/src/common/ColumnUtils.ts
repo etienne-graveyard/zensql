@@ -1,4 +1,11 @@
-import { DataType, Node, NodeIs, SelectExpression, SelectExpressionItem, Identifier } from '@zensql/parser';
+import {
+  DataType,
+  Node,
+  NodeIs,
+  SelectExpression,
+  SelectExpressionItem,
+  Identifier,
+} from '@zensql/ast';
 import { TableResolved } from './TableUtils';
 
 export const ColumnUtils = {
@@ -46,7 +53,10 @@ function findAll(tables: Array<TableResolved>): Array<ColumnResolved> {
   return allColumns;
 }
 
-function resolveOnTable(table: TableResolved, columns: Array<Identifier> | null): Array<ColumnResolved> {
+function resolveOnTable(
+  table: TableResolved,
+  columns: Array<Identifier> | null
+): Array<ColumnResolved> {
   if (columns === null) {
     return table.columns.map(col => resolveColumn(table, col));
   }
@@ -59,13 +69,19 @@ function resolveOnTable(table: TableResolved, columns: Array<Identifier> | null)
   });
 }
 
-function resolveSingle(column: Node<'Column' | 'ColumnAlias'>, allColumns: Array<ColumnResolved>): ColumnResolved {
-  const colStr = `${column.schema ? column.schema.value + '.' : ''}${column.table ? column.table.value + '.' : ''}${
-    column.column.value
-  }`;
+function resolveSingle(
+  column: Node<'Column' | 'ColumnAlias'>,
+  allColumns: Array<ColumnResolved>
+): ColumnResolved {
+  const colStr = `${column.schema ? column.schema.value + '.' : ''}${
+    column.table ? column.table.value + '.' : ''
+  }${column.column.value}`;
   const matchCols = allColumns.filter(col => {
-    const match = (column.table ? column.table.value === col.table : true) && column.column.value === col.column;
-    const matchAlias = column.table && column.table.value === col.tableAlias && column.column.value === col.column;
+    const match =
+      (column.table ? column.table.value === col.table : true) &&
+      column.column.value === col.column;
+    const matchAlias =
+      column.table && column.table.value === col.tableAlias && column.column.value === col.column;
     if (!matchAlias && match && col.tableAlias && column.table) {
       throw new Error(`Invalid column ${colStr}, the table is aliased as ${col.tableAlias}`);
     }
@@ -141,6 +157,6 @@ function resolveSelectColumn(
   if (NodeIs.Column(select) || NodeIs.ColumnAlias(select)) {
     return [resolveSingle(select, allColumns)];
   }
-  console.warn(`Unhandled type ${select.type}`);
+  console.warn(`Unhandled type ${(select as any).type}`);
   return [];
 }

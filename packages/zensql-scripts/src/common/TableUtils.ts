@@ -1,6 +1,7 @@
 import fse from 'fs-extra';
 import path from 'path';
-import { Node, Parser, NodeIs, TableExpression, Identifier, TableConstraint } from '@zensql/parser';
+import { Parser } from '@zensql/parser';
+import { Node, NodeIs, TableExpression, Identifier, TableConstraint } from '@zensql/ast';
 
 export interface Table {
   name: string;
@@ -34,7 +35,9 @@ async function parseTables(sqlTablesFolder: string): Promise<Tables> {
 function parseTable(fileName: string, query: string): Table {
   const parsed = Parser.parse(query);
   if (Array.isArray(parsed)) {
-    throw new Error(`Error in ${fileName}: There should be only 1 statement per file (found ${parsed.length})`);
+    throw new Error(
+      `Error in ${fileName}: There should be only 1 statement per file (found ${parsed.length})`
+    );
   }
   if (NodeIs.Empty(parsed)) {
     throw new Error(`${fileName} has no statement`);
@@ -49,7 +52,9 @@ function parseTable(fileName: string, query: string): Table {
   const fileNameWithoutExt = path.basename(fileName, path.extname(fileName));
   const tableName = parsed.table.table.value;
   if (tableName !== fileNameWithoutExt) {
-    throw new Error(`Table files should have the same name as the table it define ${tableName} in ${fileName}`);
+    throw new Error(
+      `Table files should have the same name as the table it define ${tableName} in ${fileName}`
+    );
   }
   return {
     name: tableName,
@@ -86,7 +91,7 @@ function resolveTableExpression(schema: Tables, table: TableExpression): Array<T
   if (NodeIs.TableAlias(table)) {
     return [findTable(schema, table.table.table, table.alias)];
   }
-  throw new Error(`Unhandled type ${table.type}`);
+  throw new Error(`Unhandled type ${(table as any).type}`);
 }
 
 function resolveLeftJoin(tables: Tables, join: Node<'LeftJoin'>): Array<TableResolved> {

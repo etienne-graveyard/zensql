@@ -1,6 +1,7 @@
 import fse from 'fs-extra';
 import path from 'path';
-import { Parser, NodeIs, Node } from '@zensql/parser';
+import { Parser } from '@zensql/parser';
+import { NodeIs, Node } from '@zensql/ast';
 import { ColumnResolved, ColumnUtils } from '../common/ColumnUtils';
 import { Variable } from './Variable';
 import { TableUtils, Tables } from '../common/TableUtils';
@@ -23,7 +24,7 @@ export interface SelectQueryResolved {
 
 export interface InsertQueryResolved {
   type: 'Insert';
-  query: Node<'InsertStatement'>;
+  query: Node<'InsertIntoStatement'>;
   variables: Array<VariableResolved>;
   name: string;
   path: string;
@@ -48,16 +49,18 @@ function notNull<T>(val: T | null): val is T {
   return val !== null;
 }
 
-function parseQuery(queryPath: string): Node<'SelectStatement' | 'InsertStatement'> {
+function parseQuery(queryPath: string): Node<'SelectStatement' | 'InsertIntoStatement'> {
   const content = fse.readFileSync(queryPath, { encoding: 'utf8' });
   const parsed = Parser.parse(content);
   if (Array.isArray(parsed)) {
-    throw new Error(`Error in ${queryPath}: There should be only 1 query per file (found ${parsed.length})`);
+    throw new Error(
+      `Error in ${queryPath}: There should be only 1 query per file (found ${parsed.length})`
+    );
   }
   if (NodeIs.Empty(parsed)) {
     throw new Error(`${queryPath} has no query`);
   }
-  if (NodeIs.SelectStatement(parsed) || NodeIs.InsertStatement(parsed)) {
+  if (NodeIs.SelectStatement(parsed) || NodeIs.InsertIntoStatement(parsed)) {
     return parsed;
   }
   throw new Error(`${queryPath} should contain a SELECT statement`);
@@ -68,13 +71,17 @@ function resolveQuery(schema: Tables, queryPath: string): QueryResolved {
   if (NodeIs.SelectStatement(query)) {
     return resolveSelectQuery(schema, queryPath, query);
   }
-  if (NodeIs.InsertStatement(query)) {
+  if (NodeIs.InsertIntoStatement(query)) {
     return resolveInsertQuery(schema, queryPath, query);
   }
-  throw new Error(`Invalid query type ${query.type}`);
+  throw new Error(`Invalid query type ${(query as any).type}`);
 }
 
-function resolveInsertQuery(schema: Tables, queryPath: string, query: Node<'InsertStatement'>): InsertQueryResolved {
+function resolveInsertQuery(
+  schema: Tables,
+  queryPath: string,
+  query: Node<'InsertIntoStatement'>
+): InsertQueryResolved {
   const name = formatName(path.basename(queryPath));
   const variables = Variable.resolve(schema, query);
   return {
@@ -86,7 +93,11 @@ function resolveInsertQuery(schema: Tables, queryPath: string, query: Node<'Inse
   };
 }
 
-function resolveSelectQuery(schema: Tables, queryPath: string, query: Node<'SelectStatement'>): SelectQueryResolved {
+function resolveSelectQuery(
+  schema: Tables,
+  queryPath: string,
+  query: Node<'SelectStatement'>
+): SelectQueryResolved {
   const tables = TableUtils.resolveFromExpression(schema, query.from);
   const allColumns = ColumnUtils.findAll(tables);
   const columns = ColumnUtils.resolveSelectColumns(tables, allColumns, query.select);

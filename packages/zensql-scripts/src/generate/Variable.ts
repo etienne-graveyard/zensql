@@ -1,5 +1,5 @@
 import { ColumnResolved, ColumnUtils } from '../common/ColumnUtils';
-import { Expression, Node, NodeIs, NodeType } from '@zensql/parser';
+import { Expression, Node, NodeIs, NodeType } from '@zensql/ast';
 import { ExpressionUtils, VariableResolved } from '../common/ExpressionUtils';
 import { TableUtils, Tables } from '../common/TableUtils';
 
@@ -8,13 +8,16 @@ export const Variable = {
   replace: replaceVariables,
 };
 
-function resolveVariables<T extends NodeType>(schema: Tables, query: Node<T>): Array<VariableResolved> {
+function resolveVariables<T extends NodeType>(
+  schema: Tables,
+  query: Node<T>
+): Array<VariableResolved> {
   if (NodeIs.SelectStatement(query)) {
     const tables = TableUtils.resolveFromExpression(schema, query.from);
     const allColumns = ColumnUtils.findAll(tables);
     return dedupeVariables(resolveVariablesInExpression(allColumns, query.from.where));
   }
-  if (NodeIs.InsertStatement(query)) {
+  if (NodeIs.InsertIntoStatement(query)) {
     const table = TableUtils.resolveTable(schema, query.table);
     const columns = ColumnUtils.resolveOnTable(table, query.columns);
     //  query.columns
@@ -45,7 +48,10 @@ function dedupeVariables(allVariables: Array<VariableResolved>): Array<VariableR
   }, []);
 }
 
-function resolveVariablesInInsertValues(column: ColumnResolved, expr: Expression | null): Array<VariableResolved> {
+function resolveVariablesInInsertValues(
+  column: ColumnResolved,
+  expr: Expression | null
+): Array<VariableResolved> {
   if (expr === null) {
     return [];
   }
@@ -81,21 +87,24 @@ function resolveVariablesInExpression(
   return res.variables;
 }
 
-function replaceVariables<T extends NodeType>(query: Node<T>, variables: Array<VariableResolved>): Node {
+function replaceVariables<T extends NodeType>(
+  query: Node<T>,
+  variables: Array<VariableResolved>
+): Node {
   if (NodeIs.SelectStatement(query)) {
     return replaceVariablesInSelect(query, variables);
   }
-  if (NodeIs.InsertStatement(query)) {
+  if (NodeIs.InsertIntoStatement(query)) {
     return replaceVariablesInInsert(query, variables);
   }
   throw new Error(`Replacing variables in ${query.type} is not suported`);
 }
 
 function replaceVariablesInInsert(
-  query: Node<'InsertStatement'>,
+  query: Node<'InsertIntoStatement'>,
   variables: Array<VariableResolved>
-): Node<'InsertStatement'> {
-  const transformedQuery: Node<'InsertStatement'> = {
+): Node<'InsertIntoStatement'> {
+  const transformedQuery: Node<'InsertIntoStatement'> = {
     ...query,
     values: query.values.map(vals => ({
       ...vals,
@@ -121,11 +130,18 @@ function replaceVariablesInSelect(
   return transformedQuery;
 }
 
-function replaceVariableInExpression(expr: Expression, variables: Array<VariableResolved>): Expression {
+function replaceVariableInExpression(
+  expr: Expression,
+  variables: Array<VariableResolved>
+): Expression {
   if (NodeIs.IndexedVariable(expr)) {
     throw new Error('IndexedVariables are not supported, use named variable instead !');
   }
-  if (NodeIs.CompareOperation(expr) || NodeIs.BooleanOperation(expr) || NodeIs.ValueOperation(expr)) {
+  if (
+    NodeIs.CompareOperation(expr) ||
+    NodeIs.BooleanOperation(expr) ||
+    NodeIs.ValueOperation(expr)
+  ) {
     const left = replaceVariableInExpression(expr.left, variables);
     const right = replaceVariableInExpression(expr.right, variables);
     if (left === expr.left && right === expr.right) {

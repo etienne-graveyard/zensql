@@ -4,7 +4,7 @@ import { QueryResolved, SelectQueryResolved, InsertQueryResolved } from './Query
 import { Variable } from './Variable';
 import { saveFile } from '../common/utils';
 import { ColumnType } from '../common/ColumnUtils';
-import { Serializer } from '@zensql/parser';
+import { Serializer } from '@zensql/serializer';
 
 export const Printer = {
   print,
@@ -67,7 +67,9 @@ function printInsertQuery(query: InsertQueryResolved): string {
 
   return [
     `function ${query.name}(pool: Pool${option ? ', ' + option : ''}): Promise<QueryResult<{}>> {`,
-    query.variables.length > 1 ? `  const { ${query.variables.map(v => v.name).join(', ')} } = params;` : null,
+    query.variables.length > 1
+      ? `  const { ${query.variables.map(v => v.name).join(', ')} } = params;`
+      : null,
     `  return pool.query(`,
     `    \`${Serializer.serialize(outQuery)}\`,`,
     `    [${query.variables.map(v => v.name).join(', ')}]`,
@@ -80,7 +82,8 @@ function printInsertQuery(query: InsertQueryResolved): string {
 
 function printSelectQuery(query: SelectQueryResolved): string {
   const outQuery = Variable.replace(query.query, query.variables);
-  const interfaceName = query.name.substring(0, 1).toUpperCase() + query.name.substring(1) + 'Result';
+  const interfaceName =
+    query.name.substring(0, 1).toUpperCase() + query.name.substring(1) + 'Result';
 
   const option =
     query.variables.length === 0
@@ -96,8 +99,12 @@ function printSelectQuery(query: SelectQueryResolved): string {
     }),
     `}`,
     ``,
-    `function ${query.name}(pool: Pool${option ? ', ' + option : ''}): Promise<QueryResult<${interfaceName}>> {`,
-    query.variables.length > 1 ? `  const { ${query.variables.map(v => v.name).join(', ')} } = params;` : null,
+    `function ${query.name}(pool: Pool${
+      option ? ', ' + option : ''
+    }): Promise<QueryResult<${interfaceName}>> {`,
+    query.variables.length > 1
+      ? `  const { ${query.variables.map(v => v.name).join(', ')} } = params;`
+      : null,
     `  return pool.query(`,
     `    \`${Serializer.serialize(outQuery)}\`,`,
     `    [${query.variables.map(v => v.name).join(', ')}]`,

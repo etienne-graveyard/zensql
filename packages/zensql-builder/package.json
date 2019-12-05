@@ -1,0 +1,30 @@
+{
+  "name": "@zensql/builder",
+  "version": "1.0.0-alpha.12",
+  "repository": "git@github.com:etienne-dldc/zensql.git",
+  "license": "MIT",
+  "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/builder.zensql.esm.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsdx build --target node",
+    "start": "tsdx watch --target node",
+    "test": "tsdx test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@zensql/ast": "1.0.0-alpha.12"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.23",
+    "tsdx": "^0.11.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "a0e3f23cbd47c48cd8c87f70fbf585f67780e090"
+}

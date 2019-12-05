@@ -15,10 +15,10 @@ export interface Nodes {
 
   // Identifier
   Identifier: {
-    // the value as used by Postgres in lowercas
+    // the value as used by Postgres in lowercase
     value: string;
-    // original value for linteng purpose
-    originalValue: string;
+    // original value for linting purpose
+    originalValue?: string;
   };
   CaseSensitiveIdentifier: { value: string };
 
@@ -153,7 +153,9 @@ export interface NodeCommon {
 
 export type NodeType = keyof Nodes;
 
-export type Node<K extends NodeType = NodeType> = Nodes[K] & { type: K } & NodeCommon;
+export type Node<K extends NodeType = NodeType> = {
+  [K in NodeType]: Nodes[K] & { type: K } & NodeCommon;
+}[K];
 
 const NODES_OBJ: { [K in NodeType]: null } = {
   AlterTableStatement: null,
@@ -200,11 +202,14 @@ const NODES = Object.keys(NODES_OBJ) as Array<NodeType>;
 
 export const Node = {
   create<K extends NodeType>(type: K, data: Nodes[K], cursor?: Cursor): Node<K> {
-    return {
+    const node: Node<K> = {
       type,
       ...data,
-      cursor,
-    };
+    } as any;
+    if (cursor) {
+      node.cursor = cursor;
+    }
+    return node;
   },
 };
 
