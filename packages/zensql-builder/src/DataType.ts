@@ -1,5 +1,5 @@
 import {
-  DataType,
+  DataType as DT,
   DataTypeIntParamName,
   DataTypeNoParamsName,
   DataTypeNumericName,
@@ -9,17 +9,17 @@ import {
   Node,
 } from '@zensql/ast';
 
-export const TYPES = createDataTypeBuilder();
+export const DataType = createDataTypeBuilder();
 
 export interface CreateNumericDataType {
-  (p: number, s: number): DataType;
-  (): DataType;
+  (p: number, s: number): DT;
+  (): DT;
 }
 
 type DataTypeBuilder = {
-  [K in DataTypeNoParamsName]: () => DataType;
+  [K in DataTypeNoParamsName]: () => DT;
 } &
-  { [K in DataTypeIntParamName]: (num?: number | null) => DataType } &
+  { [K in DataTypeIntParamName]: (num?: number | null) => DT } &
   {
     [K in DataTypeNumericName]: CreateNumericDataType;
   };

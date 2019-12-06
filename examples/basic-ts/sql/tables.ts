@@ -1,57 +1,54 @@
-import { Builder } from '@zensql/builder';
+import { ColumnConstraint, DataType, CreateTable } from '@zensql/builder';
+import { ColumnDef, TableConstraints } from '@zensql/builder/dist/CreateTable';
 
-const { TYPES, CREATE_TABLE } = Builder;
-const { COLUMN, CONSTRAINT: TABLE_CONSTRAINT } = CREATE_TABLE;
-const { CONSTRAINT } = COLUMN;
+const NotNull = ColumnConstraint.NotNull();
+const Primary = ColumnConstraint.PrimaryKey();
+const UUID = DataType.UUID();
+const TEXT = DataType.TEXT();
+const INTEGER = DataType.INTEGER();
+const Ref = ColumnConstraint.References;
 
-const NOT_NULL = CONSTRAINT.NOT_NULL();
-const PRIMARY = CONSTRAINT.PRIMARY_KEY();
-const UUID = TYPES.UUID();
-const TEXT = TYPES.TEXT();
-const INTEGER = TYPES.INTEGER();
-const COL = COLUMN.create;
-
-const clients = CREATE_TABLE.create('clients', [
+const clients = CreateTable('clients', [
   // id INTEGER PRIMARY KEY,
-  COL('id', UUID, PRIMARY),
-  COL('name', TEXT, NOT_NULL),
+  ColumnDef('id', UUID, Primary),
+  ColumnDef('name', TEXT, NotNull),
 ]);
 
-const employees = CREATE_TABLE.create('employees', [
-  COL('id', UUID, PRIMARY),
-  COL('name', TEXT, NOT_NULL),
-  COL('position', TEXT, NOT_NULL),
-  COL('salary', TYPES.REAL(), NOT_NULL),
-  COL('remarks', TEXT),
+const employees = CreateTable('employees', [
+  ColumnDef('id', UUID, Primary),
+  ColumnDef('name', TEXT, NotNull),
+  ColumnDef('position', TEXT, NotNull),
+  ColumnDef('salary', DataType.REAL(), NotNull),
+  ColumnDef('remarks', TEXT),
 ]);
 
-const hasClearance = CREATE_TABLE.create('has_clearance', [
-  COL('employee_id', UUID, NOT_NULL, CONSTRAINT.REFERENCES('employees', 'id')),
-  COL('planet_id', UUID, NOT_NULL, CONSTRAINT.REFERENCES('planets', 'id')),
-  COL('level', INTEGER, NOT_NULL),
-  TABLE_CONSTRAINT.PRIMARY_KEY('employee_id', 'planet_id'),
+const hasClearance = CreateTable('has_clearance', [
+  ColumnDef('employee_id', UUID, NotNull, Ref('employees', 'id')),
+  ColumnDef('planet_id', UUID, NotNull, Ref('planets', 'id')),
+  ColumnDef('level', INTEGER, NotNull),
+  TableConstraints.PrimaryKey('employee_id', 'planet_id'),
 ]);
 
-const packages = CREATE_TABLE.create('packages', [
-  COL('shipment_id', UUID, NOT_NULL, CONSTRAINT.REFERENCES('shipments', 'id')),
-  COL('package_number', INTEGER, NOT_NULL),
-  COL('contents', TEXT, NOT_NULL),
-  COL('weight', TYPES.REAL(), NOT_NULL),
-  COL('sender_id', UUID, NOT_NULL, CONSTRAINT.REFERENCES('clients', 'id')),
-  COL('recipient_id', UUID, NOT_NULL, CONSTRAINT.REFERENCES('clients', 'id')),
-  TABLE_CONSTRAINT.PRIMARY_KEY('shipment_id', 'package_number'),
+const packages = CreateTable('packages', [
+  ColumnDef('shipment_id', UUID, NotNull, Ref('shipments', 'id')),
+  ColumnDef('package_number', INTEGER, NotNull),
+  ColumnDef('contents', TEXT, NotNull),
+  ColumnDef('weight', DataType.REAL(), NotNull),
+  ColumnDef('sender_id', UUID, NotNull, Ref('clients', 'id')),
+  ColumnDef('recipient_id', UUID, NotNull, Ref('clients', 'id')),
+  TableConstraints.PrimaryKey('shipment_id', 'package_number'),
 ]);
 
-const planets = CREATE_TABLE.create('planets', [
-  COL('id', UUID, PRIMARY),
-  COL('name', TEXT, NOT_NULL),
+const planets = CreateTable('planets', [
+  ColumnDef('id', UUID, Primary),
+  ColumnDef('name', TEXT, NotNull),
 ]);
 
-const shipments = CREATE_TABLE.create('shipments', [
-  COL('id', UUID, PRIMARY),
-  COL('date', TYPES.DATE()),
-  COL('manager', UUID, NOT_NULL, CONSTRAINT.REFERENCES('employees', 'id')),
-  COL('planet', UUID, NOT_NULL, CONSTRAINT.REFERENCES('planets', 'id')),
+const shipments = CreateTable('shipments', [
+  ColumnDef('id', UUID, Primary),
+  ColumnDef('date', DataType.DATE()),
+  ColumnDef('manager', UUID, NotNull, Ref('employees', 'id')),
+  ColumnDef('planet', UUID, NotNull, Ref('planets', 'id')),
 ]);
 
 export const DATABASE = [clients, employees, hasClearance, packages, planets, shipments];

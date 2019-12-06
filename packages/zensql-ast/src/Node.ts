@@ -33,7 +33,7 @@ const NODES_TYPES = [
   'PrimaryKeyConstraint',
   'PrimaryKeyTableConstraint',
   'ReferenceConstraint',
-  'SelectStatement',
+  'Select',
   'Str',
   'Table',
   'TableAlias',
@@ -192,13 +192,13 @@ export interface NodesDataInternal {
 
   // Statements
   Empty: {};
-  SelectStatement: {
-    select: SelectExpression;
+  Select: {
+    columns: SelectColumns;
     from: FromExpression;
   };
   InsertIntoStatement: {
     table: Table | TableAlias;
-    columns: Identifier | null;
+    columns: Array<Identifier> | null;
     values: Array<InserValues>;
   };
   CreateTableStatement: {
@@ -265,7 +265,7 @@ export interface Numeric extends NodeInternal<'Numeric'> {}
 export interface PrimaryKeyConstraint extends NodeInternal<'PrimaryKeyConstraint'> {}
 export interface PrimaryKeyTableConstraint extends NodeInternal<'PrimaryKeyTableConstraint'> {}
 export interface ReferenceConstraint extends NodeInternal<'ReferenceConstraint'> {}
-export interface SelectStatement extends NodeInternal<'SelectStatement'> {}
+export interface Select extends NodeInternal<'Select'> {}
 export interface Table extends NodeInternal<'Table'> {}
 export interface TableAlias extends NodeInternal<'TableAlias'> {}
 export interface UniqueConstraint extends NodeInternal<'UniqueConstraint'> {}
@@ -281,17 +281,13 @@ export type BinaryOperation = BooleanOperation | CompareOperation | ValueOperati
 export type Expression = BinaryOperation | Term;
 export type DataType = DataTypeNoParams | DataTypeNumeric | DataTypeIntParams;
 export type TableExpression = TableAlias | Table | LeftJoin;
-export type SelectExpressionItem = Column | ColumnAlias | ColumnAll | ColumnAllFromTable;
-export type SelectExpression = Array<SelectExpressionItem>;
+export type SelectColumnsItem = Column | ColumnAlias | ColumnAll | ColumnAllFromTable;
+export type SelectColumns = Array<SelectColumnsItem>;
 export type Constraint =
   | NotNullConstraint
   | PrimaryKeyConstraint
   | UniqueConstraint
   | ReferenceConstraint;
 export type TableConstraint = PrimaryKeyTableConstraint;
-export type Statement =
-  | SelectStatement
-  | CreateTableStatement
-  | InsertIntoStatement
-  | AlterTableStatement;
+export type Statement = Select | CreateTableStatement | InsertIntoStatement | AlterTableStatement;
 export type Statements = Array<Statement>;
