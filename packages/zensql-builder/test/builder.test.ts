@@ -3,8 +3,8 @@ import { Builder } from '../src';
 it('build a create table', () => {
   expect(
     Builder.CREATE_TABLE.create('doc', [
-      Builder.CREATE_TABLE.COLUMN('id', Builder.TYPES.UUID()),
-      Builder.CREATE_TABLE.COLUMN('name', Builder.TYPES.TEXT()),
+      Builder.CREATE_TABLE.COLUMN.create('id', Builder.TYPES.UUID()),
+      Builder.CREATE_TABLE.COLUMN.create('name', Builder.TYPES.TEXT()),
     ])
   ).toEqual({
     items: [

@@ -37,25 +37,25 @@ export const DATATYPE = {
 };
 
 export const DataTypes = {
-  isDataType(str: string): str is DataTypeAny {
+  isDataType(str: string): str is DataTypeNameAny {
     const upper = str.toUpperCase();
     return (DATATYPE as any)[upper] === upper;
   },
-  isNoParamsDataType(str: string): str is DataTypeNoParams {
+  isNoParamsDataType(str: string): str is DataTypeNoParamsName {
     const upper = str.toUpperCase();
     return (DATATYPE_NOPARAMS as any)[upper] === str;
   },
-  isIntParamDataType(str: string): str is DataTypeIntParam {
+  isIntParamDataType(str: string): str is DataTypeIntParamName {
     const upper = str.toUpperCase();
     return (DATATYPE_INTPARAM as any)[upper] === str;
   },
-  isNumericDataType(str: string): str is DataTypeNumeric {
+  isNumericDataType(str: string): str is DataTypeNumericName {
     const upper = str.toUpperCase();
     return (DATATYPE_NUMERIC as any)[upper] === str;
   },
 };
 
-export type DataTypeAny = keyof typeof DATATYPE;
-export type DataTypeNoParams = keyof typeof DATATYPE_NOPARAMS;
-export type DataTypeIntParam = keyof typeof DATATYPE_INTPARAM;
-export type DataTypeNumeric = keyof typeof DATATYPE_NUMERIC;
+export type DataTypeNameAny = keyof typeof DATATYPE;
+export type DataTypeNoParamsName = keyof typeof DATATYPE_NOPARAMS;
+export type DataTypeIntParamName = keyof typeof DATATYPE_INTPARAM;
+export type DataTypeNumericName = keyof typeof DATATYPE_NUMERIC;

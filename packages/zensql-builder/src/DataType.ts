@@ -1,8 +1,8 @@
 import {
   DataType,
-  DataTypeIntParam,
-  DataTypeNoParams,
-  DataTypeNumeric,
+  DataTypeIntParamName,
+  DataTypeNoParamsName,
+  DataTypeNumericName,
   DATATYPE_INTPARAM,
   DATATYPE_NOPARAMS,
   DATATYPE_NUMERIC,
@@ -17,11 +17,11 @@ export interface CreateNumericDataType {
 }
 
 type DataTypeBuilder = {
-  [K in DataTypeNoParams]: () => DataType;
+  [K in DataTypeNoParamsName]: () => DataType;
 } &
-  { [K in DataTypeIntParam]: (num?: number | null) => DataType } &
+  { [K in DataTypeIntParamName]: (num?: number | null) => DataType } &
   {
-    [K in DataTypeNumeric]: CreateNumericDataType;
+    [K in DataTypeNumericName]: CreateNumericDataType;
   };
 
 function createDataTypeBuilder(): DataTypeBuilder {

@@ -1,11 +1,80 @@
+/* eslint-disable @typescript-eslint/no-empty-interface */
 import { BooleanOperator, CompareOperator, ValueOperator } from './Operator';
-import { DataTypeIntParam, DataTypeNoParams, DataTypeNumeric } from './DataType';
+import { DataTypeIntParamName, DataTypeNoParamsName, DataTypeNumericName } from './DataType';
 
-export interface Nodes {
+const NODES_TYPES = [
+  'AlterTableStatement',
+  'Bool',
+  'BooleanOperation',
+  'Case',
+  'CaseWhen',
+  'Column',
+  'ColumnAlias',
+  'ColumnAll',
+  'ColumnAllFromTable',
+  'ColumnDef',
+  'Comment',
+  'CompareOperation',
+  'CreateTableStatement',
+  'DataTypeIntParams',
+  'DataTypeNoParams',
+  'DataTypeNumeric',
+  'Empty',
+  'FromExpression',
+  'Identifier',
+  'IndexedVariable',
+  'InsertIntoStatement',
+  'InserValues',
+  'LeftJoin',
+  'NamedVariable',
+  'NotNullConstraint',
+  'Null',
+  'Numeric',
+  'PrimaryKeyConstraint',
+  'PrimaryKeyTableConstraint',
+  'ReferenceConstraint',
+  'SelectStatement',
+  'Str',
+  'Table',
+  'TableAlias',
+  'UniqueConstraint',
+  'ValueOperation',
+  'When',
+] as const;
+
+export type NodeType = typeof NODES_TYPES extends ReadonlyArray<infer T> ? T : never;
+
+export const Node = {
+  create: createNode,
+};
+
+function createNode<K extends keyof NodesData>(
+  type: K,
+  data: NodesData[K],
+  cursor?: Cursor
+): AllNodes[K] {
+  const node: NodeInternal<K> = {
+    type,
+    ...data,
+  } as any;
+  if (cursor) {
+    node.cursor = cursor;
+  }
+  return node;
+}
+
+export const NodeIs: {
+  [K in NodeType]: (node: NodeInternal) => node is NodeInternal<K>;
+} = NODES_TYPES.reduce<any>((acc, key) => {
+  acc[key] = (node: NodeInternal) => node.type === key;
+  return acc;
+}, {});
+
+export interface NodesDataInternal {
   // Basics
-  String: { value: string };
+  Str: { value: string };
   Numeric: { value: number };
-  Boolean: { value: boolean };
+  Bool: { value: boolean };
   Null: {};
   Comment: { value: string };
 
@@ -17,10 +86,9 @@ export interface Nodes {
   Identifier: {
     // the value as used by Postgres in lowercase
     value: string;
-    // original value for linting purpose
-    originalValue?: string;
+    originalValue: string;
+    caseSensitive: boolean;
   };
-  CaseSensitiveIdentifier: { value: string };
 
   // Expression
   When: {
@@ -29,11 +97,11 @@ export interface Nodes {
   };
   Case: {
     term: Term;
-    cases: Array<Node<'When'>>;
+    cases: Array<When>;
     else: Expression | null;
   };
   CaseWhen: {
-    cases: Array<Node<'When'>>;
+    cases: Array<When>;
     else: Expression | null;
   };
   BooleanOperation: {
@@ -70,7 +138,7 @@ export interface Nodes {
   // Table
   Table: { schema: Identifier | null; table: Identifier };
   TableAlias: {
-    table: Node<'Table'>;
+    table: Table;
     alias: Identifier;
   };
 
@@ -92,7 +160,7 @@ export interface Nodes {
   PrimaryKeyConstraint: {};
   UniqueConstraint: {};
   ReferenceConstraint: {
-    foreignKey: Node<'Column'>;
+    foreignKey: Column;
   };
   PrimaryKeyTableConstraint: {
     columns: Array<Identifier>;
@@ -107,14 +175,14 @@ export interface Nodes {
 
   // DataTypes
   DataTypeNoParams: {
-    dt: DataTypeNoParams;
+    dt: DataTypeNoParamsName;
   };
   DataTypeIntParams: {
-    dt: DataTypeIntParam;
+    dt: DataTypeIntParamName;
     param: null | number;
   };
   DataTypeNumeric: {
-    dt: DataTypeNumeric;
+    dt: DataTypeNumericName;
     params: null | { p: number; s: number };
   };
 
@@ -126,21 +194,23 @@ export interface Nodes {
   Empty: {};
   SelectStatement: {
     select: SelectExpression;
-    from: Node<'FromExpression'>;
+    from: FromExpression;
   };
   InsertIntoStatement: {
-    table: Node<'Table' | 'TableAlias'>;
-    columns: Array<Identifier> | null;
-    values: Array<Node<'InserValues'>>;
+    table: Table | TableAlias;
+    columns: Identifier | null;
+    values: Array<InserValues>;
   };
   CreateTableStatement: {
-    table: Node<'Table'>;
-    items: Array<Node<'ColumnDef'> | TableConstraint>;
+    table: Table;
+    items: Array<ColumnDef | TableConstraint>;
   };
   AlterTableStatement: {
-    table: Node<'Table'>;
+    table: Table;
   };
 }
+
+export type NodesData = ValidateNodeData<NodesDataInternal>;
 
 export type Cursor = {
   line: number;
@@ -151,96 +221,77 @@ export interface NodeCommon {
   cursor?: Cursor;
 }
 
-export type NodeType = keyof Nodes;
-
-export type Node<K extends NodeType = NodeType> = {
-  [K in NodeType]: Nodes[K] & { type: K } & NodeCommon;
-}[K];
-
-const NODES_OBJ: { [K in NodeType]: null } = {
-  AlterTableStatement: null,
-  Boolean: null,
-  BooleanOperation: null,
-  Case: null,
-  CaseSensitiveIdentifier: null,
-  CaseWhen: null,
-  Column: null,
-  ColumnAlias: null,
-  ColumnAll: null,
-  ColumnAllFromTable: null,
-  ColumnDef: null,
-  Comment: null,
-  CompareOperation: null,
-  CreateTableStatement: null,
-  DataTypeIntParams: null,
-  DataTypeNoParams: null,
-  DataTypeNumeric: null,
-  Empty: null,
-  FromExpression: null,
-  Identifier: null,
-  IndexedVariable: null,
-  InsertIntoStatement: null,
-  InserValues: null,
-  LeftJoin: null,
-  NamedVariable: null,
-  NotNullConstraint: null,
-  Null: null,
-  Numeric: null,
-  PrimaryKeyConstraint: null,
-  PrimaryKeyTableConstraint: null,
-  ReferenceConstraint: null,
-  SelectStatement: null,
-  String: null,
-  Table: null,
-  TableAlias: null,
-  UniqueConstraint: null,
-  ValueOperation: null,
-  When: null,
+export type AllNodes = {
+  [K in NodeType]: NodesData[K] & { type: K } & NodeCommon;
 };
 
-const NODES = Object.keys(NODES_OBJ) as Array<NodeType>;
+export type NodeInternal<K extends NodeType = NodeType> = AllNodes[K];
 
-export const Node = {
-  create<K extends NodeType>(type: K, data: Nodes[K], cursor?: Cursor): Node<K> {
-    const node: Node<K> = {
-      type,
-      ...data,
-    } as any;
-    if (cursor) {
-      node.cursor = cursor;
-    }
-    return node;
-  },
-};
+export type ValidateNodeData<T extends { [K in NodeType]: any }> = {
+  [K in NodeType]: any;
+} extends T
+  ? T
+  : { error: '' };
 
-export const NodeIs: {
-  [K in NodeType]: (node: Node) => node is Node<K>;
-} = NODES.reduce<any>((acc, key) => {
-  acc[key] = (node: Node) => node.type === key;
-  return acc;
-}, {});
+export type NodeAny = Node;
+
+export interface AlterTableStatement extends NodeInternal<'AlterTableStatement'> {}
+export interface Bool extends NodeInternal<'Bool'> {}
+export interface BooleanOperation extends NodeInternal<'BooleanOperation'> {}
+export interface Case extends NodeInternal<'Case'> {}
+export interface CaseWhen extends NodeInternal<'CaseWhen'> {}
+export interface Column extends NodeInternal<'Column'> {}
+export interface ColumnAlias extends NodeInternal<'ColumnAlias'> {}
+export interface ColumnAll extends NodeInternal<'ColumnAll'> {}
+export interface ColumnAllFromTable extends NodeInternal<'ColumnAllFromTable'> {}
+export interface ColumnDef extends NodeInternal<'ColumnDef'> {}
+export interface Comment extends NodeInternal<'Comment'> {}
+export interface CompareOperation extends NodeInternal<'CompareOperation'> {}
+export interface CreateTableStatement extends NodeInternal<'CreateTableStatement'> {}
+export interface DataTypeIntParams extends NodeInternal<'DataTypeIntParams'> {}
+export interface DataTypeNoParams extends NodeInternal<'DataTypeNoParams'> {}
+export interface DataTypeNumeric extends NodeInternal<'DataTypeNumeric'> {}
+export interface Empty extends NodeInternal<'Empty'> {}
+export interface FromExpression extends NodeInternal<'FromExpression'> {}
+export interface Identifier extends NodeInternal<'Identifier'> {}
+export interface IndexedVariable extends NodeInternal<'IndexedVariable'> {}
+export interface InsertIntoStatement extends NodeInternal<'InsertIntoStatement'> {}
+export interface InserValues extends NodeInternal<'InserValues'> {}
+export interface LeftJoin extends NodeInternal<'LeftJoin'> {}
+export interface NamedVariable extends NodeInternal<'NamedVariable'> {}
+export interface NotNullConstraint extends NodeInternal<'NotNullConstraint'> {}
+export interface Null extends NodeInternal<'Null'> {}
+export interface Numeric extends NodeInternal<'Numeric'> {}
+export interface PrimaryKeyConstraint extends NodeInternal<'PrimaryKeyConstraint'> {}
+export interface PrimaryKeyTableConstraint extends NodeInternal<'PrimaryKeyTableConstraint'> {}
+export interface ReferenceConstraint extends NodeInternal<'ReferenceConstraint'> {}
+export interface SelectStatement extends NodeInternal<'SelectStatement'> {}
+export interface Table extends NodeInternal<'Table'> {}
+export interface TableAlias extends NodeInternal<'TableAlias'> {}
+export interface UniqueConstraint extends NodeInternal<'UniqueConstraint'> {}
+export interface ValueOperation extends NodeInternal<'ValueOperation'> {}
+export interface Str extends NodeInternal<'Str'> {}
+export interface When extends NodeInternal<'When'> {}
 
 // Alias
-export type Identifier = Node<'Identifier' | 'CaseSensitiveIdentifier'>;
-export type Value = Node<
-  'CaseSensitiveIdentifier' | 'Identifier' | 'String' | 'Numeric' | 'Boolean' | 'Null'
->;
-export type Variable = Node<'NamedVariable' | 'IndexedVariable'>;
-export type Term = Value | Variable | Node<'Column'>;
-export type BinaryOperation = Node<'BooleanOperation' | 'CompareOperation' | 'ValueOperation'>;
+export type Value = Identifier | Str | Numeric | Bool | Null;
+export type Variable = NamedVariable | IndexedVariable;
+export type Term = Value | Variable | Column;
+export type BinaryOperation = BooleanOperation | CompareOperation | ValueOperation;
 export type Expression = BinaryOperation | Term;
-export type DataType = Node<'DataTypeNoParams' | 'DataTypeNumeric' | 'DataTypeIntParams'>;
-export type TableExpression = Node<'TableAlias' | 'Table' | 'LeftJoin'>;
-export type SelectExpressionItem = Node<
-  'Column' | 'ColumnAlias' | 'ColumnAll' | 'ColumnAllFromTable'
->;
+export type DataType = DataTypeNoParams | DataTypeNumeric | DataTypeIntParams;
+export type TableExpression = TableAlias | Table | LeftJoin;
+export type SelectExpressionItem = Column | ColumnAlias | ColumnAll | ColumnAllFromTable;
 export type SelectExpression = Array<SelectExpressionItem>;
-export type Constraint = Node<
-  'NotNullConstraint' | 'PrimaryKeyConstraint' | 'UniqueConstraint' | 'ReferenceConstraint'
->;
-export type TableConstraint = Node<'PrimaryKeyTableConstraint'>;
-
-export type Statement = Node<
-  'SelectStatement' | 'CreateTableStatement' | 'InsertIntoStatement' | 'AlterTableStatement'
->;
+export type Constraint =
+  | NotNullConstraint
+  | PrimaryKeyConstraint
+  | UniqueConstraint
+  | ReferenceConstraint;
+export type TableConstraint = PrimaryKeyTableConstraint;
+export type Statement =
+  | SelectStatement
+  | CreateTableStatement
+  | InsertIntoStatement
+  | AlterTableStatement;
 export type Statements = Array<Statement>;

@@ -1,5 +1,5 @@
 {
-  "name": "@zensql-example/basic",
+  "name": "@zensql-example/basic-sql",
   "version": "1.0.0-alpha.13",
   "private": true,
   "description": "Basic example of zensql",
