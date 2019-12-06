@@ -1,4 +1,4 @@
-# @zensql/parser
+# @zensql/ast
 
 ## ZenSQL
 
