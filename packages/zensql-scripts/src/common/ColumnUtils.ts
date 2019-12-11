@@ -1,6 +1,6 @@
 import {
   DataType,
-  NodeIs,
+  Node,
   SelectColumns,
   SelectColumnsItem,
   Identifier,
@@ -98,7 +98,7 @@ function resolveSingle(
   const col = matchCols[0];
   return {
     ...col,
-    alias: NodeIs.ColumnAlias(column) ? column.alias.value : null,
+    alias: Node.is('ColumnAlias', column) ? column.alias.value : null,
   };
 }
 
@@ -123,7 +123,7 @@ function resolveSelectColumn(
   if (select.type === 'ColumnAll') {
     return allColumns;
   }
-  if (NodeIs.ColumnAllFromTable(select)) {
+  if (Node.is('ColumnAllFromTable', select)) {
     const selectStr = `${select.schema ? select.schema.value + '.' : ''}${select.table.value}.*`;
     const matchTables = tables.filter(table => {
       const matchAlias = table.alias ? select.table.value === table.alias : false;
@@ -156,7 +156,7 @@ function resolveSelectColumn(
     });
     return cols;
   }
-  if (NodeIs.Column(select) || NodeIs.ColumnAlias(select)) {
+  if (Node.is('Column', select) || Node.is('ColumnAlias', select)) {
     return [resolveSingle(select, allColumns)];
   }
   console.warn(`Unhandled type ${(select as any).type}`);

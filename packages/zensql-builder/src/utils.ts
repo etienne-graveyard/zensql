@@ -1,7 +1,7 @@
-import { Node, Identifier, Expression, NodeIs } from '@zensql/ast';
+import { Node, Identifier, Expression } from '@zensql/ast';
 
 export function buildIdentifier(val: string | Identifier): Identifier {
-  if (typeof val !== 'string' && NodeIs.Identifier(val)) {
+  if (typeof val !== 'string' && Node.is('Identifier', val)) {
     return val;
   }
   return Node.create('Identifier', {

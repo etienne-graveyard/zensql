@@ -1,7 +1,6 @@
 import {
   CreateTableStatement,
   AlterTableStatement,
-  NodeIs,
   Node,
   ReferenceTableConstraint,
   ColumnDef,
@@ -67,16 +66,16 @@ function resolveTable(table: CreateTableStatement): TableResolved {
     ...table,
     items: table.items
       .filter(colDef => {
-        if (NodeIs.ColumnDef(colDef)) {
+        if (Node.is('ColumnDef', colDef)) {
           return true;
         }
-        if (NodeIs.PrimaryKeyTableConstraint(colDef)) {
+        if (Node.is('PrimaryKeyTableConstraint', colDef)) {
           return true;
         }
-        if (NodeIs.ReferenceTableConstraint(colDef)) {
+        if (Node.is('ReferenceTableConstraint', colDef)) {
           // make sure the column the ref is on exist
           const column = table.items.find(item => {
-            return NodeIs.ColumnDef(item) && item.name.value === colDef.column.value;
+            return Node.is('ColumnDef', item) && item.name.value === colDef.column.value;
           });
           if (!column) {
             throw new Error(
@@ -89,9 +88,9 @@ function resolveTable(table: CreateTableStatement): TableResolved {
         throw new Error(`Unexpected node ${(colDef as any).type}`);
       })
       .map((colDef): ColumnDef | TableConstraint => {
-        if (NodeIs.ColumnDef(colDef)) {
+        if (Node.is('ColumnDef', colDef)) {
           const hasRef = colDef.constraints.some(constraint =>
-            NodeIs.ReferenceConstraint(constraint)
+            Node.is('ReferenceConstraint', constraint)
           );
           if (hasRef === false) {
             return colDef;
@@ -99,7 +98,7 @@ function resolveTable(table: CreateTableStatement): TableResolved {
           return {
             ...colDef,
             constraints: colDef.constraints.filter(constraint => {
-              if (NodeIs.ReferenceConstraint(constraint)) {
+              if (Node.is('ReferenceConstraint', constraint)) {
                 const tableConstraint = Node.create('ReferenceTableConstraint', {
                   column: colDef.name,
                   foreignKey: constraint.foreignKey,

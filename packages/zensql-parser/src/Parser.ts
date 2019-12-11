@@ -1,4 +1,4 @@
-import { Statements, Statement, NodeIs, Empty } from '@zensql/ast';
+import { Statements, Statement, Node, Empty } from '@zensql/ast';
 import { TokenStream } from './core/TokenStream';
 import { InputStream } from './core/InputStream';
 import { ParserUtils } from './utils/ParserUtils';
@@ -33,10 +33,10 @@ function parse(inputStr: string): Result {
       skipComment();
       statements.push(next);
       const alowSemicolon =
-        NodeIs.Select(next) ||
-        NodeIs.CreateTableStatement(next) ||
-        NodeIs.InsertIntoStatement(next) ||
-        NodeIs.AlterTableStatement(next);
+        Node.is('Select', next) ||
+        Node.is('CreateTableStatement', next) ||
+        Node.is('InsertIntoStatement', next) ||
+        Node.is('AlterTableStatement', next);
       if (!input.eof() && alowSemicolon) {
         skipPunctuation(';');
       }

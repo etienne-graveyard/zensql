@@ -1,5 +1,5 @@
 import { ColumnType, ColumnResolved, ColumnUtils } from './ColumnUtils';
-import { Expression, NodeIs } from '@zensql/ast';
+import { Expression, Node } from '@zensql/ast';
 
 export const ExpressionUtils = {
   resolve: resolveExpression,
@@ -25,13 +25,13 @@ function resolveExpression(
   allColumns: Array<ColumnResolved>,
   expr: Expression
 ): ResolvedExpression | PartiallyResolvedExpression {
-  if (NodeIs.IndexedVariable(expr)) {
+  if (Node.is('IndexedVariable', expr)) {
     throw new Error('IndexedVariables are not supported, use named variable instead !');
   }
   if (
-    NodeIs.CompareOperation(expr) ||
-    NodeIs.BooleanOperation(expr) ||
-    NodeIs.ValueOperation(expr)
+    Node.is('CompareOperation', expr) ||
+    Node.is('BooleanOperation', expr) ||
+    Node.is('ValueOperation', expr)
   ) {
     const left = resolveExpression(allColumns, expr.left);
     const right = resolveExpression(allColumns, expr.right);
@@ -61,13 +61,13 @@ function resolveExpression(
     }
     throw new Error('Whaaat ?');
   }
-  if (NodeIs.NamedVariable(expr)) {
+  if (Node.is('NamedVariable', expr)) {
     return {
       resolved: false,
       variables: [expr.name],
     };
   }
-  if (NodeIs.Column(expr)) {
+  if (Node.is('Column', expr)) {
     const col = ColumnUtils.resolveSingle(expr, allColumns);
     return {
       resolved: true,
@@ -75,7 +75,7 @@ function resolveExpression(
       type: col.type,
     };
   }
-  if (NodeIs.Str(expr)) {
+  if (Node.is('Str', expr)) {
     return {
       resolved: true,
       type: {
@@ -90,7 +90,7 @@ function resolveExpression(
       variables: [],
     };
   }
-  if (NodeIs.Numeric(expr)) {
+  if (Node.is('Numeric', expr)) {
     return {
       resolved: true,
       type: {

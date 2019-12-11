@@ -1,5 +1,4 @@
 import {
-  NodeIs,
   TableExpression,
   Identifier,
   TableConstraint,
@@ -9,6 +8,7 @@ import {
   NodeInternal,
   Table,
   TableAlias,
+  Node,
 } from '@zensql/ast';
 import { Schema } from './SchemaUtils';
 
@@ -37,13 +37,13 @@ function resolveFromExpression(schema: Schema, expr: FromExpression): Array<Tabl
 }
 
 function resolveTableExpression(schema: Schema, table: TableExpression): Array<TableResolved> {
-  if (NodeIs.LeftJoin(table)) {
+  if (Node.is('LeftJoin', table)) {
     return resolveLeftJoin(schema, table);
   }
-  if (NodeIs.Table(table)) {
+  if (Node.is('Table', table)) {
     return [findTable(schema, table.table, null)];
   }
-  if (NodeIs.TableAlias(table)) {
+  if (Node.is('TableAlias', table)) {
     return [findTable(schema, table.table.table, table.alias)];
   }
   throw new Error(`Unhandled type ${(table as any).type}`);
@@ -63,21 +63,21 @@ function findTable(schema: Schema, table: Identifier, alias: Identifier | null):
   }
   return {
     table: table.value,
-    columns: tableResolved.items.filter(NodeIs.ColumnDef),
-    constraints: tableResolved.items.filter(NodeIsTableConstraint),
+    columns: tableResolved.items.filter((n): n is ColumnDef => Node.is('ColumnDef', n)),
+    constraints: tableResolved.items.filter(NodeTableConstraint),
     alias: alias ? alias.value : null,
   };
 }
 
-function NodeIsTableConstraint(node: NodeInternal): node is TableConstraint {
-  return NodeIs.PrimaryKeyTableConstraint(node);
+function NodeTableConstraint(node: NodeInternal): node is TableConstraint {
+  return Node.is('PrimaryKeyTableConstraint', node);
 }
 
 function resolveTable(schema: Schema, table: Table | TableAlias): TableResolved {
-  if (NodeIs.Table(table)) {
+  if (Node.is('Table', table)) {
     return findTable(schema, table.table, null);
   }
-  if (NodeIs.TableAlias(table)) {
+  if (Node.is('TableAlias', table)) {
     return findTable(schema, table.table.table, table.alias);
   }
   throw new Error(`Unexpect code path`);

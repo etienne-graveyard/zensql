@@ -1,4 +1,4 @@
-import { NodeIs, Select, InsertIntoStatement } from '@zensql/ast';
+import { Node, Select, InsertIntoStatement } from '@zensql/ast';
 import { ColumnResolved, ColumnUtils } from '../common/ColumnUtils';
 import { Variable } from './Variable';
 import { TableUtils } from '../common/TableUtils';
@@ -31,10 +31,10 @@ function resolveQuery(
   name: string,
   query: Select | InsertIntoStatement
 ): QueryResolved {
-  if (NodeIs.Select(query)) {
+  if (Node.is('Select', query)) {
     return resolveSelectQuery(schema, name, query);
   }
-  if (NodeIs.InsertIntoStatement(query)) {
+  if (Node.is('InsertIntoStatement', query)) {
     return resolveInsertQuery(schema, name, query);
   }
   throw new Error(`Invalid query type ${(query as any).type}`);

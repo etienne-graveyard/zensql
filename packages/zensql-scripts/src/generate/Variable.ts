@@ -1,12 +1,5 @@
 import { ColumnResolved, ColumnUtils } from '../common/ColumnUtils';
-import {
-  Expression,
-  NodeInternal,
-  NodeIs,
-  NodeType,
-  InsertIntoStatement,
-  Select,
-} from '@zensql/ast';
+import { Expression, NodeInternal, Node, NodeType, InsertIntoStatement, Select } from '@zensql/ast';
 import { ExpressionUtils, VariableResolved } from '../common/ExpressionUtils';
 import { TableUtils } from '../common/TableUtils';
 import { Schema } from '../common/SchemaUtils';
@@ -20,12 +13,12 @@ function resolveVariables<T extends NodeType>(
   schema: Schema,
   query: NodeInternal<T>
 ): Array<VariableResolved> {
-  if (NodeIs.Select(query)) {
+  if (Node.is('Select', query)) {
     const tables = TableUtils.resolveFromExpression(schema, query.from);
     const allColumns = ColumnUtils.findAll(tables);
     return dedupeVariables(resolveVariablesInExpression(allColumns, query.from.where));
   }
-  if (NodeIs.InsertIntoStatement(query)) {
+  if (Node.is('InsertIntoStatement', query)) {
     const table = TableUtils.resolveTable(schema, query.table);
     const columns = ColumnUtils.resolveOnTable(table, query.columns);
     //  query.columns
@@ -99,10 +92,10 @@ function replaceVariables<T extends NodeType>(
   query: NodeInternal<T>,
   variables: Array<VariableResolved>
 ): NodeInternal {
-  if (NodeIs.Select(query)) {
+  if (Node.is('Select', query)) {
     return replaceVariablesInSelect(query, variables);
   }
-  if (NodeIs.InsertIntoStatement(query)) {
+  if (Node.is('InsertIntoStatement', query)) {
     return replaceVariablesInInsert(query, variables);
   }
   throw new Error(`Replacing variables in ${query.type} is not suported`);
@@ -139,13 +132,13 @@ function replaceVariableInExpression(
   expr: Expression,
   variables: Array<VariableResolved>
 ): Expression {
-  if (NodeIs.IndexedVariable(expr)) {
+  if (Node.is('IndexedVariable', expr)) {
     throw new Error('IndexedVariables are not supported, use named variable instead !');
   }
   if (
-    NodeIs.CompareOperation(expr) ||
-    NodeIs.BooleanOperation(expr) ||
-    NodeIs.ValueOperation(expr)
+    Node.is('CompareOperation', expr) ||
+    Node.is('BooleanOperation', expr) ||
+    Node.is('ValueOperation', expr)
   ) {
     const left = replaceVariableInExpression(expr.left, variables);
     const right = replaceVariableInExpression(expr.right, variables);
@@ -158,7 +151,7 @@ function replaceVariableInExpression(
       right,
     };
   }
-  if (NodeIs.NamedVariable(expr)) {
+  if (Node.is('NamedVariable', expr)) {
     const num = variables.findIndex(v => v.name === expr.name);
     if (num === -1) {
       throw new Error(`Cannot find variable ${expr.name} in resolved variables !`);

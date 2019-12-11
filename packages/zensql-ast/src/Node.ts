@@ -2,52 +2,11 @@
 import { BooleanOperator, CompareOperator, ValueOperator } from './Operator';
 import { DataTypeIntParamName, DataTypeNoParamsName, DataTypeNumericName } from './DataType';
 
-const NODES_TYPES = [
-  'AlterTableStatement',
-  'Bool',
-  'BooleanOperation',
-  'Case',
-  'CaseWhen',
-  'Column',
-  'ColumnAlias',
-  'ColumnAll',
-  'ColumnAllFromTable',
-  'ColumnDef',
-  'Comment',
-  'CompareOperation',
-  'CreateTableStatement',
-  'DataTypeIntParams',
-  'DataTypeNoParams',
-  'DataTypeNumeric',
-  'Empty',
-  'FromExpression',
-  'Identifier',
-  'IndexedVariable',
-  'InsertIntoStatement',
-  'InserValues',
-  'LeftJoin',
-  'NamedVariable',
-  'NotNullConstraint',
-  'Null',
-  'Numeric',
-  'PrimaryKeyConstraint',
-  'PrimaryKeyTableConstraint',
-  'ReferenceTableConstraint',
-  'ReferenceConstraint',
-  'Select',
-  'Str',
-  'Table',
-  'TableAlias',
-  'UniqueConstraint',
-  'ValueOperation',
-  'When',
-  'AddContraint',
-] as const;
-
-export type NodeType = typeof NODES_TYPES extends ReadonlyArray<infer T> ? T : never;
+export type NodeType = keyof NodesData;
 
 export const Node = {
   create: createNode,
+  is: nodeIs,
 };
 
 function createNode<K extends keyof NodesData>(
@@ -65,14 +24,11 @@ function createNode<K extends keyof NodesData>(
   return node;
 }
 
-export const NodeIs: {
-  [K in NodeType]: (node: NodeInternal) => node is NodeInternal<K>;
-} = NODES_TYPES.reduce<any>((acc, key) => {
-  acc[key] = (node: NodeInternal) => node.type === key;
-  return acc;
-}, {});
+function nodeIs<K extends NodeType>(type: K, node: NodeInternal): node is NodeInternal<K> {
+  return node.type === type;
+}
 
-export interface NodesDataInternal {
+export interface NodesData {
   // Basics
   Str: { value: string };
   Numeric: { value: number };
@@ -223,8 +179,6 @@ export interface NodesDataInternal {
   };
 }
 
-export type NodesData = ValidateNodeData<NodesDataInternal>;
-
 export type Cursor = {
   line: number;
   column: number;
@@ -239,12 +193,6 @@ export type AllNodes = {
 };
 
 export type NodeInternal<K extends NodeType = NodeType> = AllNodes[K];
-
-export type ValidateNodeData<T extends { [K in NodeType]: any }> = {
-  [K in NodeType]: any;
-} extends T
-  ? T
-  : { error: '' };
 
 export type NodeAny = Node;
 
