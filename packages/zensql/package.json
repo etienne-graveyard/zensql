@@ -11,21 +11,17 @@
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
   "files": [
-    "dist",
-    "bin"
+    "dist"
   ],
   "main": "dist/index.js",
   "module": "dist/zensql.esm.js",
   "typings": "dist/index.d.ts",
-  "bin": {
-    "zensql": "./bin/zensql.js"
-  },
   "scripts": {
     "build": "tsdx build --target node",
     "start": "tsdx watch --target node"
   },
   "dependencies": {
-    "@zensql/parser": "^1.0.0-alpha.12",
+    "@zensql/builder": "^1.0.0-alpha.12",
     "@zensql/scripts": "^1.0.0-alpha.13"
   },
   "devDependencies": {
