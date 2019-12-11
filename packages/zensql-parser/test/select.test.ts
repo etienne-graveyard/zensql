@@ -11,29 +11,42 @@ it('parse a simple request', () => {
         {
           cursor: { column: 19, line: 1 },
           schema: null,
-          table: { cursor: { column: 19, line: 1 }, originalValue: 'bar', type: 'Identifier', value: 'bar' },
+          table: {
+            cursor: { column: 19, line: 1 },
+            originalValue: 'bar',
+            type: 'Identifier',
+            value: 'bar',
+            caseSensitive: false,
+          },
           type: 'Table',
         },
       ],
       type: 'FromExpression',
       where: null,
     },
-    select: [
+    columns: [
       {
-        column: { cursor: { column: 10, line: 1 }, originalValue: 'foo', type: 'Identifier', value: 'foo' },
+        column: {
+          cursor: { column: 10, line: 1 },
+          originalValue: 'foo',
+          type: 'Identifier',
+          caseSensitive: false,
+          value: 'foo',
+        },
         cursor: { column: 15, line: 1 },
         schema: null,
         table: null,
         type: 'Column',
       },
     ],
-    type: 'SelectStatement',
+    type: 'Select',
   });
 });
 
 it('parse a request with quoted column', () => {
   const result: any = Parser.parse(sql`SELECT foo FROM bar WHERE "foo" = 2`);
-  expect(result.from.where.left.column.type).toBe('CaseSensitiveIdentifier');
+  expect(result.from.where.left.column.type).toBe('Identifier');
+  expect(result.from.where.left.column.caseSensitive).toBe(true);
 });
 
 it('parse a request with a comment after', () => {
@@ -45,7 +58,9 @@ it('parse a request with a comment after', () => {
 });
 
 it('identifier are not case sensitive', () => {
-  expect((Parser.parse(sql`SELECT foo FROM BAr;`) as any).from.tables[0].table.value).toEqual('bar');
+  expect((Parser.parse(sql`SELECT foo FROM BAr;`) as any).from.tables[0].table.value).toEqual(
+    'bar'
+  );
 });
 
 it('identifier are not case sensitive for real', () => {
@@ -55,23 +70,27 @@ it('identifier are not case sensitive for real', () => {
 });
 
 it('does not parse backtick', () => {
-  expect(() => Parser.parse('SELECT foo FROM bar WHERE foo = `hey`')).toThrowError('Backtick are not supported');
+  expect(() => Parser.parse('SELECT foo FROM bar WHERE foo = `hey`')).toThrowError(
+    'Backtick are not supported'
+  );
 });
 
 it('parse double quote as column name', () => {
-  expect((Parser.parse(sql`SELECT foo FROM bar WHERE foo = "other column"`) as any).from.where.right.type).toEqual(
-    'Column'
-  );
+  expect(
+    (Parser.parse(sql`SELECT foo FROM bar WHERE foo = "other column"`) as any).from.where.right.type
+  ).toEqual('Column');
 });
 
 it('parse a request with a named variable', () => {
-  expect((Parser.parse(sql`SELECT foo FROM bar WHERE id = :id`) as any).from.where.right.type).toEqual('NamedVariable');
+  expect(
+    (Parser.parse(sql`SELECT foo FROM bar WHERE id = :id`) as any).from.where.right.type
+  ).toEqual('NamedVariable');
 });
 
 it('parse a request with an indexed variable', () => {
-  expect((Parser.parse(sql`SELECT foo FROM bar WHERE id = $1`) as any).from.where.right.type).toEqual(
-    'IndexedVariable'
-  );
+  expect(
+    (Parser.parse(sql`SELECT foo FROM bar WHERE id = $1`) as any).from.where.right.type
+  ).toEqual('IndexedVariable');
 });
 
 it('parse escaped single quote', () => {
@@ -110,7 +129,9 @@ describe('parse all sort of queries without error', () => {
 });
 
 it('parse a LEFT JOIN', () => {
-  expect(() => Parser.parse(sql`SELECT foo FROM bar LEFT JOIN boo ON bar.id = boo.bar_id`)).not.toThrowError();
+  expect(() =>
+    Parser.parse(sql`SELECT foo FROM bar LEFT JOIN boo ON bar.id = boo.bar_id`)
+  ).not.toThrowError();
 });
 
 it('parse a mulitple LEFT JOIN', () => {
