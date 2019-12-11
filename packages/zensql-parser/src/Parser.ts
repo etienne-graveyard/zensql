@@ -1,4 +1,4 @@
-import { Statements, Statement, Node, NodeIs } from '@zensql/ast';
+import { Statements, Statement, NodeIs, Empty } from '@zensql/ast';
 import { TokenStream } from './core/TokenStream';
 import { InputStream } from './core/InputStream';
 import { ParserUtils } from './utils/ParserUtils';
@@ -11,14 +11,14 @@ export const Parser = {
   parse,
 };
 
-export type Result = Statements | Statement | Node<'Empty'>;
+export type Result = Statements | Statement | Empty;
 
 function parse(inputStr: string): Result {
   const inputStream = InputStream(inputStr);
   const input = TokenStream(inputStream);
 
   const { skipComment, skipPunctuation, isKeyword, unexpected, createNode } = ParserUtils(input);
-  const { parseSelectStatement } = SelectParser(input);
+  const { parseSelect: parseSelectStatement } = SelectParser(input);
   const { parseCreateStatement } = CreateTableParser(input);
   const { parseInsertStatement } = InsertIntoParser(input);
   const { parseAlterTableStatement } = AlterTableParser(input);
@@ -33,7 +33,7 @@ function parse(inputStr: string): Result {
       skipComment();
       statements.push(next);
       const alowSemicolon =
-        NodeIs.SelectStatement(next) ||
+        NodeIs.Select(next) ||
         NodeIs.CreateTableStatement(next) ||
         NodeIs.InsertIntoStatement(next) ||
         NodeIs.AlterTableStatement(next);

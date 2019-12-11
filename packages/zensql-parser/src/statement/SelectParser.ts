@@ -1,10 +1,15 @@
 import {
-  Node,
   Expression,
   Identifier,
-  SelectExpression,
-  SelectExpressionItem,
+  Select,
   TableExpression,
+  SelectColumns,
+  SelectColumnsItem,
+  FromExpression,
+  Column,
+  Table,
+  TableAlias,
+  LeftJoin,
 } from '@zensql/ast';
 import { TokenStream } from '../core/TokenStream';
 import { ParserUtils } from '../utils/ParserUtils';
@@ -28,22 +33,22 @@ export function SelectParser(input: TokenStream) {
   const { parseExpression } = ExpressionParser(input);
 
   return {
-    parseSelectStatement,
+    parseSelect,
   };
 
-  function parseSelectStatement(): Node<'SelectStatement'> {
+  function parseSelect(): Select {
     skipKeyword('SELECT');
-    const select = parseSelectExpression();
+    const columns = parseSelectColumns();
     const fromExpression = parseFromExpression();
-    return createNode('SelectStatement', {
-      select,
+    return createNode('Select', {
+      columns,
       from: fromExpression,
     });
   }
 
-  function parseSelectExpression(): SelectExpression {
+  function parseSelectColumns(): SelectColumns {
     skipComment();
-    const items = parseMultiple(',', parseSelectExpressionItem);
+    const items = parseMultiple(',', parseSelectColumnsItem);
     skipComment();
     if (items.length === 0) {
       return unexpected(`Expected at least one item in SELECT`);
@@ -51,7 +56,7 @@ export function SelectParser(input: TokenStream) {
     return items;
   }
 
-  function parseFromExpression(): Node<'FromExpression'> {
+  function parseFromExpression(): FromExpression {
     skipComment();
     if (!isKeyword('FROM')) {
       return unexpected('Missing FROM statement');
@@ -78,7 +83,7 @@ export function SelectParser(input: TokenStream) {
     return parseExpression();
   }
 
-  function parseSelectExpressionItem(): SelectExpressionItem {
+  function parseSelectColumnsItem(): SelectColumnsItem {
     skipComment();
     if (isStar()) {
       skipStar();
@@ -105,7 +110,7 @@ export function SelectParser(input: TokenStream) {
     return column;
   }
 
-  function parseColumn(): Node<'Column'> {
+  function parseColumn(): Column {
     const first = parseIdentifier(false);
     let second: Identifier | null = null;
     let third: Identifier | null = null;
@@ -142,7 +147,7 @@ export function SelectParser(input: TokenStream) {
       const right = parseTableOrTableAlias();
       skipKeyword('ON');
       const condition = parseExpression();
-      const join: Node<'LeftJoin'> = createNode('LeftJoin', {
+      const join: LeftJoin = createNode('LeftJoin', {
         left: table,
         condition,
         right,
@@ -152,7 +157,7 @@ export function SelectParser(input: TokenStream) {
     return table;
   }
 
-  function parseTableOrTableAlias(): Node<'Table' | 'TableAlias'> {
+  function parseTableOrTableAlias(): Table | TableAlias {
     const table = parseTable();
     if (isKeyword('AS')) {
       skipKeyword('AS');

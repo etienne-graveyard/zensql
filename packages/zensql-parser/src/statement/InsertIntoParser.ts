@@ -1,5 +1,5 @@
 import { TokenStream } from '../core/TokenStream';
-import { Node, Identifier } from '@zensql/ast';
+import { Identifier, InsertIntoStatement, InserValues } from '@zensql/ast';
 import { ParserUtils } from '../utils/ParserUtils';
 import { ExpressionParser } from '../utils/ExpressionParser';
 
@@ -19,7 +19,7 @@ export function InsertIntoParser(input: TokenStream) {
     parseInsertStatement,
   };
 
-  function parseInsertStatement(): Node<'InsertIntoStatement'> {
+  function parseInsertStatement(): InsertIntoStatement {
     skipKeyword('INSERT');
     skipKeyword('INTO');
     const table = parseTable();
@@ -33,7 +33,7 @@ export function InsertIntoParser(input: TokenStream) {
     });
   }
 
-  function parseValues(): Node<'InserValues'> {
+  function parseValues(): InserValues {
     skipPunctuation('(');
     const values = parseMultiple(',', () => parseExpression());
     skipPunctuation(')');

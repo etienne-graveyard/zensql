@@ -4,11 +4,13 @@ import {
   Keyword,
   Keywords,
   Identifier,
+  NodeInternal,
   Node,
+  NodesData,
   NodeType,
-  Nodes,
-  DataTypeAny,
   DataTypes,
+  DataTypeNameAny,
+  Table,
 } from '@zensql/ast';
 
 export function ParserUtils(input: TokenStream) {
@@ -31,7 +33,7 @@ export function ParserUtils(input: TokenStream) {
     createNode,
   };
 
-  function createNode<K extends NodeType>(type: K, data: Nodes[K]): Node<K> {
+  function createNode<K extends NodeType>(type: K, data: NodesData[K]): NodeInternal<K> {
     return Node.create(type, data, input.cursor());
   }
 
@@ -66,12 +68,12 @@ export function ParserUtils(input: TokenStream) {
     );
   }
 
-  function isDataType(dt?: DataTypeAny): false | TokenIdentifier {
+  function isDataType(dt?: DataTypeNameAny): false | TokenIdentifier {
     const tok = input.maybePeek();
     return tok !== null && isDataTypeToken(tok, dt) ? tok : false;
   }
 
-  function isDataTypeToken(tok: Token, dt?: DataTypeAny): tok is TokenIdentifier {
+  function isDataTypeToken(tok: Token, dt?: DataTypeNameAny): tok is TokenIdentifier {
     return (
       tok !== null &&
       TokenIs.Identifier(tok) &&
@@ -95,7 +97,7 @@ export function ParserUtils(input: TokenStream) {
     }
   }
 
-  function skipDataType(dt?: DataTypeAny): void {
+  function skipDataType(dt?: DataTypeNameAny): void {
     if (isDataType(dt)) {
       input.next();
     } else {
@@ -146,8 +148,10 @@ export function ParserUtils(input: TokenStream) {
     }
     if (TokenIs.QuotedIdentifier(next)) {
       input.next();
-      return createNode('CaseSensitiveIdentifier', {
+      return createNode('Identifier', {
         value: next.value,
+        caseSensitive: true,
+        originalValue: next.value,
       });
     }
     if (TokenIs.Identifier(next)) {
@@ -155,12 +159,13 @@ export function ParserUtils(input: TokenStream) {
       return createNode('Identifier', {
         value: next.value.toLowerCase(),
         originalValue: next.value,
+        caseSensitive: false,
       });
     }
     return unexpected(`Expected an Identifier`);
   }
 
-  function parseTable(): Node<'Table'> {
+  function parseTable(): Table {
     const first = parseIdentifier(false);
     const second = isPunctuation('.') ? (skipPunctuation('.'), parseIdentifier(true)) : null;
     const [schema, table] = second === null ? [null, first] : [first, second];

@@ -1,5 +1,5 @@
 import { TokenStream } from '../core/TokenStream';
-import { Node } from '@zensql/ast';
+import { AlterTableStatement } from '@zensql/ast';
 import { ParserUtils } from '../utils/ParserUtils';
 
 export function AlterTableParser(input: TokenStream) {
@@ -9,7 +9,7 @@ export function AlterTableParser(input: TokenStream) {
     parseAlterTableStatement,
   };
 
-  function parseAlterTableStatement(): Node<'AlterTableStatement'> {
+  function parseAlterTableStatement(): AlterTableStatement {
     skipKeyword('ALTER');
     skipKeyword('TABLE');
     const table = parseTable();
@@ -17,6 +17,8 @@ export function AlterTableParser(input: TokenStream) {
     input.croak('TODO');
     return createNode('AlterTableStatement', {
       table,
+      // TODO: fix this
+      item: {} as any,
     });
   }
 }

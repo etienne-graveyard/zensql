@@ -1,5 +1,18 @@
 import { TokenStream } from '../core/TokenStream';
-import { Node, DataType, Identifier, Constraint, TableConstraint, DataTypes } from '@zensql/ast';
+import {
+  DataType,
+  Identifier,
+  Constraint,
+  TableConstraint,
+  DataTypes,
+  CreateTableStatement,
+  ColumnDef,
+  PrimaryKeyTableConstraint,
+  UniqueConstraint,
+  NotNullConstraint,
+  PrimaryKeyConstraint,
+  ReferenceConstraint,
+} from '@zensql/ast';
 import { ParserUtils } from '../utils/ParserUtils';
 
 export function CreateTableParser(input: TokenStream) {
@@ -23,7 +36,7 @@ export function CreateTableParser(input: TokenStream) {
     parseCreateStatement,
   };
 
-  function parseCreateStatement(): Node<'CreateTableStatement'> {
+  function parseCreateStatement(): CreateTableStatement {
     skipKeyword('CREATE');
     skipKeyword('TABLE');
     const table = parseTable();
@@ -33,7 +46,7 @@ export function CreateTableParser(input: TokenStream) {
     return createNode('CreateTableStatement', { table, items });
   }
 
-  function parseCreateItem(): Node<'ColumnDef'> | TableConstraint {
+  function parseCreateItem(): ColumnDef | TableConstraint {
     skipComment();
     const constraint = parseMaybeTableConstraint();
     if (constraint) {
@@ -46,7 +59,7 @@ export function CreateTableParser(input: TokenStream) {
     return parseMaybePrimaryKeyTableConstraint();
   }
 
-  function parseMaybePrimaryKeyTableConstraint(): Node<'PrimaryKeyTableConstraint'> | null {
+  function parseMaybePrimaryKeyTableConstraint(): PrimaryKeyTableConstraint | null {
     if (isKeyword('PRIMARY')) {
       skipKeyword('PRIMARY');
       skipKeyword('KEY');
@@ -58,7 +71,7 @@ export function CreateTableParser(input: TokenStream) {
     return null;
   }
 
-  function parseColumnDef(): Node<'ColumnDef'> {
+  function parseColumnDef(): ColumnDef {
     skipComment();
     const name = parseIdentifier(true);
     const dataType = parseDataType();
@@ -87,7 +100,7 @@ export function CreateTableParser(input: TokenStream) {
     );
   }
 
-  function parseMaybeUnique(): Node<'UniqueConstraint'> | null {
+  function parseMaybeUnique(): UniqueConstraint | null {
     if (isKeyword('UNIQUE')) {
       skipKeyword('UNIQUE');
       return createNode('UniqueConstraint', {});
@@ -95,7 +108,7 @@ export function CreateTableParser(input: TokenStream) {
     return null;
   }
 
-  function parseMaybeNotNull(): Node<'NotNullConstraint'> | null {
+  function parseMaybeNotNull(): NotNullConstraint | null {
     if (isKeyword('NOT')) {
       skipKeyword('NOT');
       skipKeyword('NULL');
@@ -104,7 +117,7 @@ export function CreateTableParser(input: TokenStream) {
     return null;
   }
 
-  function parseMaybePrimaryKey(): Node<'PrimaryKeyConstraint'> | null {
+  function parseMaybePrimaryKey(): PrimaryKeyConstraint | null {
     if (isKeyword('PRIMARY')) {
       skipKeyword('PRIMARY');
       skipKeyword('KEY');
@@ -113,7 +126,7 @@ export function CreateTableParser(input: TokenStream) {
     return null;
   }
 
-  function parseMaybeReference(): null | Node<'ReferenceConstraint'> {
+  function parseMaybeReference(): ReferenceConstraint | null {
     if (!isKeyword('REFERENCES')) {
       return null;
     }

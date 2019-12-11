@@ -1,12 +1,12 @@
 import { TokenStream } from '../core/TokenStream';
 import {
   Expression,
-  Node,
   Identifier,
   ValueOperator,
   BooleanOperator,
   CompareOperator,
   Operators,
+  Column,
 } from '@zensql/ast';
 import { TokenIs, Token } from '../core/Token';
 import { ParserUtils } from './ParserUtils';
@@ -102,7 +102,7 @@ export function ExpressionParser(input: TokenStream) {
       return createNode('Numeric', { value: tok.value });
     }
     if (TokenIs.String(tok)) {
-      return createNode('String', { value: tok.value.toLowerCase() });
+      return createNode('Str', { value: tok.value.toLowerCase() });
     }
     return unexpected(`Expected an Expression`);
   }
@@ -159,7 +159,7 @@ export function ExpressionParser(input: TokenStream) {
     return unexpected(`Expected a boolean operator`);
   }
 
-  function parseColumnExpression(): Node<'Column'> {
+  function parseColumnExpression(): Column {
     const first = parseIdentifier(false);
     let second: Identifier | null = null;
     let third: Identifier | null = null;
