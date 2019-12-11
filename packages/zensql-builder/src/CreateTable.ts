@@ -9,7 +9,6 @@ import {
   PrimaryKeyConstraint,
   UniqueConstraint,
   ReferenceConstraint,
-  PrimaryKeyTableConstraint,
 } from '@zensql/ast';
 import { buildIdentifier } from './utils';
 
@@ -49,12 +48,5 @@ export const ColumnConstraint = {
         table: buildIdentifier(table),
         column: buildIdentifier(column),
       }),
-    }),
-};
-
-export const TableConstraints = {
-  PrimaryKey: (...columns: Array<string>): PrimaryKeyTableConstraint =>
-    Node.create('PrimaryKeyTableConstraint', {
-      columns: columns.map(col => buildIdentifier(col)),
     }),
 };

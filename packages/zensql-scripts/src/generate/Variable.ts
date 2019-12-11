@@ -1,7 +1,15 @@
 import { ColumnResolved, ColumnUtils } from '../common/ColumnUtils';
-import { Expression, Node, NodeIs, NodeType } from '@zensql/ast';
+import {
+  Expression,
+  NodeInternal,
+  NodeIs,
+  NodeType,
+  InsertIntoStatement,
+  Select,
+} from '@zensql/ast';
 import { ExpressionUtils, VariableResolved } from '../common/ExpressionUtils';
-import { TableUtils, Tables } from '../common/TableUtils';
+import { TableUtils } from '../common/TableUtils';
+import { Schema } from '../common/SchemaUtils';
 
 export const Variable = {
   resolve: resolveVariables,
@@ -9,10 +17,10 @@ export const Variable = {
 };
 
 function resolveVariables<T extends NodeType>(
-  schema: Tables,
-  query: Node<T>
+  schema: Schema,
+  query: NodeInternal<T>
 ): Array<VariableResolved> {
-  if (NodeIs.SelectStatement(query)) {
+  if (NodeIs.Select(query)) {
     const tables = TableUtils.resolveFromExpression(schema, query.from);
     const allColumns = ColumnUtils.findAll(tables);
     return dedupeVariables(resolveVariablesInExpression(allColumns, query.from.where));
@@ -88,10 +96,10 @@ function resolveVariablesInExpression(
 }
 
 function replaceVariables<T extends NodeType>(
-  query: Node<T>,
+  query: NodeInternal<T>,
   variables: Array<VariableResolved>
-): Node {
-  if (NodeIs.SelectStatement(query)) {
+): NodeInternal {
+  if (NodeIs.Select(query)) {
     return replaceVariablesInSelect(query, variables);
   }
   if (NodeIs.InsertIntoStatement(query)) {
@@ -101,10 +109,10 @@ function replaceVariables<T extends NodeType>(
 }
 
 function replaceVariablesInInsert(
-  query: Node<'InsertIntoStatement'>,
+  query: InsertIntoStatement,
   variables: Array<VariableResolved>
-): Node<'InsertIntoStatement'> {
-  const transformedQuery: Node<'InsertIntoStatement'> = {
+): InsertIntoStatement {
+  const transformedQuery: InsertIntoStatement = {
     ...query,
     values: query.values.map(vals => ({
       ...vals,
@@ -114,11 +122,8 @@ function replaceVariablesInInsert(
   return transformedQuery;
 }
 
-function replaceVariablesInSelect(
-  query: Node<'SelectStatement'>,
-  variables: Array<VariableResolved>
-): Node<'SelectStatement'> {
-  const transformedQuery: Node<'SelectStatement'> = {
+function replaceVariablesInSelect(query: Select, variables: Array<VariableResolved>): Select {
+  const transformedQuery: Select = {
     ...query,
     from: {
       ...query.from,

@@ -1,5 +1,11 @@
-import { ColumnConstraint, DataType, CreateTable } from '@zensql/builder';
-import { ColumnDef, TableConstraints } from '@zensql/builder/dist/CreateTable';
+import {
+  ColumnConstraint,
+  DataType,
+  CreateTable,
+  ColumnDef,
+  TableConstraints,
+  Column,
+} from '@zensql/builder';
 
 const NotNull = ColumnConstraint.NotNull();
 const Primary = ColumnConstraint.PrimaryKey();
@@ -47,8 +53,9 @@ const planets = CreateTable('planets', [
 const shipments = CreateTable('shipments', [
   ColumnDef('id', UUID, Primary),
   ColumnDef('date', DataType.DATE()),
-  ColumnDef('manager', UUID, NotNull, Ref('employees', 'id')),
+  ColumnDef('manager', UUID, NotNull),
   ColumnDef('planet', UUID, NotNull, Ref('planets', 'id')),
+  TableConstraints.ReferenceTableConstraint('manager', Column('employees', 'id')),
 ]);
 
-export const DATABASE = [clients, employees, hasClearance, packages, planets, shipments];
+export const SCHEMA = [clients, employees, hasClearance, packages, planets, shipments];

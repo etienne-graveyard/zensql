@@ -1,4 +1,4 @@
-# @zensql-example/basic (private)
+# @zensql-example/basic-ts (private)
 
 > Basic example of zensql
 

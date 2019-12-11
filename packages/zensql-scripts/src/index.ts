@@ -1,2 +1,2 @@
-export { TableUtils as Tables } from './common/TableUtils';
-export { command } from './command';
+export { generate, GenerateOptions } from './generate';
+export { setup, SetupOptions } from './setup';

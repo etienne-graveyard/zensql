@@ -11,9 +11,6 @@
   "main": "dist/index.js",
   "module": "dist/scripts.zensql.esm.js",
   "typings": "dist/index.d.ts",
-  "bin": {
-    "zensql-scripts": "./bin/zensql-scripts.js"
-  },
   "scripts": {
     "build": "tsdx build --target node",
     "start": "tsdx watch --target node",
@@ -24,6 +21,7 @@
     "@zensql/ast": "^1.0.0-alpha.12",
     "@zensql/parser": "^1.0.0-alpha.12",
     "@zensql/serializer": "^1.0.0-alpha.12",
+    "@zensql/builder": "1.0.0-alpha.12",
     "fs-extra": "^8.1.0",
     "inquirer": "^7.0.0",
     "pg": "^7.14.0",

@@ -1,5 +1,5 @@
 import {
-  Node,
+  NodeInternal,
   Identifier,
   NodeType,
   BooleanOperator,
@@ -10,13 +10,13 @@ import {
 } from '@zensql/ast';
 
 export const Serializer = {
-  serialize: (node: Node | Array<Node>) => serializeInternal(node, null),
+  serialize: (node: NodeInternal | Array<NodeInternal>) => serializeInternal(node, null),
 };
 
 function formatOperator(
   sep: string,
-  left: Node,
-  right: Node,
+  left: NodeInternal,
+  right: NodeInternal,
   operator: Operator,
   parentPrecedence: null | number
 ): string {
@@ -30,18 +30,15 @@ function formatOperator(
 }
 
 const SERIALIZER: {
-  [K in NodeType]: (node: Node<K>, parentPrecedence: number | null) => string;
+  [K in NodeType]: (node: NodeInternal<K>, parentPrecedence: number | null) => string;
 } = {
-  Boolean: node => (node.value ? 'TRUE' : 'FALSE'),
+  Bool: node => (node.value ? 'TRUE' : 'FALSE'),
   BooleanOperation: (node, parentPrecedence) => {
     const sep = node.operator === BooleanOperator.And ? 'AND' : 'OR';
     return formatOperator(sep, node.left, node.right, node.operator, parentPrecedence);
   },
   Case: () => {
     throw new Error('Unsuported');
-  },
-  CaseSensitiveIdentifier: node => {
-    return `"${node.value}"`;
   },
   CaseWhen: () => {
     throw new Error('Unsuported');
@@ -114,7 +111,13 @@ const SERIALIZER: {
       .filter((v): v is string => v !== null)
       .join(' ');
   },
-  Identifier: node => node.value,
+  Identifier: node => {
+    if (node.caseSensitive) {
+      // TODO: handle escaped
+      return `"${node.value}"`;
+    }
+    return node.value;
+  },
   IndexedVariable: node => {
     return '$' + node.num;
   },
@@ -133,14 +136,14 @@ const SERIALIZER: {
   Numeric: node => {
     return node.value.toString();
   },
-  SelectStatement: node => {
+  Select: node => {
     return (
-      [`SELECT ${serializeArray(node.select)}`, serializeInternal(node.from, null)]
+      [`SELECT ${serializeArray(node.columns)}`, serializeInternal(node.from, null)]
         .filter((v): v is string => v !== null)
         .join(' ') + ';'
     );
   },
-  String: node => {
+  Str: node => {
     // TODO: handle escape !!
     return `"${node.value}"`;
   },
@@ -194,12 +197,29 @@ const SERIALIZER: {
     ].join(''),
   InserValues: node => `(${serializeArray(node.values)})`,
   PrimaryKeyTableConstraint: node => `PRIMARY KEY (${serializeArray(node.columns)})`,
-  AlterTableStatement: () => {
-    throw new Error('Not implemented');
+  ReferenceTableConstraint: node =>
+    `FOREIGN KEY (${serializeInternal(node.column, null)}) REFERENCES ${serializeCol(
+      node.foreignKey.schema,
+      node.foreignKey.table,
+      null
+    )} (${serializeInternal(node.foreignKey.column, null)})`,
+  AlterTableStatement: node => {
+    return `ALTER TABLE ${serializeInternal(node.table, null)} ${serializeInternal(
+      node.item,
+      null
+    )};`;
+  },
+  AddContraint: node => {
+    return `ADD ${
+      node.name ? `CONSTRAINT ${serializeInternal(node.name, null)} ` : ``
+    }${serializeInternal(node.constraint, null)}`;
   },
 };
 
-function serializeInternal(node: Node | Array<Node>, parentPrecedence: number | null): string {
+function serializeInternal(
+  node: NodeInternal | Array<NodeInternal>,
+  parentPrecedence: number | null
+): string {
   if (Array.isArray(node)) {
     return node.map(serializeInternal).join(`\n`);
   }
@@ -221,7 +241,7 @@ function serializeCol(
     .join('.');
 }
 
-function serializeArray(expr: Node | Array<Node>, sep: string = ', '): string {
+function serializeArray(expr: NodeInternal | Array<NodeInternal>, sep: string = ', '): string {
   if (Array.isArray(expr)) {
     return expr.map(serializeInternal).join(sep);
   }

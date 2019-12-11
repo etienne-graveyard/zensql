@@ -9,12 +9,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev ./src/index.ts",
-    "sql": "zensql generate",
-    "sql-setup": "ts-node -P ./scripts.tsconfig.json ./scripts/setup.ts",
     "start": "ts-node ./src/index.ts",
-    "demo": "run-ts",
-    "setup": "run-ts yolo",
-    "yolo": "run-ts arg1"
+    "setup": "run-ts",
+    "generate": "run-ts"
   },
   "dependencies": {
     "pg": "^7.14.0",
@@ -22,6 +19,9 @@
   },
   "devDependencies": {
     "@types/pg": "^7.11.2",
+    "@zensql/builder": "1.0.0-alpha.12",
+    "@zensql/scripts": "1.0.0-alpha.13",
+    "run-ts": "^1.0.4",
     "ts-node": "^8.5.2",
     "ts-node-dev": "^1.0.0-pre.44",
     "typescript": "^3.7.3"

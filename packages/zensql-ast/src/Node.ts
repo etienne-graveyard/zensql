@@ -32,6 +32,7 @@ const NODES_TYPES = [
   'Numeric',
   'PrimaryKeyConstraint',
   'PrimaryKeyTableConstraint',
+  'ReferenceTableConstraint',
   'ReferenceConstraint',
   'Select',
   'Str',
@@ -40,6 +41,7 @@ const NODES_TYPES = [
   'UniqueConstraint',
   'ValueOperation',
   'When',
+  'AddContraint',
 ] as const;
 
 export type NodeType = typeof NODES_TYPES extends ReadonlyArray<infer T> ? T : never;
@@ -165,6 +167,10 @@ export interface NodesDataInternal {
   PrimaryKeyTableConstraint: {
     columns: Array<Identifier>;
   };
+  ReferenceTableConstraint: {
+    column: Identifier;
+    foreignKey: Column;
+  };
 
   // ColumnDef
   ColumnDef: {
@@ -190,6 +196,12 @@ export interface NodesDataInternal {
     values: Array<Expression>;
   };
 
+  // Alter
+  AddContraint: {
+    name: Identifier | null;
+    constraint: TableConstraint;
+  };
+
   // Statements
   Empty: {};
   Select: {
@@ -207,6 +219,7 @@ export interface NodesDataInternal {
   };
   AlterTableStatement: {
     table: Table;
+    item: AlterTableItem;
   };
 }
 
@@ -235,43 +248,45 @@ export type ValidateNodeData<T extends { [K in NodeType]: any }> = {
 
 export type NodeAny = Node;
 
-export interface AlterTableStatement extends NodeInternal<'AlterTableStatement'> {}
-export interface Bool extends NodeInternal<'Bool'> {}
-export interface BooleanOperation extends NodeInternal<'BooleanOperation'> {}
-export interface Case extends NodeInternal<'Case'> {}
-export interface CaseWhen extends NodeInternal<'CaseWhen'> {}
-export interface Column extends NodeInternal<'Column'> {}
-export interface ColumnAlias extends NodeInternal<'ColumnAlias'> {}
-export interface ColumnAll extends NodeInternal<'ColumnAll'> {}
-export interface ColumnAllFromTable extends NodeInternal<'ColumnAllFromTable'> {}
-export interface ColumnDef extends NodeInternal<'ColumnDef'> {}
-export interface Comment extends NodeInternal<'Comment'> {}
-export interface CompareOperation extends NodeInternal<'CompareOperation'> {}
-export interface CreateTableStatement extends NodeInternal<'CreateTableStatement'> {}
-export interface DataTypeIntParams extends NodeInternal<'DataTypeIntParams'> {}
-export interface DataTypeNoParams extends NodeInternal<'DataTypeNoParams'> {}
-export interface DataTypeNumeric extends NodeInternal<'DataTypeNumeric'> {}
-export interface Empty extends NodeInternal<'Empty'> {}
-export interface FromExpression extends NodeInternal<'FromExpression'> {}
-export interface Identifier extends NodeInternal<'Identifier'> {}
-export interface IndexedVariable extends NodeInternal<'IndexedVariable'> {}
-export interface InsertIntoStatement extends NodeInternal<'InsertIntoStatement'> {}
-export interface InserValues extends NodeInternal<'InserValues'> {}
-export interface LeftJoin extends NodeInternal<'LeftJoin'> {}
-export interface NamedVariable extends NodeInternal<'NamedVariable'> {}
-export interface NotNullConstraint extends NodeInternal<'NotNullConstraint'> {}
-export interface Null extends NodeInternal<'Null'> {}
-export interface Numeric extends NodeInternal<'Numeric'> {}
-export interface PrimaryKeyConstraint extends NodeInternal<'PrimaryKeyConstraint'> {}
-export interface PrimaryKeyTableConstraint extends NodeInternal<'PrimaryKeyTableConstraint'> {}
-export interface ReferenceConstraint extends NodeInternal<'ReferenceConstraint'> {}
-export interface Select extends NodeInternal<'Select'> {}
-export interface Table extends NodeInternal<'Table'> {}
-export interface TableAlias extends NodeInternal<'TableAlias'> {}
-export interface UniqueConstraint extends NodeInternal<'UniqueConstraint'> {}
-export interface ValueOperation extends NodeInternal<'ValueOperation'> {}
-export interface Str extends NodeInternal<'Str'> {}
-export interface When extends NodeInternal<'When'> {}
+export type AlterTableStatement = NodeInternal<'AlterTableStatement'>;
+export type Bool = NodeInternal<'Bool'>;
+export type BooleanOperation = NodeInternal<'BooleanOperation'>;
+export type Case = NodeInternal<'Case'>;
+export type CaseWhen = NodeInternal<'CaseWhen'>;
+export type Column = NodeInternal<'Column'>;
+export type ColumnAlias = NodeInternal<'ColumnAlias'>;
+export type ColumnAll = NodeInternal<'ColumnAll'>;
+export type ColumnAllFromTable = NodeInternal<'ColumnAllFromTable'>;
+export type ColumnDef = NodeInternal<'ColumnDef'>;
+export type Comment = NodeInternal<'Comment'>;
+export type CompareOperation = NodeInternal<'CompareOperation'>;
+export type CreateTableStatement = NodeInternal<'CreateTableStatement'>;
+export type DataTypeIntParams = NodeInternal<'DataTypeIntParams'>;
+export type DataTypeNoParams = NodeInternal<'DataTypeNoParams'>;
+export type DataTypeNumeric = NodeInternal<'DataTypeNumeric'>;
+export type Empty = NodeInternal<'Empty'>;
+export type FromExpression = NodeInternal<'FromExpression'>;
+export type Identifier = NodeInternal<'Identifier'>;
+export type IndexedVariable = NodeInternal<'IndexedVariable'>;
+export type InsertIntoStatement = NodeInternal<'InsertIntoStatement'>;
+export type InserValues = NodeInternal<'InserValues'>;
+export type LeftJoin = NodeInternal<'LeftJoin'>;
+export type NamedVariable = NodeInternal<'NamedVariable'>;
+export type NotNullConstraint = NodeInternal<'NotNullConstraint'>;
+export type Null = NodeInternal<'Null'>;
+export type Numeric = NodeInternal<'Numeric'>;
+export type PrimaryKeyConstraint = NodeInternal<'PrimaryKeyConstraint'>;
+export type PrimaryKeyTableConstraint = NodeInternal<'PrimaryKeyTableConstraint'>;
+export type ReferenceTableConstraint = NodeInternal<'ReferenceTableConstraint'>;
+export type ReferenceConstraint = NodeInternal<'ReferenceConstraint'>;
+export type Select = NodeInternal<'Select'>;
+export type Table = NodeInternal<'Table'>;
+export type TableAlias = NodeInternal<'TableAlias'>;
+export type UniqueConstraint = NodeInternal<'UniqueConstraint'>;
+export type ValueOperation = NodeInternal<'ValueOperation'>;
+export type Str = NodeInternal<'Str'>;
+export type When = NodeInternal<'When'>;
+export type AddContraint = NodeInternal<'AddContraint'>;
 
 // Alias
 export type Value = Identifier | Str | Numeric | Bool | Null;
@@ -288,6 +303,7 @@ export type Constraint =
   | PrimaryKeyConstraint
   | UniqueConstraint
   | ReferenceConstraint;
-export type TableConstraint = PrimaryKeyTableConstraint;
+export type TableConstraint = PrimaryKeyTableConstraint | ReferenceTableConstraint;
 export type Statement = Select | CreateTableStatement | InsertIntoStatement | AlterTableStatement;
 export type Statements = Array<Statement>;
+export type AlterTableItem = AddContraint;

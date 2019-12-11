@@ -1,35 +1,29 @@
-import path from 'path';
-import { TableUtils } from '../common/TableUtils';
-import { Query } from './Query';
+import { InsertIntoStatement, Select } from '@zensql/ast';
 import { Printer } from './Printer';
-import { Config } from '../common/Config';
+import { Query, QueryResolved } from './Query';
+import { Schema } from '../common/SchemaUtils';
 
 export interface GenerateOptions {
-  sqlFolder: string;
   target: string;
+  schema: Schema;
+  queries: { [key: string]: Select | InsertIntoStatement };
 }
 
-export async function resolveGenerateOptions(): Promise<GenerateOptions> {
-  const config = await Config.read(process.cwd());
-  return {
-    sqlFolder: config.sqlFolder,
-    target: config.generatedFile,
-  };
-}
+export async function generate(options: GenerateOptions) {
+  const { target, queries, schema } = options;
 
-export async function runGenerateCommand(options: GenerateOptions) {
-  const { sqlFolder, target } = options;
-
-  const sqlFolders = Config.resolveSqlFolders(sqlFolder);
-
-  const OUTPUT_QUERIES_FILE = path.resolve(target);
-
-  const schema = await TableUtils.parse(sqlFolders.tables);
-  const queries = (await Query.find(sqlFolders.queries)).map(queryPath => {
-    return Query.resolve(schema, queryPath);
-  });
-  await Printer.print({
-    targetPath: OUTPUT_QUERIES_FILE,
+  console.log({
+    target,
     queries,
+    schema,
+  });
+
+  const resolvedQueries: Array<QueryResolved> = Object.keys(queries).map(name => {
+    return Query.resolve(schema, name, queries[name]);
+  });
+
+  await Printer.print({
+    targetPath: target,
+    queries: resolvedQueries,
   });
 }

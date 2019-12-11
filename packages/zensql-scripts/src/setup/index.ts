@@ -1,12 +1,11 @@
 import { Pool } from 'pg';
 import inquirer from 'inquirer';
-import { TableUtils } from '../common/TableUtils';
-import { Config } from '../common/Config';
-import { Serializer } from '@zensql/serializer';
+import Serializer from '@zensql/serializer';
+import { SchemaUtils, Schema } from '../common/SchemaUtils';
 
 export interface SetupOptions {
-  connectUrl: string;
-  sqlFolder: string;
+  connectUrl?: string;
+  schema: Schema;
 }
 
 interface TableWithCount {
@@ -15,25 +14,68 @@ interface TableWithCount {
   name: string;
 }
 
-export async function resolveSetupOptions(argv: Array<string>): Promise<SetupOptions> {
-  const connectUrl = argv[0];
-  if (connectUrl === undefined) {
-    throw new Error(`setup command require a connectUrl option`);
-  }
-  const config = await Config.read(process.cwd());
-  return { connectUrl, sqlFolder: config.sqlFolder };
-}
+export async function setup(options: SetupOptions) {
+  const { connectUrl, schema } = options;
 
-export async function runSetupCommand(options: SetupOptions) {
-  const { connectUrl, sqlFolder } = options;
-  const sqlFolders = Config.resolveSqlFolders(sqlFolder);
+  const connectUrlResolved = connectUrl === undefined ? await getConnectUrl() : connectUrl;
+
+  console.log({ connectUrl: connectUrlResolved });
 
   const pool = new Pool({
-    connectionString: connectUrl,
+    connectionString: connectUrlResolved,
   });
-  // testing the connection
-  await pool.query('SELECT NOW()');
-  //
+
+  // Test connection
+  await pool.query(`SELECT now()`);
+
+  const tableDropNoError = await dropAllTables(pool);
+
+  if (tableDropNoError === false) {
+    await pool.end();
+    return;
+  }
+
+  const tablesResolved = SchemaUtils.resolve(schema);
+
+  const answer = await inquirer.prompt([
+    {
+      name: 'confirmCreate',
+      type: 'confirm',
+      message: [
+        `The followin tables will be created:`,
+        tablesResolved.tables.map(tab => `  - ${tab.table.table.value}`).join('\n'),
+        ``,
+      ].join('\n'),
+    },
+  ]);
+  if (answer.confirmCreate !== true) {
+    await pool.end();
+    return;
+  }
+
+  const allCreateStatements = tablesResolved.tables.map(v => Serializer.serialize(v)).join('\n\n');
+  console.info(`Creating tables`);
+  await pool.query(allCreateStatements);
+  const allConstraintStatements = tablesResolved.constraints
+    .map(v => Serializer.serialize(v))
+    .join('\n\n');
+  console.info(`Creating constraints`);
+  await pool.query(allConstraintStatements);
+
+  await pool.end();
+}
+
+async function getConnectUrl(): Promise<string> {
+  const answer = await inquirer.prompt([
+    {
+      name: 'url',
+      message: `Enter Postgres connect URL`,
+    },
+  ]);
+  return answer.url;
+}
+
+async function dropAllTables(pool: Pool): Promise<boolean> {
   const prevTables = await pool.query(
     `SELECT * FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE'`
   );
@@ -50,55 +92,31 @@ export async function runSetupCommand(options: SetupOptions) {
     return obj;
   }, Promise.resolve([]));
 
-  if (prevTablesWithCounts.length > 0) {
-    const answer = await inquirer.prompt([
-      {
-        name: 'confirmDelete',
-        type: 'confirm',
-        message: [
-          `The followin tables will be removed:`,
-          prevTablesWithCounts.map(tab => `  - ${tab.name} (${tab.count})`).join('\n'),
-          ``,
-        ].join('\n'),
-      },
-    ]);
-
-    if (answer.confirmDelete !== true) {
-      return;
-    }
-
-    await prevTablesWithCounts.reduce<Promise<void>>(async (acc, item) => {
-      await acc;
-      console.info(`Deleting ${item.name}`);
-      await pool.query(`DROP TABLE ${item.name}`);
-    }, Promise.resolve());
+  if (prevTablesWithCounts.length === 0) {
+    return true;
   }
-
-  const tables = await TableUtils.parse(sqlFolders.tables);
-  console.info(tables);
 
   const answer = await inquirer.prompt([
     {
-      name: 'confirmCreate',
+      name: 'confirmDelete',
       type: 'confirm',
       message: [
-        `The followin tables will be created:`,
-        tables.map(tab => `  - ${tab.name}`).join('\n'),
+        `The followin tables will be removed:`,
+        prevTablesWithCounts.map(tab => `  - ${tab.name} (${tab.count})`).join('\n'),
         ``,
       ].join('\n'),
     },
   ]);
-  if (answer.confirmCreate !== true) {
-    return;
+
+  if (answer.confirmDelete !== true) {
+    return false;
   }
-  // TODO:
-  // 1. extract all REFERENCES contraints
-  // 2. convert them to ALTER TABLE ADD CONSTRAINT
-  // 3. Run all CREATE
-  // 4. Run all Constaints
 
-  const allCreateStatements = tables.map(table => Serializer.serialize(table.ast)).join('\n\n');
+  await prevTablesWithCounts.reduce<Promise<void>>(async (acc, item) => {
+    await acc;
+    console.info(`Deleting ${item.name}`);
+    await pool.query(`DROP TABLE ${item.name}`);
+  }, Promise.resolve());
 
-  console.info(`Creating tables`);
-  await pool.query(allCreateStatements);
+  return true;
 }

@@ -1,10 +1,12 @@
 import {
   DataType,
-  Node,
   NodeIs,
-  SelectExpression,
-  SelectExpressionItem,
+  SelectColumns,
+  SelectColumnsItem,
   Identifier,
+  ColumnDef,
+  Column,
+  ColumnAlias,
 } from '@zensql/ast';
 import { TableResolved } from './TableUtils';
 
@@ -28,7 +30,7 @@ export interface ColumnType {
   nullable: boolean;
 }
 
-function resolveColumn(table: TableResolved, col: Node<'ColumnDef'>): ColumnResolved {
+function resolveColumn(table: TableResolved, col: ColumnDef): ColumnResolved {
   return {
     column: col.name.value,
     table: table.table,
@@ -70,7 +72,7 @@ function resolveOnTable(
 }
 
 function resolveSingle(
-  column: Node<'Column' | 'ColumnAlias'>,
+  column: Column | ColumnAlias,
   allColumns: Array<ColumnResolved>
 ): ColumnResolved {
   const colStr = `${column.schema ? column.schema.value + '.' : ''}${
@@ -103,7 +105,7 @@ function resolveSingle(
 function resolveSelectColumns(
   tables: Array<TableResolved>,
   allColumns: Array<ColumnResolved>,
-  select: SelectExpression
+  select: SelectColumns
 ): Array<ColumnResolved> {
   return select
     .map(sel => resolveSelectColumn(tables, allColumns, sel))
@@ -116,7 +118,7 @@ function resolveSelectColumns(
 function resolveSelectColumn(
   tables: Array<TableResolved>,
   allColumns: Array<ColumnResolved>,
-  select: SelectExpressionItem
+  select: SelectColumnsItem
 ): Array<ColumnResolved> {
   if (select.type === 'ColumnAll') {
     return allColumns;

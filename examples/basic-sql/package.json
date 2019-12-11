@@ -14,9 +14,9 @@
     "start": "ts-node ./src/index.ts"
   },
   "dependencies": {
+    "@zensql/builder": "1.0.0-alpha.12",
     "pg": "^7.14.0",
-    "zensql": "1.0.0-alpha.13",
-    "@zensql/builder": "1.0.0-alpha.12"
+    "zensql": "1.0.0-alpha.13"
   },
   "devDependencies": {
     "@types/pg": "^7.11.2",

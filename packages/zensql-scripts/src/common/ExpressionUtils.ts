@@ -75,7 +75,7 @@ function resolveExpression(
       type: col.type,
     };
   }
-  if (NodeIs.String(expr)) {
+  if (NodeIs.Str(expr)) {
     return {
       resolved: true,
       type: {

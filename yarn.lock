@@ -7990,6 +7990,14 @@ run-queue@^1.0.0, run-queue@^1.0.3:
   dependencies:
     aproba "^1.1.1"
 
+run-ts@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/run-ts/-/run-ts-1.0.4.tgz#deb13b4f67d047793d794f78fe46464eb4123b3b"
+  integrity sha512-zjdUuXR+3yX/N08qwnZtOdKKeGyW1XvbkFhTFzq7r+t6vLoZHaRInFJyNhaAROB3jguByPi5QIfuq2X4weXjWA==
+  dependencies:
+    fs-extra "^8.1.0"
+    ts-node "^8.5.4"
+
 rxjs@^6.4.0:
   version "6.5.3"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.5.3.tgz#510e26317f4db91a7eb1de77d9dd9ba0a4899a3a"
@@ -8854,7 +8862,7 @@ ts-node-dev@^1.0.0-pre.44:
     ts-node "*"
     tsconfig "^7.0.0"
 
-ts-node@*, ts-node@^8.5.2:
+ts-node@*, ts-node@^8.5.2, ts-node@^8.5.4:
   version "8.5.4"
   resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-8.5.4.tgz#a152add11fa19c221d0b48962c210cf467262ab2"
   integrity sha512-izbVCRV68EasEPQ8MSIGBNK9dc/4sYJJKYA+IarMQct1RtEot6Xp0bXuClsbUSnKpg50ho+aOAx8en5c+y4OFw==
@@ -9479,11 +9487,3 @@ yup@^0.27.0:
     property-expr "^1.5.0"
     synchronous-promise "^2.0.6"
     toposort "^2.0.2"
-
-zensql@1.0.0-alpha.12:
-  version "1.0.0-alpha.12"
-  resolved "https://registry.yarnpkg.com/zensql/-/zensql-1.0.0-alpha.12.tgz#b47ca491340e94923c867e064e05252e767e114d"
-  integrity sha512-7VrsAYPPm0EW2FvyAiap6drrqfZJWGKYvYv6CUNucA3hJglpQU/z/Jd/8TMgJZZf3V25WdvA2YTIyPPFMxDflw==
-  dependencies:
-    "@zensql/parser" "^1.0.0-alpha.12"
-    "@zensql/scripts" "^1.0.0-alpha.12"
