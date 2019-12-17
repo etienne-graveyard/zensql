@@ -194,8 +194,6 @@ export type AllNodes = {
 
 export type NodeInternal<K extends NodeType = NodeType> = AllNodes[K];
 
-export type NodeAny = Node;
-
 export type AlterTableStatement = NodeInternal<'AlterTableStatement'>;
 export type Bool = NodeInternal<'Bool'>;
 export type BooleanOperation = NodeInternal<'BooleanOperation'>;
