@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { BooleanOperator, CompareOperator, ValueOperator } from './Operator';
-import { DataTypeIntParamName, DataTypeNoParamsName, DataTypeNumericName } from './DataType';
+import { DataTypeInternal } from './DataType';
 
 export type NodeType = keyof NodesData;
 
@@ -135,17 +135,19 @@ export interface NodesData {
     constraints: Array<Constraint>;
   };
 
+  // TsTypes
+  TsInlineType: {
+    typeStr: string;
+  };
+  TsExternalType: {
+    module: string;
+    typeName: string;
+  };
+
   // DataTypes
-  DataTypeNoParams: {
-    dt: DataTypeNoParamsName;
-  };
-  DataTypeIntParams: {
-    dt: DataTypeIntParamName;
-    param: null | number;
-  };
-  DataTypeNumeric: {
-    dt: DataTypeNumericName;
-    params: null | { p: number; s: number };
+  DataType: {
+    dt: DataTypeInternal;
+    tsType: TsType | null;
   };
 
   InserValues: {
@@ -207,9 +209,7 @@ export type ColumnDef = NodeInternal<'ColumnDef'>;
 export type Comment = NodeInternal<'Comment'>;
 export type CompareOperation = NodeInternal<'CompareOperation'>;
 export type CreateTableStatement = NodeInternal<'CreateTableStatement'>;
-export type DataTypeIntParams = NodeInternal<'DataTypeIntParams'>;
-export type DataTypeNoParams = NodeInternal<'DataTypeNoParams'>;
-export type DataTypeNumeric = NodeInternal<'DataTypeNumeric'>;
+export type DataType = NodeInternal<'DataType'>;
 export type Empty = NodeInternal<'Empty'>;
 export type FromExpression = NodeInternal<'FromExpression'>;
 export type Identifier = NodeInternal<'Identifier'>;
@@ -233,6 +233,8 @@ export type ValueOperation = NodeInternal<'ValueOperation'>;
 export type Str = NodeInternal<'Str'>;
 export type When = NodeInternal<'When'>;
 export type AddContraint = NodeInternal<'AddContraint'>;
+export type TsInlineType = NodeInternal<'TsInlineType'>;
+export type TsExternalType = NodeInternal<'TsExternalType'>;
 
 // Alias
 export type Value = Identifier | Str | Numeric | Bool | Null;
@@ -240,7 +242,6 @@ export type Variable = NamedVariable | IndexedVariable;
 export type Term = Value | Variable | Column;
 export type BinaryOperation = BooleanOperation | CompareOperation | ValueOperation;
 export type Expression = BinaryOperation | Term;
-export type DataType = DataTypeNoParams | DataTypeNumeric | DataTypeIntParams;
 export type TableExpression = TableAlias | Table | LeftJoin;
 export type SelectColumnsItem = Column | ColumnAlias | ColumnAll | ColumnAllFromTable;
 export type SelectColumns = Array<SelectColumnsItem>;
@@ -253,3 +254,4 @@ export type TableConstraint = PrimaryKeyTableConstraint | ReferenceTableConstrai
 export type Statement = Select | CreateTableStatement | InsertIntoStatement | AlterTableStatement;
 export type Statements = Array<Statement>;
 export type AlterTableItem = AddContraint;
+export type TsType = TsExternalType | TsInlineType;

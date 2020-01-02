@@ -80,9 +80,12 @@ function resolveExpression(
       resolved: true,
       type: {
         dt: {
-          type: 'DataTypeIntParams',
-          dt: 'CHARACTER',
-          param: 100,
+          type: 'DataType',
+          dt: {
+            type: 'CHARACTER',
+            param: 100,
+          },
+          tsType: null,
           cursor: expr.cursor,
         },
         nullable: false,
@@ -95,9 +98,12 @@ function resolveExpression(
       resolved: true,
       type: {
         dt: {
-          type: 'DataTypeNoParams',
-          dt: 'REAL',
+          type: 'DataType',
+          dt: {
+            type: 'REAL',
+          },
           cursor: expr.cursor,
+          tsType: null,
         },
         nullable: false,
       },

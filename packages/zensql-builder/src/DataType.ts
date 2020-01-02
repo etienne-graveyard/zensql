@@ -1,5 +1,5 @@
 import {
-  DataType as DT,
+  DataTypeInternal,
   DataTypeIntParamName,
   DataTypeNoParamsName,
   DataTypeNumericName,
@@ -7,37 +7,48 @@ import {
   DATATYPE_NOPARAMS,
   DATATYPE_NUMERIC,
   Node,
+  DataTypeUtils,
+  TsType,
+  DataType as DataTypeNode,
 } from '@zensql/ast';
 
-export const DataType = createDataTypeBuilder();
+export const DataType = {
+  ...createDataTypeBuilder(),
+  withTsTypes,
+};
+
+function withTsTypes(dt: DataTypeInternal, tsType: TsType): DataTypeNode {
+  return Node.create('DataType', {
+    dt,
+    tsType,
+  });
+}
 
 export interface CreateNumericDataType {
-  (p: number, s: number): DT;
-  (): DT;
+  (p: number, s: number): DataTypeInternal;
+  (): DataTypeInternal;
 }
 
 type DataTypeBuilder = {
-  [K in DataTypeNoParamsName]: () => DT;
+  [K in DataTypeNoParamsName]: () => DataTypeInternal;
 } &
-  { [K in DataTypeIntParamName]: (num?: number | null) => DT } &
+  { [K in DataTypeIntParamName]: (num?: number | null) => DataTypeInternal } &
   {
     [K in DataTypeNumericName]: CreateNumericDataType;
   };
 
 function createDataTypeBuilder(): DataTypeBuilder {
-  // TODO:
   const res: any = {};
   Object.keys(DATATYPE_NOPARAMS).forEach(name => {
-    res[name] = () => Node.create('DataTypeNoParams', { dt: name as any });
+    res[name] = () => DataTypeUtils.create(name as DataTypeNoParamsName, {});
   });
   Object.keys(DATATYPE_INTPARAM).forEach(name => {
     res[name] = (num: number | null = null) =>
-      Node.create('DataTypeIntParams', { dt: name as any, param: num });
+      DataTypeUtils.create(name as DataTypeIntParamName, { param: num });
   });
   Object.keys(DATATYPE_NUMERIC).forEach(name => {
     res[name] = (p?: number, s?: number) =>
-      Node.create('DataTypeNumeric', {
-        dt: name as any,
+      DataTypeUtils.create(name as DataTypeNumericName, {
         params: p !== undefined && s !== undefined ? { s, p } : null,
       });
   });

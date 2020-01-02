@@ -1,10 +1,8 @@
 import { TokenStream } from '../core/TokenStream';
 import {
-  DataType,
   Identifier,
   Constraint,
   TableConstraint,
-  DataTypes,
   CreateTableStatement,
   ColumnDef,
   PrimaryKeyTableConstraint,
@@ -14,6 +12,7 @@ import {
   ReferenceConstraint,
 } from '@zensql/ast';
 import { ParserUtils } from '../utils/ParserUtils';
+import { DataTypeParser } from '../utils/DataTypeParser';
 
 export function CreateTableParser(input: TokenStream) {
   const {
@@ -23,14 +22,11 @@ export function CreateTableParser(input: TokenStream) {
     skipPunctuation,
     parseMultiple,
     skipComment,
-    isDataType,
-    skipDataType,
-    unexpected,
-    parseInteger,
     isKeyword,
     parseTable,
     createNode,
   } = ParserUtils(input);
+  const { parseDataType } = DataTypeParser(input);
 
   return {
     parseCreateStatement,
@@ -74,11 +70,11 @@ export function CreateTableParser(input: TokenStream) {
   function parseColumnDef(): ColumnDef {
     skipComment();
     const name = parseIdentifier(true);
-    const dataType = parseDataType();
+    const dt = parseDataType();
     const constraints = parseConstraints();
 
     return createNode('ColumnDef', {
-      dataType,
+      dataType: createNode('DataType', { dt, tsType: null }),
       name,
       constraints,
     });
@@ -148,50 +144,5 @@ export function CreateTableParser(input: TokenStream) {
       column,
     });
     return createNode('ReferenceConstraint', { foreignKey });
-  }
-
-  function parseDataType(): DataType {
-    const dtTok = isDataType();
-    if (dtTok === false) {
-      return unexpected(`Expected a data type`);
-    }
-    const dt = dtTok.value.toUpperCase();
-    skipDataType();
-    if (DataTypes.isNoParamsDataType(dt)) {
-      return createNode('DataTypeNoParams', { dt });
-    }
-    if (DataTypes.isIntParamDataType(dt)) {
-      const param = parseMaybeIntParam();
-      return createNode('DataTypeIntParams', { dt, param });
-    }
-    if (DataTypes.isNumericDataType(dt)) {
-      return createNode('DataTypeNumeric', {
-        dt,
-        params: parseMaybeNumericParams(),
-      });
-    }
-    return unexpected(`Unknow DataType ${dt}`);
-  }
-
-  function parseMaybeIntParam(): number | null {
-    if (isPunctuation('(')) {
-      skipPunctuation('(');
-      const val = parseInteger();
-      skipPunctuation(')');
-      return val;
-    }
-    return null;
-  }
-
-  function parseMaybeNumericParams(): null | { p: number; s: number } {
-    if (isPunctuation('(')) {
-      skipPunctuation('(');
-      const p = parseInteger();
-      skipPunctuation(',');
-      const s = parseInteger();
-      skipPunctuation(')');
-      return { p, s };
-    }
-    return null;
   }
 }

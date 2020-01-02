@@ -1,3 +1,70 @@
+export type DataTypeType = keyof DataTypesData;
+
+export const DataTypeUtils = {
+  create: createDataType,
+  is: dataTypeIs,
+  typeIs: dataTypeTypeIs,
+};
+
+function createDataType<K extends keyof DataTypesData>(
+  type: K,
+  data: DataTypesData[K]
+): AllDataTypes[K] {
+  const node: DataTypeInternal<K> = {
+    type,
+    ...data,
+  } as any;
+  return node;
+}
+
+function dataTypeIs<K extends DataTypeType>(
+  type: K,
+  dataType: DataTypeInternal
+): dataType is DataTypeInternal<K> {
+  return dataType.type === type;
+}
+
+function dataTypeTypeIs<T extends ReadonlyArray<DataTypeType>>(
+  maybeType: string,
+  valids: T
+): maybeType is T extends ReadonlyArray<infer U> ? U : never {
+  return valids.indexOf(maybeType as any) >= 0;
+}
+
+export interface DataTypesData {
+  // No params
+  BOOL: {};
+  BOOLEAN: {};
+  TEXT: {};
+  INT: {};
+  SMALLINT: {};
+  INTEGER: {};
+  SERIAL: {};
+  DATE: {};
+  UUID: {};
+  REAL: {};
+  // JSON
+  JSON: {};
+  JSONB: {};
+  // Int param
+  CHAR: { param: null | number };
+  CHARACTER: { param: null | number };
+  VARCHAR: { param: null | number };
+  TIME: { param: null | number };
+  TIMESTAMP: { param: null | number };
+  TIMESTAMPTZ: { param: null | number };
+  INTERVAL: { param: null | number };
+  // Numeric
+  NUMERIC: { params: null | { p: number; s: number } };
+  DECIMAL: { params: null | { p: number; s: number } };
+}
+
+export type DataTypeInternal<K extends DataTypeType = DataTypeType> = AllDataTypes[K];
+
+export type AllDataTypes = {
+  [K in DataTypeType]: DataTypesData[K] & { type: K };
+};
+
 export const DATATYPE_NOPARAMS = {
   BOOL: 'BOOL',
   BOOLEAN: 'BOOLEAN',
@@ -34,25 +101,6 @@ export const DATATYPE = {
   ...DATATYPE_NOPARAMS,
   ...DATATYPE_INTPARAM,
   ...DATATYPE_NUMERIC,
-};
-
-export const DataTypes = {
-  isDataType(str: string): str is DataTypeNameAny {
-    const upper = str.toUpperCase();
-    return (DATATYPE as any)[upper] === upper;
-  },
-  isNoParamsDataType(str: string): str is DataTypeNoParamsName {
-    const upper = str.toUpperCase();
-    return (DATATYPE_NOPARAMS as any)[upper] === str;
-  },
-  isIntParamDataType(str: string): str is DataTypeIntParamName {
-    const upper = str.toUpperCase();
-    return (DATATYPE_INTPARAM as any)[upper] === str;
-  },
-  isNumericDataType(str: string): str is DataTypeNumericName {
-    const upper = str.toUpperCase();
-    return (DATATYPE_NUMERIC as any)[upper] === str;
-  },
 };
 
 export type DataTypeNameAny = keyof typeof DATATYPE;

@@ -5,6 +5,7 @@ import {
   ColumnDef,
   TableConstraints,
   Column,
+  TsType,
 } from '@zensql/builder';
 
 const NotNull = ColumnConstraint.NotNull();
@@ -18,6 +19,11 @@ const clients = CreateTable('clients', [
   // id INTEGER PRIMARY KEY,
   ColumnDef('id', UUID, Primary),
   ColumnDef('name', TEXT, NotNull),
+  ColumnDef(
+    'infos',
+    DataType.withTsTypes(DataType.JSON(), TsType.external('./types', 'UserInfo')),
+    NotNull
+  ),
 ]);
 
 const employees = CreateTable('employees', [
@@ -31,7 +37,7 @@ const employees = CreateTable('employees', [
 const hasClearance = CreateTable('has_clearance', [
   ColumnDef('employee_id', UUID, NotNull, Ref('employees', 'id')),
   ColumnDef('planet_id', UUID, NotNull, Ref('planets', 'id')),
-  ColumnDef('level', INTEGER, NotNull),
+  ColumnDef('level', DataType.withTsTypes(INTEGER, TsType.inline(`1 | 2 | 3`)), NotNull),
   TableConstraints.PrimaryKey('employee_id', 'planet_id'),
 ]);
 

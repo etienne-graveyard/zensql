@@ -7,6 +7,8 @@ import {
   ValueOperator,
   Operators,
   Operator,
+  DataTypeInternal,
+  DataTypeUtils,
 } from '@zensql/ast';
 
 export const Serializer = {
@@ -29,7 +31,7 @@ function formatOperator(
   return parenthese ? `(${content})` : content;
 }
 
-const SERIALIZER: {
+const NODE_SERIALIZER: {
   [K in NodeType]: (node: NodeInternal<K>, parentPrecedence: number | null) => string;
 } = {
   Bool: node => (node.value ? 'TRUE' : 'FALSE'),
@@ -92,15 +94,6 @@ const SERIALIZER: {
       node.items,
       ', '
     )});`;
-  },
-  DataTypeIntParams: node => {
-    return node.dt + (node.param !== null ? `(${node.param})` : '');
-  },
-  DataTypeNoParams: node => {
-    return node.dt;
-  },
-  DataTypeNumeric: node => {
-    return node.dt + (node.params !== null ? `(${node.params.p}, ${node.params.s})` : '');
   },
   Empty: () => '',
   FromExpression: node => {
@@ -214,6 +207,11 @@ const SERIALIZER: {
       node.name ? `CONSTRAINT ${serializeInternal(node.name, null)} ` : ``
     }${serializeInternal(node.constraint, null)}`;
   },
+  DataType: node => {
+    return serializeDataType(node.dt);
+  },
+  TsExternalType: () => ``,
+  TsInlineType: () => ``,
 };
 
 function serializeInternal(
@@ -223,7 +221,7 @@ function serializeInternal(
   if (Array.isArray(node)) {
     return node.map(serializeInternal).join(`\n`);
   }
-  const ser = SERIALIZER[node.type];
+  const ser = NODE_SERIALIZER[node.type];
   if (ser) {
     return ser(node as any, parentPrecedence);
   }
@@ -246,4 +244,38 @@ function serializeArray(expr: NodeInternal | Array<NodeInternal>, sep: string = 
     return expr.map(serializeInternal).join(sep);
   }
   return serializeInternal(expr, null);
+}
+
+function serializeDataType(dt: DataTypeInternal): string {
+  if (
+    DataTypeUtils.is('BOOL', dt) ||
+    DataTypeUtils.is('BOOLEAN', dt) ||
+    DataTypeUtils.is('TEXT', dt) ||
+    DataTypeUtils.is('INT', dt) ||
+    DataTypeUtils.is('SMALLINT', dt) ||
+    DataTypeUtils.is('INTEGER', dt) ||
+    DataTypeUtils.is('SERIAL', dt) ||
+    DataTypeUtils.is('DATE', dt) ||
+    DataTypeUtils.is('UUID', dt) ||
+    DataTypeUtils.is('REAL', dt) ||
+    DataTypeUtils.is('JSON', dt) ||
+    DataTypeUtils.is('JSONB', dt)
+  ) {
+    return dt.type;
+  }
+  if (
+    DataTypeUtils.is('CHAR', dt) ||
+    DataTypeUtils.is('CHARACTER', dt) ||
+    DataTypeUtils.is('VARCHAR', dt) ||
+    DataTypeUtils.is('TIME', dt) ||
+    DataTypeUtils.is('TIMESTAMP', dt) ||
+    DataTypeUtils.is('TIMESTAMPTZ', dt) ||
+    DataTypeUtils.is('INTERVAL', dt)
+  ) {
+    return `${dt.type}${dt.param === null ? '' : `(${dt.param})`}`;
+  }
+  if (DataTypeUtils.is('NUMERIC', dt) || DataTypeUtils.is('DECIMAL', dt)) {
+    return `${dt.type}${dt.params === null ? '' : `(${dt.params.p},${dt.params.s})`}`;
+  }
+  throw new Error(`Unsuported serialize on DataType of type ${(dt as any).type}`);
 }

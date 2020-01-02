@@ -8,8 +8,6 @@ import {
   Node,
   NodesData,
   NodeType,
-  DataTypes,
-  DataTypeNameAny,
   Table,
 } from '@zensql/ast';
 
@@ -26,8 +24,6 @@ export function ParserUtils(input: TokenStream) {
     isKeywordToken,
     isPunctuation,
     parseIdentifier,
-    isDataType,
-    skipDataType,
     parseInteger,
     parseTable,
     createNode,
@@ -68,19 +64,6 @@ export function ParserUtils(input: TokenStream) {
     );
   }
 
-  function isDataType(dt?: DataTypeNameAny): false | TokenIdentifier {
-    const tok = input.maybePeek();
-    return tok !== null && isDataTypeToken(tok, dt) ? tok : false;
-  }
-
-  function isDataTypeToken(tok: Token, dt?: DataTypeNameAny): tok is TokenIdentifier {
-    return (
-      tok !== null &&
-      TokenIs.Identifier(tok) &&
-      (dt ? tok.value.toUpperCase() === dt : DataTypes.isDataType(tok.value.toUpperCase()))
-    );
-  }
-
   function skipStar(): void {
     if (isStar()) {
       input.next();
@@ -94,14 +77,6 @@ export function ParserUtils(input: TokenStream) {
       input.next();
     } else {
       input.croak('Expecting keywork: "' + keyword + '"');
-    }
-  }
-
-  function skipDataType(dt?: DataTypeNameAny): void {
-    if (isDataType(dt)) {
-      input.next();
-    } else {
-      input.croak(`Expecting DataType` + dt ? ` "${dt}"` : '');
     }
   }
 

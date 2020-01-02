@@ -9,6 +9,7 @@ import {
   PrimaryKeyConstraint,
   UniqueConstraint,
   ReferenceConstraint,
+  DataTypeInternal,
 } from '@zensql/ast';
 import { buildIdentifier } from './utils';
 
@@ -27,13 +28,16 @@ export function CreateTable(
 
 export function ColumnDef(
   columnName: string,
-  type: DataType,
+  type: DataType | DataTypeInternal,
   ...constraints: Array<Constraint>
 ): ColumnDef {
+  const dataType: DataType = Node.is('DataType', type as any)
+    ? (type as any)
+    : Node.create('DataType', { dt: type as any, tsType: null });
   return Node.create('ColumnDef', {
     name: buildIdentifier(columnName),
     constraints,
-    dataType: type,
+    dataType,
   });
 }
 
