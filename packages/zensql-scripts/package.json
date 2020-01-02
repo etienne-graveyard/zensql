@@ -26,7 +26,7 @@
     "inquirer": "^7.0.0",
     "pg": "^7.14.0",
     "prettier": "^1.19.1",
-    "yup": "^0.27.0"
+    "yup": "^0.28.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.0.1",
@@ -34,7 +34,7 @@
     "@types/pg": "^7.11.2",
     "@types/prettier": "^1.19.0",
     "@types/yup": "^0.26.24",
-    "tsdx": "^0.11.0"
+    "tsdx": "^0.12.1"
   },
   "publishConfig": {
     "access": "public"
