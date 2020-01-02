@@ -11,6 +11,7 @@ import {
   ColumnAllFromTable,
   SelectColumns,
   FromExpression,
+  Variable,
 } from '@zensql/ast';
 import { buildIdentifier } from './utils';
 
@@ -39,13 +40,15 @@ export function Select(options: SelectOptions): Select {
 export interface FromExpressionOptions {
   tables: Array<TableExpression> | TableExpression;
   where?: Expression | null;
+  limit?: number | Variable | null;
 }
 
 export function FromExpression(options: FromExpressionOptions): FromExpression {
-  const { tables, where = null } = options;
+  const { tables, where = null, limit = null } = options;
   return Node.create('FromExpression', {
     tables: Array.isArray(tables) ? tables : [tables],
     where,
+    limit: typeof limit === 'number' ? Node.create('Numeric', { value: limit }) : limit,
   });
 }
 

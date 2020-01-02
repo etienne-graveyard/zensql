@@ -41,7 +41,9 @@ async function print(options: Options): Promise<void> {
     ` */`,
     ``,
     `import { Pool, QueryResult } from "pg";`,
-    ...imports.map(imp => `import { ${imp.names.join(', ')} } from '${imp.module}';`),
+    ...normalizeImports(imports).map(
+      imp => `import { ${imp.names.join(', ')} } from '${imp.module}';`
+    ),
     ``,
     content,
   ].join('\n');
@@ -134,7 +136,7 @@ function printSelectQuery(query: SelectQueryResolved): ContentWithImports {
     ]
       .filter(v => v !== null)
       .join('\n'),
-    imports: normalizeImports([...(option === null ? [] : option.imports), ...columnsImports]),
+    imports: [...(option === null ? [] : option.imports), ...columnsImports],
   };
 }
 
@@ -157,7 +159,7 @@ function printOptions(variables: Array<VariableResolved>): ContentWithImports | 
     content: `params: { ${variables
       .map(v => `${v.name}: ${generateTypes(v.type).content}`)
       .join('; ')} }`,
-    imports: normalizeImports(imports),
+    imports: imports,
   };
 }
 

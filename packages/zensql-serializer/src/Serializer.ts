@@ -100,6 +100,7 @@ const NODE_SERIALIZER: {
     return [
       `FROM ${serializeArray(node.tables)}`,
       node.where === null ? null : `WHERE ${serializeInternal(node.where, null)}`,
+      node.limit === null ? null : `LIMIT ${serializeInternal(node.limit, null)}`,
     ]
       .filter((v): v is string => v !== null)
       .join(' ');

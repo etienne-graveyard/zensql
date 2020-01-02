@@ -111,6 +111,7 @@ export interface NodesData {
   FromExpression: {
     tables: Array<TableExpression>;
     where: Expression | null;
+    limit: Numeric | Variable | null;
   };
 
   // Constraints

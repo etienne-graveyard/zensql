@@ -14,6 +14,7 @@ const getClientById = Select({
   from: FromExpression({
     tables: Table('clients'),
     where: Equal(Column('id'), Variable('clientId')),
+    limit: 1,
   }),
 });
 
