@@ -1,5 +1,0 @@
-CREATE TABLE planets (
-  id UUID PRIMARY KEY,
-  name TEXT NOT NULL
-);
-

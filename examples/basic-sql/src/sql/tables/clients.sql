@@ -1,5 +1,0 @@
-CREATE TABLE clients (
-  id INTEGER PRIMARY KEY,
-  name TEXT NOT NULL
-);
-
