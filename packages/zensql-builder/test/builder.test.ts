@@ -7,13 +7,13 @@ it('build a create table', () => {
     items: [
       {
         constraints: [],
-        dataType: { dt: 'UUID', type: 'DataTypeNoParams' },
+        dataType: { dt: { type: 'UUID' }, tsType: null, type: 'DataType' },
         name: { caseSensitive: false, originalValue: 'id', type: 'Identifier', value: 'id' },
         type: 'ColumnDef',
       },
       {
         constraints: [],
-        dataType: { dt: 'TEXT', type: 'DataTypeNoParams' },
+        dataType: { dt: { type: 'TEXT' }, tsType: null, type: 'DataType' },
         name: { caseSensitive: false, originalValue: 'name', type: 'Identifier', value: 'name' },
         type: 'ColumnDef',
       },
