@@ -17,7 +17,11 @@ const getClientById = Select({
   }),
 });
 
-const insertClient = InsertInto('clients', ['id', 'name'], [Variable('id'), Variable('name')]);
+const insertClient = InsertInto(
+  'clients',
+  ['id', 'name', 'infos'],
+  [Variable('id'), Variable('name'), Variable('infos')]
+);
 
 const getAllClearance = Select({
   columns: ColumnAll(),
