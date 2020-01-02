@@ -23,6 +23,7 @@ it('parse a simple request', () => {
       ],
       type: 'FromExpression',
       where: null,
+      limit: null,
     },
     columns: [
       {

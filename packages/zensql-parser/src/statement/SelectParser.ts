@@ -71,6 +71,8 @@ export function SelectParser(input: TokenStream) {
     return createNode('FromExpression', {
       tables,
       where,
+      // TODO: parse LIMIT
+      limit: null,
     });
   }
 

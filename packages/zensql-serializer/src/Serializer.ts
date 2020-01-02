@@ -222,6 +222,9 @@ function serializeInternal(
   if (Array.isArray(node)) {
     return node.map(serializeInternal).join(`\n`);
   }
+  if (!node || !node.type) {
+    throw new Error('Invalid Node');
+  }
   const ser = NODE_SERIALIZER[node.type];
   if (ser) {
     return ser(node as any, parentPrecedence);
