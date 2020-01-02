@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "ts-node-dev ./src/index.ts",
     "generate": "run-ts",
-    "setup": "run-ts",
+    "setup": "run-ts zensql-example",
     "start": "ts-node ./src/index.ts"
   },
   "dependencies": {

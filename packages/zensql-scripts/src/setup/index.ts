@@ -115,7 +115,7 @@ async function dropAllTables(pool: Pool): Promise<boolean> {
   await prevTablesWithCounts.reduce<Promise<void>>(async (acc, item) => {
     await acc;
     console.info(`Deleting ${item.name}`);
-    await pool.query(`DROP TABLE ${item.name}`);
+    await pool.query(`DROP TABLE IF EXISTS ${item.name} CASCADE`);
   }, Promise.resolve());
 
   return true;
