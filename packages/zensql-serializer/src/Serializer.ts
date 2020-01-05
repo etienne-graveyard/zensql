@@ -108,7 +108,7 @@ const NODE_SERIALIZER: {
   Identifier: node => {
     if (node.caseSensitive) {
       // TODO: handle escaped
-      return `"${node.value}"`;
+      return `'${node.value}'`;
     }
     return node.value;
   },
@@ -139,7 +139,7 @@ const NODE_SERIALIZER: {
   },
   Str: node => {
     // TODO: handle escape !!
-    return `"${node.value}"`;
+    return `'${node.value}'`;
   },
   Table: node => {
     return serializeCol(node.schema, node.table, null);
@@ -203,7 +203,7 @@ const NODE_SERIALIZER: {
       null
     )};`;
   },
-  AddContraint: node => {
+  AddConstraint: node => {
     return `ADD ${
       node.name ? `CONSTRAINT ${serializeInternal(node.name, null)} ` : ``
     }${serializeInternal(node.constraint, null)}`;
@@ -213,6 +213,14 @@ const NODE_SERIALIZER: {
   },
   TsExternalType: () => ``,
   TsInlineType: () => ``,
+  UpdateItem: node => {
+    return `${serializeInternal(node.column, null)} = ${serializeInternal(node.value, null)}`;
+  },
+  UpdateStatement: node => {
+    return `UPDATE ${serializeInternal(node.table, null)} SET ${serializeArray(node.items)}${
+      node.where === null ? '' : ` WHERE ${serializeInternal(node.where, null)}`
+    };`;
+  },
 };
 
 function serializeInternal(

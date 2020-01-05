@@ -2,7 +2,7 @@ import {
   AlterTableStatement,
   Node,
   AlterTableItem,
-  AddContraint,
+  AddConstraint,
   TableConstraint,
   Identifier,
 } from '@zensql/ast';
@@ -18,11 +18,11 @@ export function AlterTable(table: string | Identifier, item: AlterTableItem): Al
   });
 }
 
-export function AddContraint(
+export function AddConstraint(
   constraint: TableConstraint,
   name?: string | Identifier
-): AddContraint {
-  return Node.create('AddContraint', {
+): AddConstraint {
+  return Node.create('AddConstraint', {
     constraint,
     name: name === undefined ? null : buildIdentifier(name),
   });

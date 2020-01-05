@@ -75,6 +75,23 @@ function resolveExpression(
       type: col.type,
     };
   }
+  if (Node.is('Bool', expr)) {
+    return {
+      resolved: true,
+      type: {
+        dt: {
+          type: 'DataType',
+          dt: {
+            type: 'BOOLEAN',
+          },
+          tsType: null,
+          cursor: expr.cursor,
+        },
+        nullable: false,
+      },
+      variables: [],
+    };
+  }
   if (Node.is('Str', expr)) {
     return {
       resolved: true,

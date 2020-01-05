@@ -1,6 +1,11 @@
 import path from 'path';
 import fse from 'fs-extra';
-import { QueryResolved, SelectQueryResolved, InsertQueryResolved } from './Query';
+import {
+  QueryResolved,
+  SelectQueryResolved,
+  InsertQueryResolved,
+  UpdateQueryResolved,
+} from './Query';
 import { Variable } from './Variable';
 import { saveFile } from '../common/utils';
 import { ColumnType } from '../common/ColumnUtils';
@@ -72,13 +77,15 @@ function printQuery(query: QueryResolved): ContentWithImports {
   if (query.type === 'Select') {
     return printSelectQuery(query);
   }
-  if (query.type === 'Insert') {
-    return printInsertQuery(query);
+  if (query.type === 'Insert' || query.type === 'Update') {
+    return printInsertOrUpdateQuery(query);
   }
   throw new Error('Not implemented yet');
 }
 
-function printInsertQuery(query: InsertQueryResolved): ContentWithImports {
+function printInsertOrUpdateQuery(
+  query: InsertQueryResolved | UpdateQueryResolved
+): ContentWithImports {
   const outQuery = Variable.replace(query.query, query.variables);
 
   const option = printOptions(query.variables);
@@ -116,7 +123,7 @@ function printSelectQuery(query: SelectQueryResolved): ContentWithImports {
 
   return {
     content: [
-      `interface ${interfaceName} {`,
+      `export interface ${interfaceName} {`,
       ...query.columns.map(col => {
         return `  ${col.alias ? col.alias : col.column}: ${generateTypes(col.type).content};`;
       }),

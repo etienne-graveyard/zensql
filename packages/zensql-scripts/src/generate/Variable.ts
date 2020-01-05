@@ -1,5 +1,14 @@
 import { ColumnResolved, ColumnUtils } from '../common/ColumnUtils';
-import { Expression, NodeInternal, Node, NodeType, InsertIntoStatement, Select } from '@zensql/ast';
+import {
+  Expression,
+  NodeInternal,
+  Node,
+  NodeType,
+  InsertIntoStatement,
+  Select,
+  CompareOperator,
+  UpdateStatement,
+} from '@zensql/ast';
 import { ExpressionUtils, VariableResolved } from '../common/ExpressionUtils';
 import { TableUtils } from '../common/TableUtils';
 import { Schema } from '../common/SchemaUtils';
@@ -21,9 +30,6 @@ function resolveVariables<T extends NodeType>(
   if (Node.is('InsertIntoStatement', query)) {
     const table = TableUtils.resolveTable(schema, query.table);
     const columns = ColumnUtils.resolveOnTable(table, query.columns);
-    //  query.columns
-    //   ? query.columns.map(col => ColumnUtils.resolveSingle(col, allColumns))
-    //   : table.columns;
     const result: Array<VariableResolved> = [];
     query.values.forEach(vals => {
       vals.values.forEach((expr, index) => {
@@ -32,6 +38,28 @@ function resolveVariables<T extends NodeType>(
       });
     });
     return result;
+  }
+  if (Node.is('UpdateStatement', query)) {
+    const table = TableUtils.resolveTable(schema, query.table);
+    const allColumns = ColumnUtils.findAll([table]);
+    const allVariables = resolveVariablesInExpression(allColumns, query.where);
+    query.items.forEach((item, index) => {
+      const expr = Node.create('CompareOperation', {
+        left: Node.create('Column', {
+          schema: null,
+          table: null,
+          column: item.column,
+        }),
+        operator: CompareOperator.Equal,
+        right: item.value,
+      });
+      const res = ExpressionUtils.resolve(allColumns, expr);
+      if (res.resolved === false) {
+        throw new Error(`Cannot resolve item ${index} in UPDATE !`);
+      }
+      allVariables.push(...res.variables);
+    });
+    return allVariables;
   }
   throw new Error(`Cannot resolve variables in Node if type ${query.type}`);
 }
@@ -98,6 +126,9 @@ function replaceVariables<T extends NodeType>(
   if (Node.is('InsertIntoStatement', query)) {
     return replaceVariablesInInsert(query, variables);
   }
+  if (Node.is('UpdateStatement', query)) {
+    return replaceVariablesInUpdate(query, variables);
+  }
   throw new Error(`Replacing variables in ${query.type} is not suported`);
 }
 
@@ -110,6 +141,21 @@ function replaceVariablesInInsert(
     values: query.values.map(vals => ({
       ...vals,
       values: vals.values.map(exp => replaceVariableInExpression(exp, variables)),
+    })),
+  };
+  return transformedQuery;
+}
+
+function replaceVariablesInUpdate(
+  query: UpdateStatement,
+  variables: Array<VariableResolved>
+): UpdateStatement {
+  const transformedQuery: UpdateStatement = {
+    ...query,
+    where: query.where ? replaceVariableInExpression(query.where, variables) : null,
+    items: query.items.map(item => ({
+      ...item,
+      value: replaceVariableInExpression(item.value, variables),
     })),
   };
   return transformedQuery;

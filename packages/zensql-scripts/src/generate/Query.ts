@@ -1,4 +1,4 @@
-import { Node, Select, InsertIntoStatement } from '@zensql/ast';
+import { Node, Select, InsertIntoStatement, UpdateStatement } from '@zensql/ast';
 import { ColumnResolved, ColumnUtils } from '../common/ColumnUtils';
 import { Variable } from './Variable';
 import { TableUtils } from '../common/TableUtils';
@@ -24,18 +24,28 @@ export interface InsertQueryResolved {
   name: string;
 }
 
-export type QueryResolved = SelectQueryResolved | InsertQueryResolved;
+export interface UpdateQueryResolved {
+  type: 'Update';
+  query: UpdateStatement;
+  variables: Array<VariableResolved>;
+  name: string;
+}
+
+export type QueryResolved = SelectQueryResolved | InsertQueryResolved | UpdateQueryResolved;
 
 function resolveQuery(
   schema: Schema,
   name: string,
-  query: Select | InsertIntoStatement
+  query: Select | InsertIntoStatement | UpdateStatement
 ): QueryResolved {
   if (Node.is('Select', query)) {
     return resolveSelectQuery(schema, name, query);
   }
   if (Node.is('InsertIntoStatement', query)) {
     return resolveInsertQuery(schema, name, query);
+  }
+  if (Node.is('UpdateStatement', query)) {
+    return resolveUpdateQuery(schema, name, query);
   }
   throw new Error(`Invalid query type ${(query as any).type}`);
 }
@@ -66,5 +76,20 @@ function resolveSelectQuery(schema: Schema, name: string, query: Select): Select
     columns,
     variables,
     name,
+  };
+}
+
+function resolveUpdateQuery(
+  schema: Schema,
+  name: string,
+  query: UpdateStatement
+): UpdateQueryResolved {
+  const variables = Variable.resolve(schema, query);
+
+  return {
+    type: 'Update',
+    query,
+    name,
+    variables,
   };
 }

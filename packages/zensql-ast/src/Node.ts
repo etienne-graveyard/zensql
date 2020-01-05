@@ -156,9 +156,15 @@ export interface NodesData {
   };
 
   // Alter
-  AddContraint: {
+  AddConstraint: {
     name: Identifier | null;
     constraint: TableConstraint;
+  };
+
+  // Update
+  UpdateItem: {
+    column: Identifier;
+    value: Expression;
   };
 
   // Statements
@@ -179,6 +185,11 @@ export interface NodesData {
   AlterTableStatement: {
     table: Table;
     item: AlterTableItem;
+  };
+  UpdateStatement: {
+    table: Table;
+    items: Array<UpdateItem>;
+    where: Expression | null;
   };
 }
 
@@ -233,9 +244,11 @@ export type UniqueConstraint = NodeInternal<'UniqueConstraint'>;
 export type ValueOperation = NodeInternal<'ValueOperation'>;
 export type Str = NodeInternal<'Str'>;
 export type When = NodeInternal<'When'>;
-export type AddContraint = NodeInternal<'AddContraint'>;
+export type AddConstraint = NodeInternal<'AddConstraint'>;
 export type TsInlineType = NodeInternal<'TsInlineType'>;
 export type TsExternalType = NodeInternal<'TsExternalType'>;
+export type UpdateItem = NodeInternal<'UpdateItem'>;
+export type UpdateStatement = NodeInternal<'UpdateStatement'>;
 
 // Alias
 export type Value = Identifier | Str | Numeric | Bool | Null;
@@ -254,5 +267,5 @@ export type Constraint =
 export type TableConstraint = PrimaryKeyTableConstraint | ReferenceTableConstraint;
 export type Statement = Select | CreateTableStatement | InsertIntoStatement | AlterTableStatement;
 export type Statements = Array<Statement>;
-export type AlterTableItem = AddContraint;
+export type AlterTableItem = AddConstraint;
 export type TsType = TsExternalType | TsInlineType;

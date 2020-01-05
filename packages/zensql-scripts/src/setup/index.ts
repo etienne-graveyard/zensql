@@ -6,6 +6,7 @@ import { SchemaUtils, Schema } from '../common/SchemaUtils';
 export interface SetupOptions {
   connectUrl?: string;
   schema: Schema;
+  afterSetup?: (pool: Pool) => Promise<any>;
 }
 
 interface TableWithCount {
@@ -19,7 +20,7 @@ export async function setup(options: SetupOptions) {
 
   const connectUrlResolved = connectUrl === undefined ? await getConnectUrl() : connectUrl;
 
-  console.log({ connectUrl: connectUrlResolved });
+  console.info(`connectUrl: ${connectUrlResolved}`);
 
   const pool = new Pool({
     connectionString: connectUrlResolved,
@@ -61,6 +62,10 @@ export async function setup(options: SetupOptions) {
     .join('\n\n');
   console.info(`Creating constraints`);
   await pool.query(allConstraintStatements);
+
+  if (options.afterSetup) {
+    await options.afterSetup(pool);
+  }
 
   await pool.end();
 }

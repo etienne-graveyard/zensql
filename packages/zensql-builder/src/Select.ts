@@ -4,8 +4,6 @@ import {
   SelectColumnsItem,
   TableExpression,
   Expression,
-  Table,
-  TableAlias,
   LeftJoin,
   ColumnAll,
   ColumnAllFromTable,
@@ -14,14 +12,6 @@ import {
   Variable,
 } from '@zensql/ast';
 import { buildIdentifier } from './utils';
-
-export function ColumnAll(): ColumnAll {
-  return Node.create('ColumnAll', {});
-}
-
-export function ColumnAllFromTable(table: string): ColumnAllFromTable {
-  return Node.create('ColumnAllFromTable', { schema: null, table: buildIdentifier(table) });
-}
 
 export interface SelectOptions {
   columns: SelectColumnsItem | SelectColumns;
@@ -37,6 +27,14 @@ export function Select(options: SelectOptions): Select {
   });
 }
 
+export function ColumnAll(): ColumnAll {
+  return Node.create('ColumnAll', {});
+}
+
+export function ColumnAllFromTable(table: string): ColumnAllFromTable {
+  return Node.create('ColumnAllFromTable', { schema: null, table: buildIdentifier(table) });
+}
+
 export interface FromExpressionOptions {
   tables: Array<TableExpression> | TableExpression;
   where?: Expression | null;
@@ -50,16 +48,6 @@ export function FromExpression(options: FromExpressionOptions): FromExpression {
     where,
     limit: typeof limit === 'number' ? Node.create('Numeric', { value: limit }) : limit,
   });
-}
-
-export function Table(table: string): Table;
-export function Table(table: string, alias: string): TableAlias;
-export function Table(table: string, alias?: string): Table | TableAlias {
-  const tableNode = Node.create('Table', { schema: null, table: buildIdentifier(table) });
-  if (alias === undefined) {
-    return tableNode;
-  }
-  return Node.create('TableAlias', { table: tableNode, alias: buildIdentifier(alias) });
 }
 
 export interface LeftJoinOptions {
