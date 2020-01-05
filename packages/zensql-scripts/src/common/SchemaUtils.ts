@@ -43,7 +43,7 @@ function resolveSchema(schema: Schema): SchemaResolved {
     table.constraints.forEach(constraint => {
       const createContraint: AlterTableStatement = Builder.AlterTable(
         table.table.table.table,
-        Builder.AddContraint(
+        Builder.AddConstraint(
           TableConstraints.ReferenceTableConstraint(constraint.column, constraint.foreignKey)
         )
       );
