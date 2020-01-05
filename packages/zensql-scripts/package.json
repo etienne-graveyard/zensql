@@ -1,6 +1,6 @@
 {
   "name": "@zensql/scripts",
-  "version": "1.0.0-alpha.19",
+  "version": "1.0.0-alpha.20",
   "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
@@ -18,10 +18,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@zensql/ast": "^1.0.0-alpha.18",
-    "@zensql/builder": "^1.0.0-alpha.18",
-    "@zensql/parser": "^1.0.0-alpha.18",
-    "@zensql/serializer": "^1.0.0-alpha.18",
+    "@zensql/ast": "^1.0.0-alpha.20",
+    "@zensql/builder": "^1.0.0-alpha.20",
+    "@zensql/parser": "^1.0.0-alpha.20",
+    "@zensql/serializer": "^1.0.0-alpha.20",
     "fs-extra": "^8.1.0",
     "inquirer": "^7.0.0",
     "pg": "^7.14.0",
