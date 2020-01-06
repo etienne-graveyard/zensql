@@ -11,7 +11,7 @@ export const Node = {
 
 function createNode<K extends keyof NodesData>(
   type: K,
-  data: NodesData[K],
+  data: Omit<NodeInternal<K>, 'type' | 'cursor'>,
   cursor?: Cursor
 ): AllNodes[K] {
   const node: NodeInternal<K> = {
