@@ -21,5 +21,11 @@ export function expressionFrom(val: Expression | string | number | boolean): Exp
   if (typeof val === 'boolean') {
     return Node.create('Bool', { value: val });
   }
-  return val;
+  if (val === null) {
+    return Node.create('Null', {});
+  }
+  if ('type' in val && Node.is(val.type, val)) {
+    return val;
+  }
+  throw new Error(`Cannot convert ${val} to Expression Node !`);
 }

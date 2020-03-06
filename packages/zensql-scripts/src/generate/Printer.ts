@@ -10,7 +10,7 @@ import { Variable } from './Variable';
 import { saveFile } from '../common/utils';
 import { ColumnType } from '../common/ColumnUtils';
 import { Serializer } from '@zensql/serializer';
-import { Node } from '@zensql/ast';
+import { Node, Null } from '@zensql/ast';
 import { VariableResolved } from '../common/ExpressionUtils';
 
 interface Import {
@@ -170,10 +170,16 @@ function printOptions(variables: Array<VariableResolved>): ContentWithImports | 
   };
 }
 
-function generateTypes(column: ColumnType | null): ContentWithImports {
+function generateTypes(column: ColumnType | null | Null): ContentWithImports {
   if (column === null) {
     return {
       content: 'any',
+      imports: [],
+    };
+  }
+  if ('type' in column && Node.is('Null', column)) {
+    return {
+      content: 'null',
       imports: [],
     };
   }

@@ -1,5 +1,5 @@
 import { ColumnType, ColumnResolved, ColumnUtils } from './ColumnUtils';
-import { Expression, Node } from '@zensql/ast';
+import { Expression, Node, Null } from '@zensql/ast';
 
 export const ExpressionUtils = {
   resolve: resolveExpression,
@@ -7,12 +7,12 @@ export const ExpressionUtils = {
 
 export interface VariableResolved {
   name: string;
-  type: null | ColumnType;
+  type: Null | ColumnType;
 }
 
 interface ResolvedExpression {
   resolved: true;
-  type: ColumnType;
+  type: ColumnType | Null;
   variables: Array<VariableResolved>;
 }
 
@@ -124,6 +124,14 @@ function resolveExpression(
         },
         nullable: false,
       },
+      variables: [],
+    };
+  }
+
+  if (Node.is('Null', expr)) {
+    return {
+      resolved: true,
+      type: expr,
       variables: [],
     };
   }
