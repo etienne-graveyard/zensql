@@ -7,11 +7,11 @@
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
   "main": "index.js",
   "devDependencies": {
-    "@types/fs-extra": "^8.0.1",
+    "@types/fs-extra": "^8.1.0",
     "@types/prettier": "^1.19.0",
-    "autocannon": "^4.4.0",
+    "autocannon": "^4.6.0",
     "fs-extra": "^8.1.0",
     "prettier": "^1.19.1",
-    "sort-package-json": "^1.24.0"
+    "sort-package-json": "^1.40.0"
   }
 }

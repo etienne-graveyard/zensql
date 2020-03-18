@@ -14,16 +14,16 @@
     "start": "ts-node ./src/index.ts"
   },
   "dependencies": {
-    "pg": "^7.14.0",
+    "pg": "^7.18.2",
     "zensql": "^1.0.0-alpha.21"
   },
   "devDependencies": {
-    "@types/pg": "^7.11.2",
+    "@types/pg": "^7.14.3",
     "@zensql/builder": "^1.0.0-alpha.20",
     "@zensql/scripts": "^1.0.0-alpha.21",
-    "run-ts": "^1.0.4",
-    "ts-node": "^8.5.2",
+    "run-ts": "^1.1.0",
+    "ts-node": "^8.7.0",
     "ts-node-dev": "^1.0.0-pre.44",
-    "typescript": "^3.7.3"
+    "typescript": "^3.8.3"
   }
 }

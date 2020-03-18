@@ -23,18 +23,18 @@
     "@zensql/parser": "^1.0.0-alpha.20",
     "@zensql/serializer": "^1.0.0-alpha.20",
     "fs-extra": "^8.1.0",
-    "inquirer": "^7.0.0",
-    "pg": "^7.14.0",
+    "inquirer": "^7.1.0",
+    "pg": "^7.18.2",
     "prettier": "^1.19.1",
-    "yup": "^0.28.0"
+    "yup": "^0.28.3"
   },
   "devDependencies": {
-    "@types/fs-extra": "^8.0.1",
+    "@types/fs-extra": "^8.1.0",
     "@types/inquirer": "^6.5.0",
-    "@types/pg": "^7.11.2",
+    "@types/pg": "^7.14.3",
     "@types/prettier": "^1.19.0",
-    "@types/yup": "^0.26.24",
-    "tsdx": "^0.12.1"
+    "@types/yup": "^0.26.33",
+    "tsdx": "^0.12.3"
   },
   "publishConfig": {
     "access": "public"
