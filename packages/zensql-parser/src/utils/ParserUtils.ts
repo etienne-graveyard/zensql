@@ -30,7 +30,7 @@ export function ParserUtils(input: TokenStream) {
   };
 
   function createNode<K extends NodeType>(type: K, data: NodesData[K]): NodeInternal<K> {
-    return Node.create(type, data, input.cursor());
+    return Node.create(type, data as any, input.cursor());
   }
 
   function skipComment(): void {
