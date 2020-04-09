@@ -25,7 +25,7 @@
     "@zensql/scripts": "^1.0.0-alpha.21"
   },
   "devDependencies": {
-    "tsdx": "^0.12.3"
+    "tsdx": "^0.13.1"
   },
   "publishConfig": {
     "access": "public"

@@ -22,19 +22,19 @@
     "@zensql/builder": "^1.0.0-alpha.20",
     "@zensql/parser": "^1.0.0-alpha.20",
     "@zensql/serializer": "^1.0.0-alpha.20",
-    "fs-extra": "^8.1.0",
+    "fs-extra": "^9.0.0",
     "inquirer": "^7.1.0",
-    "pg": "^7.18.2",
-    "prettier": "^1.19.1",
+    "pg": "^8.0.0",
+    "prettier": "^2.0.4",
     "yup": "^0.28.3"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.1.0",
     "@types/inquirer": "^6.5.0",
     "@types/pg": "^7.14.3",
-    "@types/prettier": "^1.19.0",
+    "@types/prettier": "^2.0.0",
     "@types/yup": "^0.26.33",
-    "tsdx": "^0.12.3"
+    "tsdx": "^0.13.1"
   },
   "publishConfig": {
     "access": "public"
