@@ -1,6 +1,6 @@
 {
   "name": "@zensql/ast",
-  "version": "1.0.0-alpha.20",
+  "version": "1.0.0-alpha.22",
   "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",

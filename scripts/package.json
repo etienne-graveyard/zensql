@@ -1,6 +1,6 @@
 {
   "name": "scripts",
-  "version": "1.0.0-alpha.15",
+  "version": "1.0.0-alpha.22",
   "private": true,
   "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
