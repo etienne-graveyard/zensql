@@ -1,6 +1,6 @@
 {
   "name": "@zensql/parser",
-  "version": "1.0.0-alpha.22",
+  "version": "1.0.0-alpha.23",
   "repository": "git@github.com:etienne-dldc/zensql.git",
   "license": "MIT",
   "author": "Etienne Dldc <e.deladonchamps@gmail.com>",
@@ -17,7 +17,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@zensql/ast": "^1.0.0-alpha.22"
+    "@zensql/ast": "^1.0.0-alpha.23"
   },
   "devDependencies": {
     "@types/jest": "^26.0.8",
